@@ -19,6 +19,7 @@ extends Node2D
 var lives: int = 3
 var score: int = 0
 var balls_lost_this_level: int = 0
+var breakable_bricks_left: int = 0
 
 var game_won: bool = false
 var game_over: bool = false
@@ -37,10 +38,24 @@ func generate_bricks():
 				continue
 
 			var brick = brick_scene.instantiate()
-			if randf() < 0.25:
+			var roll = randf()
+
+			if roll < 0.10:
+				brick.indestructible = true
+				brick.points = 0
+
+			elif roll < 0.20:
+				brick.health = 3
+				brick.max_health = 3
+				brick.points = 500
+
+			elif roll < 0.45:
 				brick.health = 2
 				brick.max_health = 2
 				brick.points = 250
+				
+			if not brick.indestructible:
+				breakable_bricks_left += 1
 
 			brick.position = Vector2(
 				start_x + column * (brick_width + gap_x),
@@ -82,10 +97,6 @@ func _process(delta):
 
 		if Input.is_action_just_pressed("launch_ball"):
 			ball.launch()
-
-	if not game_won and $Bricks.get_child_count() == 0:
-		game_won = true
-		show_victory()
 
 func update_lives_label():
 	$LivesLabel.text = "Жизни: " + str(lives)
@@ -157,7 +168,13 @@ func restart_game():
 
 func _on_brick_destroyed(points: int):
 	score += points
+	breakable_bricks_left -= 1
+
 	update_score_label()
+
+	if breakable_bricks_left <= 0 and not game_won:
+		game_won = true
+		show_victory()
 	
 func update_score_label():
 	$ScoreLabel.text = "Счёт: " + str(score)

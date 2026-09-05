@@ -8,6 +8,7 @@ signal destroyed(points: int)
 @export var health: int = 1
 @export var max_health: int = 1
 @export var points: int = 100
+@export var indestructible: bool = false
 
 func _ready():
 	queue_redraw()
@@ -18,14 +19,31 @@ func _draw():
 		Vector2(width, height)
 	)
 
+	if indestructible:
+		draw_rect(rect, Color(0.15, 0.15, 0.15))
+		return
+
 	if max_health == 1:
 		draw_rect(rect, Color.WHITE)
-	elif health == max_health:
-		draw_rect(rect, Color(0.45, 0.45, 0.45))
-	else:
-		draw_rect(rect, Color(0.75, 0.75, 0.75))
+
+	elif max_health == 2:
+		if health == 2:
+			draw_rect(rect, Color(0.45, 0.45, 0.45))
+		else:
+			draw_rect(rect, Color(0.75, 0.75, 0.75))
+
+	elif max_health == 3:
+		if health == 3:
+			draw_rect(rect, Color(0.25, 0.25, 0.25))
+		elif health == 2:
+			draw_rect(rect, Color(0.50, 0.50, 0.50))
+		else:
+			draw_rect(rect, Color(0.80, 0.80, 0.80))
 
 func hit():
+	if indestructible:
+		return
+
 	health -= 1
 
 	if health <= 0:
