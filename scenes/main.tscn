@@ -17,6 +17,7 @@ size = Vector2(960, 80)
 [node name="Main" type="Node2D" unique_id=1023616930]
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
+level_pattern = 7
 
 [node name="Walls" type="Node2D" parent="." unique_id=1927932240]
 

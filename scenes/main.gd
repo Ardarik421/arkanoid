@@ -16,6 +16,8 @@ extends Node2D
 
 @export_range(0.0, 1.0) var fill_chance: float = 0.8
 
+@export var level_pattern: int = 0
+
 var lives: int = 3
 var score: int = 0
 var balls_lost_this_level: int = 0
@@ -38,21 +40,66 @@ func generate_bricks():
 				continue
 
 			var brick = brick_scene.instantiate()
-			var roll = randf()
+			var is_wall_brick = false
 
-			if roll < 0.10:
+			if level_pattern == 1:
+				is_wall_brick = column == 5 and row >= 2 and row <= 5
+
+			elif level_pattern == 2:
+				is_wall_brick = (
+					(column == 5 and row >= 1 and row <= 6)
+					or
+					(row == 3 and column >= 3 and column <= 7)
+				)
+
+			elif level_pattern == 3:
+				is_wall_brick = (
+					(column == 3 and row >= 1 and row <= 6)
+					or
+					(column == 7 and row >= 1 and row <= 6)
+				)
+			
+			elif level_pattern == 4:
+				is_wall_brick = row == 3 and column >= 2 and column <= 8
+
+			elif level_pattern == 5:
+				is_wall_brick = (
+					(row == 2 and column >= 1 and column <= 9)
+					or
+					(row == 5 and column >= 1 and column <= 9)
+				)
+
+			elif level_pattern == 6:
+				is_wall_brick = (
+					(row == 2 and column >= 1 and column <= 4)
+					or
+					(row == 4 and column >= 6 and column <= 9)
+				)
+				
+			elif level_pattern == 7:
+				is_wall_brick = (
+					row == 3
+					and column >= 1
+					and column <= 9
+					and column != 5
+				)
+
+			if is_wall_brick:
 				brick.indestructible = true
 				brick.points = 0
 
-			elif roll < 0.20:
-				brick.health = 3
-				brick.max_health = 3
-				brick.points = 500
+			else:
+				var roll = randf()
 
-			elif roll < 0.45:
-				brick.health = 2
-				brick.max_health = 2
-				brick.points = 250
+				if roll < 0.10:
+					brick.health = 3
+					brick.max_health = 3
+					brick.points = 500
+
+				elif roll < 0.35:
+					brick.health = 2
+					brick.max_health = 2
+					brick.points = 250
 				
 			if not brick.indestructible:
 				breakable_bricks_left += 1
