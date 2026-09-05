@@ -2,8 +2,8 @@ extends Node2D
 
 @export var brick_scene: PackedScene
 
-@export var rows: int = 8
-@export var columns: int = 11
+@export var rows: int = 1
+@export var columns: int = 1
 
 @export var start_x: float = 90.0
 @export var start_y: float = 100.0
@@ -16,7 +16,18 @@ extends Node2D
 
 @export_range(0.0, 1.0) var fill_chance: float = 0.8
 
-@export var level_pattern: int = 0
+enum LevelPattern {
+	RANDOM,
+	VERTICAL_WALL,
+	CROSS,
+	DOUBLE_VERTICAL,
+	HORIZONTAL_WALL,
+	DOUBLE_HORIZONTAL,
+	HORIZONTAL_PLATFORMS,
+	HORIZONTAL_GAP
+}
+
+@export var level_pattern: LevelPattern = LevelPattern.RANDOM
 
 var lives: int = 3
 var score: int = 0
@@ -26,11 +37,15 @@ var breakable_bricks_left: int = 0
 var game_won: bool = false
 var game_over: bool = false
 
+var current_level: int = 1
+
 
 func _ready():
+	apply_level_settings()
 	generate_bricks()
 	update_lives_label()
 	update_score_label()
+	update_level_label()
 
 func generate_bricks():
 	for row in range(rows):
@@ -42,41 +57,41 @@ func generate_bricks():
 			var brick = brick_scene.instantiate()
 			var is_wall_brick = false
 
-			if level_pattern == 1:
+			if level_pattern == LevelPattern.VERTICAL_WALL:
 				is_wall_brick = column == 5 and row >= 2 and row <= 5
 
-			elif level_pattern == 2:
+			elif level_pattern == LevelPattern.CROSS:
 				is_wall_brick = (
 					(column == 5 and row >= 1 and row <= 6)
 					or
 					(row == 3 and column >= 3 and column <= 7)
 				)
 
-			elif level_pattern == 3:
+			elif level_pattern == LevelPattern.DOUBLE_VERTICAL:
 				is_wall_brick = (
 					(column == 3 and row >= 1 and row <= 6)
 					or
 					(column == 7 and row >= 1 and row <= 6)
 				)
 			
-			elif level_pattern == 4:
+			elif level_pattern == LevelPattern.HORIZONTAL_WALL:
 				is_wall_brick = row == 3 and column >= 2 and column <= 8
 
-			elif level_pattern == 5:
+			elif level_pattern == LevelPattern.DOUBLE_HORIZONTAL:
 				is_wall_brick = (
 					(row == 2 and column >= 1 and column <= 9)
 					or
 					(row == 5 and column >= 1 and column <= 9)
 				)
 
-			elif level_pattern == 6:
+			elif level_pattern == LevelPattern.HORIZONTAL_PLATFORMS:
 				is_wall_brick = (
 					(row == 2 and column >= 1 and column <= 4)
 					or
 					(row == 4 and column >= 6 and column <= 9)
 				)
 				
-			elif level_pattern == 7:
+			elif level_pattern == LevelPattern.HORIZONTAL_GAP:
 				is_wall_brick = (
 					row == 3
 					and column >= 1
@@ -131,7 +146,12 @@ func _process(delta):
 	var ball = $Ball
 	var paddle = $Paddle
 
-	if game_won or game_over:
+	if game_won:
+		if Input.is_action_just_pressed("launch_ball"):
+			start_next_level()
+		return
+
+	if game_over:
 		if Input.is_action_just_pressed("launch_ball"):
 			restart_game()
 		return
@@ -144,9 +164,6 @@ func _process(delta):
 
 		if Input.is_action_just_pressed("launch_ball"):
 			ball.launch()
-
-func update_lives_label():
-	$LivesLabel.text = "Жизни: " + str(lives)
 
 func lose_life():
 	lives -= 1
@@ -162,9 +179,6 @@ func show_game_over():
 	game_over = true
 	$GameOverLabel.visible = true
 	$Paddle.can_move = false
-	print("GAME OVER сработал")
-	print("Visible: ", $GameOverLabel.visible)
-	print("Position: ", $GameOverLabel.global_position)
 	reset_ball()
 	
 func show_victory():
@@ -173,7 +187,7 @@ func show_victory():
 	score += bonus
 	update_score_label()
 
-	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — начать заново"
+	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
 	$WinLabel.visible = true
 
 	$Ball.is_attached = true
@@ -190,10 +204,12 @@ func get_level_bonus() -> int:
 		return 0
 	
 func restart_game():
+	current_level = 1
 	lives = 3
 	score = 0
 	balls_lost_this_level = 0
 
+	update_level_label()
 	update_lives_label()
 	update_score_label()
 
@@ -207,6 +223,7 @@ func restart_game():
 		$Bricks.remove_child(brick)
 		brick.queue_free()
 
+	apply_level_settings()
 	generate_bricks()
 	reset_ball()
 
@@ -222,6 +239,64 @@ func _on_brick_destroyed(points: int):
 	if breakable_bricks_left <= 0 and not game_won:
 		game_won = true
 		show_victory()
-	
+
+func update_lives_label():
+	$LivesLabel.text = "Жизни: " + str(lives)
+
 func update_score_label():
 	$ScoreLabel.text = "Счёт: " + str(score)
+	
+func update_level_label():
+	$LevelLabel.text = "Уровень: " + str(current_level)
+	
+func apply_level_settings():
+	match current_level:
+		1:
+			level_pattern = LevelPattern.RANDOM
+
+		2:
+			level_pattern = LevelPattern.VERTICAL_WALL
+
+		3:
+			level_pattern = LevelPattern.HORIZONTAL_WALL
+
+		4:
+			level_pattern = LevelPattern.CROSS
+
+		5:
+			level_pattern = LevelPattern.DOUBLE_VERTICAL
+
+		6:
+			level_pattern = LevelPattern.DOUBLE_HORIZONTAL
+
+		7:
+			level_pattern = LevelPattern.HORIZONTAL_PLATFORMS
+
+		8:
+			level_pattern = LevelPattern.HORIZONTAL_GAP
+
+		_:
+			level_pattern = LevelPattern.RANDOM
+
+func start_next_level():
+	current_level += 1
+	update_level_label()
+
+	lives = 3
+	balls_lost_this_level = 0
+
+	update_lives_label()
+
+	$WinLabel.visible = false
+	$Paddle.can_move = true
+	$Paddle.global_position = Vector2(480, 980)
+
+	for brick in $Bricks.get_children():
+		$Bricks.remove_child(brick)
+		brick.queue_free()
+
+	apply_level_settings()
+	generate_bricks()
+	reset_ball()
+
+	game_won = false

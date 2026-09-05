@@ -54,10 +54,12 @@ position = Vector2(480, 1120)
 shape = SubResource("RectangleShape2D_2k4f0")
 
 [node name="LivesLabel" type="Label" parent="." unique_id=576695795]
-offset_right = 40.0
-offset_bottom = 23.0
+offset_left = 20.0
+offset_right = 300.0
+offset_bottom = 60.0
 theme_override_font_sizes/font_size = 28
 text = "Жизни: 3"
+vertical_alignment = 1
 
 [node name="GameOverLabel" type="Label" parent="." unique_id=303475574]
 visible = false
@@ -74,7 +76,7 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 48
 text = "ИГРА ОКОНЧЕНА
 
-Чтобы начать заново, нажми SPACE
+SPACE - новая игра
 "
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -94,15 +96,29 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 48
 text = "ПОБЕДА!
 
-Чтобы продолжить, нажми SPACE"
+SPACE - продолжить"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="." unique_id=361577964]
-offset_left = 780.0
-offset_top = 20.0
-offset_right = 836.0
-offset_bottom = 43.0
+offset_right = 960.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 28
 text = "Счёт: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelLabel" type="Label" parent="." unique_id=1069848913]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 660.0
+offset_right = 940.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+text = "Уровень: 1"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_death_zone_body_entered"]
