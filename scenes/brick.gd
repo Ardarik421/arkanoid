@@ -51,3 +51,10 @@ func hit():
 		queue_free()
 	else:
 		queue_redraw()
+
+func destroy():
+	if indestructible:
+		return
+
+	destroyed.emit(points, global_position)
+	queue_free()

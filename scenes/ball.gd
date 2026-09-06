@@ -6,15 +6,18 @@ extends CharacterBody2D
 
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
-
+var is_piercing: bool = false
 
 func _ready():
 	queue_redraw()
 
-
 func _draw():
-	draw_circle(Vector2.ZERO, radius, Color.WHITE)
+	var ball_color = Color.WHITE
 
+	if is_piercing:
+		ball_color = Color(1.0, 0.45, 0.1)
+
+	draw_circle(Vector2.ZERO, radius, ball_color)
 
 func _physics_process(delta):
 	if is_attached:
@@ -29,12 +32,14 @@ func _physics_process(delta):
 			bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
-			direction = direction.bounce(collision.get_normal())
-			collider.hit()
+			if is_piercing and not collider.indestructible:
+				collider.destroy()
+			else:
+				direction = direction.bounce(collision.get_normal())
+				collider.hit()
 
 		else:
 			direction = direction.bounce(collision.get_normal())
-
 
 func bounce_from_paddle(paddle):
 	var offset = global_position.x - paddle.global_position.x
@@ -49,7 +54,7 @@ func bounce_from_paddle(paddle):
 	).normalized()
 	
 	var is_attached: bool = false
-	
+
 func attach_to_paddle():
 	is_attached = true
 

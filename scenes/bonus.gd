@@ -10,13 +10,15 @@ enum BonusType {
 	EXTRA_LIFE,
 	SLOW_BALL,
 	FAST_BALL,
-	SPLIT_BALLS
+	SPLIT_BALLS,
+	PIERCING_BALL
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
 
+
 @export var fall_speed: float = 250.0
-@export var size: float = 20.0
+@export var size: float = 28.0
 
 
 func _ready():
@@ -31,24 +33,64 @@ func _draw():
 		Vector2(size, size)
 	)
 
+	var bonus_color = Color.WHITE
+	var bonus_text = ""
+
 	match bonus_type:
 		BonusType.EXPAND_PADDLE:
-			draw_rect(rect, Color.WHITE)
+			bonus_color = Color.WHITE
+			bonus_text = "+W"
 
 		BonusType.SHRINK_PADDLE:
-			draw_rect(rect, Color(0.5, 0.5, 0.5))
-			
+			bonus_color = Color(0.5, 0.5, 0.5)
+			bonus_text = "-W"
+
 		BonusType.EXTRA_LIFE:
-			draw_rect(rect, Color(0.8, 0.8, 0.8))
-		
+			bonus_color = Color(0.8, 0.8, 0.8)
+			bonus_text = "+1"
+
 		BonusType.SLOW_BALL:
-			draw_rect(rect, Color(0.65, 0.65, 0.65))
+			bonus_color = Color(0.65, 0.65, 0.65)
+			bonus_text = "S"
 
 		BonusType.FAST_BALL:
-			draw_rect(rect, Color(0.3, 0.3, 0.3))
-			
+			bonus_color = Color(0.6, 0.3, 0.3)
+			bonus_text = "F"
+
 		BonusType.SPLIT_BALLS:
-			draw_rect(rect, Color(0.0, 0.8, 1.2))
+			bonus_color = Color(0.0, 0.8, 1.0)
+			bonus_text = "x2"
+		
+		BonusType.PIERCING_BALL:
+			bonus_color = Color(0.8, 0.6, 0.2)
+			bonus_text = "P"
+
+	draw_rect(rect, bonus_color)
+
+	var font = ThemeDB.fallback_font
+	var font_size = 12
+
+	var text_size = font.get_string_size(
+		bonus_text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size
+	)
+
+	var text_position = Vector2(
+		-text_size.x / 2.0,
+		text_size.y / 2.0
+	)
+
+	draw_string(
+		font,
+		text_position,
+		bonus_text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		Color.BLACK
+	)
 
 func _process(delta):
 	global_position.y += fall_speed * delta

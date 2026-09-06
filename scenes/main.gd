@@ -169,6 +169,8 @@ func reset_ball():
 	ball.visible = true
 	ball.set_physics_process(true)
 	ball.speed = 700.0
+	ball.is_piercing = false
+	ball.queue_redraw()
 
 	ball.global_position = Vector2(
 		paddle.global_position.x,
@@ -186,6 +188,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 
 	new_ball.global_position = source_ball.global_position
 	new_ball.speed = source_ball.speed
+	new_ball.is_piercing = source_ball.is_piercing
 	new_ball.is_attached = false
 
 	for ball in active_balls:
@@ -215,6 +218,12 @@ func set_all_balls_speed(new_speed: float):
 	for ball in active_balls:
 		if is_instance_valid(ball):
 			ball.speed = new_speed
+
+func set_all_balls_piercing(enabled: bool):
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.is_piercing = enabled
+			ball.queue_redraw()
 
 func stop_all_balls():
 	for ball in active_balls:
@@ -303,6 +312,7 @@ func show_victory():
 
 	score += bonus
 	update_score_label()
+	clear_bonuses()
 
 	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
 	$WinLabel.visible = true
@@ -376,6 +386,14 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 			
 		Bonus.BonusType.SPLIT_BALLS:
 			split_balls.call_deferred()
+			
+		Bonus.BonusType.PIERCING_BALL:
+			set_all_balls_piercing(true)
+
+func clear_bonuses():
+	for child in get_children():
+		if child is Bonus:
+			child.queue_free()
 
 # =========================
 # ИНТЕРФЕЙС
