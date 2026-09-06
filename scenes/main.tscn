@@ -18,7 +18,7 @@ size = Vector2(960, 80)
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
 test_start_level = 20
-test_pattern = 0
+use_test_level = false
 
 [node name="Walls" type="Node2D" parent="." unique_id=1927932240]
 

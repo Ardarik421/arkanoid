@@ -1,26 +1,11 @@
 extends Node2D
 
-@export var brick_scene: PackedScene
 
-@export var rows: int = 8
-@export var columns: int = 11
-
-@export var start_x: float = 90.0
-@export var start_y: float = 100.0
-
-@export var brick_width: float = 70.0
-@export var brick_height: float = 30.0
-
-@export var gap_x: float = 8.0
-@export var gap_y: float = 8.0
-
-@export_range(1, 100) var test_start_level: int = 1
-@export var use_test_level: bool = true
-@export var use_test_pattern: bool = false
-@export var test_pattern: LevelPattern = LevelPattern.VERTICAL_WALL
+# =========================
+# ПЕРЕЧИСЛЕНИЯ
+# =========================
 
 enum LevelPattern {
-	RANDOM,
 	VERTICAL_WALL,
 	CROSS,
 	DOUBLE_VERTICAL,
@@ -45,26 +30,82 @@ enum LevelStyle {
 	MAZE
 }
 
+
+# =========================
+# ССЫЛКИ НА СЦЕНЫ
+# =========================
+
+@export var brick_scene: PackedScene
+
+
+# =========================
+# НАСТРОЙКИ СЕТКИ КИРПИЧЕЙ
+# =========================
+
+@export var rows: int = 8
+@export var columns: int = 11
+
+@export var start_x: float = 90.0
+@export var start_y: float = 100.0
+
+@export var brick_width: float = 70.0
+@export var brick_height: float = 30.0
+
+@export var gap_x: float = 8.0
+@export var gap_y: float = 8.0
+
+
+# =========================
+# НАСТРОЙКИ ТЕСТИРОВАНИЯ
+# =========================
+
+@export_range(1, 100) var test_start_level: int = 1
+@export var use_test_level: bool = true
+
+@export var use_test_pattern: bool = false
+@export var test_pattern: LevelPattern = LevelPattern.VERTICAL_WALL
+
+
+# =========================
+# СОСТОЯНИЕ ИГРЫ
+# =========================
+
+var current_level: int = 1
+
 var lives: int = 3
 var score: int = 0
+
 var balls_lost_this_level: int = 0
 var breakable_bricks_left: int = 0
 
 var game_won: bool = false
 var game_over: bool = false
 
-var current_level: int = 1
 
-var active_patterns: Array[LevelPattern] = []
-var pattern_offsets: Dictionary = {}
-var pattern_variants: Dictionary = {}
-var pattern_sizes: Dictionary = {}
-
-var current_fill_chance: float = 0.8
+# =========================
+# СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
+# =========================
 
 var current_level_style: LevelStyle = LevelStyle.BALANCED
 var previous_level_style: LevelStyle = LevelStyle.BALANCED
 var has_previous_style: bool = false
+
+var current_fill_chance: float = 0.8
+
+
+# =========================
+# СОСТОЯНИЕ СТРУКТУР УРОВНЯ
+# =========================
+
+var active_patterns: Array[LevelPattern] = []
+
+var pattern_offsets: Dictionary = {}
+var pattern_variants: Dictionary = {}
+var pattern_sizes: Dictionary = {}
+
+# =========================
+# ЗАПУСК И ОСНОВНОЙ ЦИКЛ
+# =========================
 
 func _ready():
 	if use_test_level:
@@ -78,84 +119,6 @@ func _ready():
 	update_lives_label()
 	update_score_label()
 	update_level_label()
-
-func generate_bricks():
-	breakable_bricks_left = 0
-
-	var minimum_breakable_bricks: int = 10
-	var breakable_cells: Array[Vector2i] = []
-	var wall_cells: Array[Vector2i] = []
-
-	while breakable_cells.size() < minimum_breakable_bricks:
-		breakable_cells.clear()
-		wall_cells.clear()
-
-		for row in range(rows):
-			for column in range(columns):
-				var cell = Vector2i(column, row)
-				var is_wall_brick = is_wall_position(row, column)
-
-				if is_wall_brick:
-					wall_cells.append(cell)
-
-				elif randf() <= current_fill_chance:
-					breakable_cells.append(cell)
-
-	for row in range(rows):
-		for column in range(columns):
-			var cell = Vector2i(column, row)
-
-			var is_wall_brick = cell in wall_cells
-			var is_breakable_brick = cell in breakable_cells
-
-			if not is_wall_brick and not is_breakable_brick:
-				continue
-
-			var brick = brick_scene.instantiate()
-
-			if is_wall_brick:
-				brick.indestructible = true
-				brick.points = 0
-
-			else:
-				var roll = randf()
-				var three_hit_chance = get_three_hit_chance()
-				var two_hit_chance = get_two_hit_chance()
-
-				if roll < three_hit_chance:
-					brick.health = 3
-					brick.max_health = 3
-					brick.points = 500
-
-				elif roll < three_hit_chance + two_hit_chance:
-					brick.health = 2
-					brick.max_health = 2
-					brick.points = 250
-
-				breakable_bricks_left += 1
-
-			brick.position = Vector2(
-				start_x + column * (brick_width + gap_x),
-				start_y + row * (brick_height + gap_y)
-			)
-
-			$Bricks.add_child(brick)
-			brick.destroyed.connect(_on_brick_destroyed)
-
-func _on_death_zone_body_entered(body):
-	if body.name == "Ball":
-		lose_life()
-
-func reset_ball():
-	var paddle = $Paddle
-	var ball = $Ball
-
-	ball.global_position = Vector2(
-		paddle.global_position.x,
-		paddle.global_position.y - 40
-	)
-
-	ball.attach_to_paddle()
 
 func _process(delta):
 	var ball = $Ball
@@ -180,6 +143,22 @@ func _process(delta):
 		if Input.is_action_just_pressed("launch_ball"):
 			ball.launch()
 
+
+# =========================
+# УПРАВЛЕНИЕ ИГРОЙ
+# =========================
+
+func reset_ball():
+	var paddle = $Paddle
+	var ball = $Ball
+
+	ball.global_position = Vector2(
+		paddle.global_position.x,
+		paddle.global_position.y - 40
+	)
+
+	ball.attach_to_paddle()
+
 func lose_life():
 	lives -= 1
 	balls_lost_this_level += 1
@@ -190,34 +169,6 @@ func lose_life():
 	else:
 		show_game_over()
 
-func show_game_over():
-	game_over = true
-	$GameOverLabel.visible = true
-	$Paddle.can_move = false
-	reset_ball()
-	
-func show_victory():
-	var bonus = get_level_bonus()
-
-	score += bonus
-	update_score_label()
-
-	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
-	$WinLabel.visible = true
-
-	$Ball.is_attached = true
-	$Paddle.can_move = false
-
-func get_level_bonus() -> int:
-	if balls_lost_this_level == 0:
-		return 1000
-	elif balls_lost_this_level == 1:
-		return 500
-	elif balls_lost_this_level == 2:
-		return 250
-	else:
-		return 0
-	
 func restart_game():
 	current_level = 1
 	lives = 3
@@ -245,6 +196,70 @@ func restart_game():
 	game_won = false
 	game_over = false
 
+func start_next_level():
+	
+	current_level += 1
+	update_level_label()
+
+	lives = 3
+	balls_lost_this_level = 0
+
+	update_lives_label()
+
+	$WinLabel.visible = false
+	$Paddle.can_move = true
+	$Paddle.global_position = Vector2(480, 980)
+
+	for brick in $Bricks.get_children():
+		$Bricks.remove_child(brick)
+		brick.queue_free()
+
+	apply_level_settings()
+	generate_bricks()
+	reset_ball()
+
+	game_won = false
+
+# =========================
+# ПОБЕДА И ПОРАЖЕНИЕ
+# =========================
+
+func show_game_over():
+	game_over = true
+	$GameOverLabel.visible = true
+	$Paddle.can_move = false
+	reset_ball()
+
+func show_victory():
+	var bonus = get_level_bonus()
+
+	score += bonus
+	update_score_label()
+
+	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+	$WinLabel.visible = true
+
+	$Ball.is_attached = true
+	$Paddle.can_move = false
+
+func get_level_bonus() -> int:
+	if balls_lost_this_level == 0:
+		return 1000
+	elif balls_lost_this_level == 1:
+		return 500
+	elif balls_lost_this_level == 2:
+		return 250
+	else:
+		return 0
+
+# =========================
+# СОБЫТИЯ
+# =========================
+
+func _on_death_zone_body_entered(body):
+	if body.name == "Ball":
+		lose_life()
+
 func _on_brick_destroyed(points: int):
 	score += points
 	breakable_bricks_left -= 1
@@ -255,15 +270,23 @@ func _on_brick_destroyed(points: int):
 		game_won = true
 		show_victory()
 
+# =========================
+# ИНТЕРФЕЙС
+# =========================
+
 func update_lives_label():
 	$LivesLabel.text = "Жизни: " + str(lives)
 
 func update_score_label():
 	$ScoreLabel.text = "Счёт: " + str(score)
-	
+
 func update_level_label():
 	$LevelLabel.text = "Уровень: " + str(current_level)
-	
+
+# =========================
+# НАСТРОЙКА УРОВНЯ
+# =========================
+
 func apply_level_settings():
 	active_patterns.clear()
 	pattern_offsets.clear()
@@ -401,30 +424,6 @@ func apply_level_settings():
 
 	print("Patterns: ", ", ".join(pattern_names))
 
-func start_next_level():
-	
-	current_level += 1
-	update_level_label()
-
-	lives = 3
-	balls_lost_this_level = 0
-
-	update_lives_label()
-
-	$WinLabel.visible = false
-	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, 980)
-
-	for brick in $Bricks.get_children():
-		$Bricks.remove_child(brick)
-		brick.queue_free()
-
-	apply_level_settings()
-	generate_bricks()
-	reset_ball()
-
-	game_won = false
-	
 func get_level_difficulty() -> LevelDifficulty:
 	if current_level <= 3:
 		return LevelDifficulty.BEGINNER
@@ -434,7 +433,7 @@ func get_level_difficulty() -> LevelDifficulty:
 		return LevelDifficulty.HARD
 	else:
 		return LevelDifficulty.ADVANCED
-	
+
 func get_random_level_style() -> LevelStyle:
 	var difficulty = get_level_difficulty()
 	var roll = randf()
@@ -483,6 +482,91 @@ func get_random_level_style() -> LevelStyle:
 				return LevelStyle.MAZE
 
 	return LevelStyle.BALANCED
+
+func get_level_fill_chance() -> float:
+	match current_level_style:
+		LevelStyle.DENSE:
+			return randf_range(0.85, 0.95)
+
+		LevelStyle.SPARSE:
+			return randf_range(0.55, 0.68)
+
+		LevelStyle.TOUGH:
+			return randf_range(0.72, 0.82)
+
+		LevelStyle.MAZE:
+			return randf_range(0.65, 0.78)
+
+		LevelStyle.BALANCED:
+			var difficulty = get_level_difficulty()
+
+			match difficulty:
+				LevelDifficulty.BEGINNER:
+					return randf_range(0.65, 0.75)
+
+				LevelDifficulty.NORMAL:
+					return randf_range(0.70, 0.82)
+
+				LevelDifficulty.HARD:
+					return randf_range(0.72, 0.88)
+
+				LevelDifficulty.ADVANCED:
+					return randf_range(0.68, 0.90)
+
+	return 0.75
+
+# =========================
+# НАСТРОЙКА ПРОЧНОСТИ КИРПИЧЕЙ
+# =========================
+
+func get_three_hit_chance() -> float:
+	var difficulty = get_level_difficulty()
+	var chance: float = 0.03
+
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			chance = 0.03
+
+		LevelDifficulty.NORMAL:
+			chance = 0.07
+
+		LevelDifficulty.HARD:
+			chance = 0.12
+
+		LevelDifficulty.ADVANCED:
+			chance = 0.15
+
+	if current_level_style == LevelStyle.TOUGH:
+		chance += 0.10
+
+	return chance
+
+func get_two_hit_chance() -> float:
+	var difficulty = get_level_difficulty()
+	var chance: float = 0.12
+
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			chance = 0.12
+
+		LevelDifficulty.NORMAL:
+			chance = 0.20
+
+		LevelDifficulty.HARD:
+			chance = 0.28
+
+		LevelDifficulty.ADVANCED:
+			chance = 0.32
+
+	if current_level_style == LevelStyle.TOUGH:
+		chance += 0.15
+
+	return chance
+
+# =========================
+# НАСТРОЙКА СТРУКТУР УРОВНЯ
+# =========================
+
 
 func get_structure_count() -> int:
 	var difficulty = get_level_difficulty()
@@ -534,81 +618,27 @@ func get_max_wall_bricks() -> int:
 
 	return 7
 
-func get_three_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.03
+func is_horizontal_pattern(pattern: LevelPattern) -> bool:
+	return (
+		pattern == LevelPattern.HORIZONTAL_WALL
+		or pattern == LevelPattern.DOUBLE_HORIZONTAL
+		or pattern == LevelPattern.HORIZONTAL_PLATFORMS
+		or pattern == LevelPattern.HORIZONTAL_GAP
+		or pattern == LevelPattern.CROSS
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.03
+func count_horizontal_patterns() -> int:
+	var count: int = 0
 
-		LevelDifficulty.NORMAL:
-			chance = 0.07
+	for pattern in active_patterns:
+		if is_horizontal_pattern(pattern):
+			count += 1
 
-		LevelDifficulty.HARD:
-			chance = 0.12
+	return count
 
-		LevelDifficulty.ADVANCED:
-			chance = 0.15
-
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.10
-
-	return chance
-
-func get_two_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.12
-
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.12
-
-		LevelDifficulty.NORMAL:
-			chance = 0.20
-
-		LevelDifficulty.HARD:
-			chance = 0.28
-
-		LevelDifficulty.ADVANCED:
-			chance = 0.32
-
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.15
-
-	return chance
-
-func get_level_fill_chance() -> float:
-	match current_level_style:
-		LevelStyle.DENSE:
-			return randf_range(0.85, 0.95)
-
-		LevelStyle.SPARSE:
-			return randf_range(0.55, 0.68)
-
-		LevelStyle.TOUGH:
-			return randf_range(0.72, 0.82)
-
-		LevelStyle.MAZE:
-			return randf_range(0.65, 0.78)
-
-		LevelStyle.BALANCED:
-			var difficulty = get_level_difficulty()
-
-			match difficulty:
-				LevelDifficulty.BEGINNER:
-					return randf_range(0.65, 0.75)
-
-				LevelDifficulty.NORMAL:
-					return randf_range(0.70, 0.82)
-
-				LevelDifficulty.HARD:
-					return randf_range(0.72, 0.88)
-
-				LevelDifficulty.ADVANCED:
-					return randf_range(0.68, 0.90)
-
-	return 0.75
+# =========================
+# ГЕОМЕТРИЯ НЕРУШИМЫХ КИРПИЧЕЙ
+# =========================
 
 func is_wall_position(row: int, column: int) -> bool:
 	for pattern in active_patterns:
@@ -737,20 +767,69 @@ func count_wall_positions() -> int:
 
 	return count
 
-func is_horizontal_pattern(pattern: LevelPattern) -> bool:
-	return (
-		pattern == LevelPattern.HORIZONTAL_WALL
-		or pattern == LevelPattern.DOUBLE_HORIZONTAL
-		or pattern == LevelPattern.HORIZONTAL_PLATFORMS
-		or pattern == LevelPattern.HORIZONTAL_GAP
-		or pattern == LevelPattern.CROSS
-	)
+# =========================
+# СОЗДАНИЕ КИРПИЧЕЙ
+# =========================
 
-func count_horizontal_patterns() -> int:
-	var count: int = 0
+func generate_bricks():
+	breakable_bricks_left = 0
 
-	for pattern in active_patterns:
-		if is_horizontal_pattern(pattern):
-			count += 1
+	var minimum_breakable_bricks: int = 10
+	var breakable_cells: Array[Vector2i] = []
+	var wall_cells: Array[Vector2i] = []
 
-	return count
+	while breakable_cells.size() < minimum_breakable_bricks:
+		breakable_cells.clear()
+		wall_cells.clear()
+
+		for row in range(rows):
+			for column in range(columns):
+				var cell = Vector2i(column, row)
+				var is_wall_brick = is_wall_position(row, column)
+
+				if is_wall_brick:
+					wall_cells.append(cell)
+
+				elif randf() <= current_fill_chance:
+					breakable_cells.append(cell)
+
+	for row in range(rows):
+		for column in range(columns):
+			var cell = Vector2i(column, row)
+
+			var is_wall_brick = cell in wall_cells
+			var is_breakable_brick = cell in breakable_cells
+
+			if not is_wall_brick and not is_breakable_brick:
+				continue
+
+			var brick = brick_scene.instantiate()
+
+			if is_wall_brick:
+				brick.indestructible = true
+				brick.points = 0
+
+			else:
+				var roll = randf()
+				var three_hit_chance = get_three_hit_chance()
+				var two_hit_chance = get_two_hit_chance()
+
+				if roll < three_hit_chance:
+					brick.health = 3
+					brick.max_health = 3
+					brick.points = 500
+
+				elif roll < three_hit_chance + two_hit_chance:
+					brick.health = 2
+					brick.max_health = 2
+					brick.points = 250
+
+				breakable_bricks_left += 1
+
+			brick.position = Vector2(
+				start_x + column * (brick_width + gap_x),
+				start_y + row * (brick_height + gap_y)
+			)
+
+			$Bricks.add_child(brick)
+			brick.destroyed.connect(_on_brick_destroyed)
