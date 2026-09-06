@@ -356,6 +356,9 @@ func get_level_bonus() -> int:
 # =========================
 
 func _on_death_zone_body_entered(body):
+	if not body is CharacterBody2D:
+		return
+	
 	if not body in active_balls:
 		return
 
