@@ -82,12 +82,33 @@ func _ready():
 func generate_bricks():
 	breakable_bricks_left = 0
 
+	var minimum_breakable_bricks: int = 10
+	var breakable_cells: Array[Vector2i] = []
+	var wall_cells: Array[Vector2i] = []
+
+	while breakable_cells.size() < minimum_breakable_bricks:
+		breakable_cells.clear()
+		wall_cells.clear()
+
+		for row in range(rows):
+			for column in range(columns):
+				var cell = Vector2i(column, row)
+				var is_wall_brick = is_wall_position(row, column)
+
+				if is_wall_brick:
+					wall_cells.append(cell)
+
+				elif randf() <= current_fill_chance:
+					breakable_cells.append(cell)
+
 	for row in range(rows):
 		for column in range(columns):
+			var cell = Vector2i(column, row)
 
-			var is_wall_brick = is_wall_position(row, column)
+			var is_wall_brick = cell in wall_cells
+			var is_breakable_brick = cell in breakable_cells
 
-			if not is_wall_brick and randf() > current_fill_chance:
+			if not is_wall_brick and not is_breakable_brick:
 				continue
 
 			var brick = brick_scene.instantiate()
@@ -111,7 +132,6 @@ func generate_bricks():
 					brick.max_health = 2
 					brick.points = 250
 
-			if not brick.indestructible:
 				breakable_bricks_left += 1
 
 			brick.position = Vector2(
@@ -342,9 +362,9 @@ func apply_level_settings():
 				randi_range(-1, 1),
 				randi_range(-1, 1)
 			)
-			
+
 			pattern_variants[selected_pattern] = randi_range(0, 1)
-			
+
 			if (
 				selected_pattern == LevelPattern.HORIZONTAL_WALL
 				or selected_pattern == LevelPattern.DOUBLE_HORIZONTAL
@@ -352,16 +372,28 @@ func apply_level_settings():
 				pattern_sizes[selected_pattern] = randi_range(3, 4)
 			else:
 				pattern_sizes[selected_pattern] = randi_range(3, 5)
-			
-			pattern_sizes.erase(selected_pattern)
 
-			if count_wall_positions() > max_wall_bricks:
+			if (
+				count_wall_positions() > max_wall_bricks
+				or count_horizontal_patterns() > 1
+				or (
+					count_horizontal_patterns() > 0
+					and active_patterns.size() > 2
+				)
+			):
 				active_patterns.erase(selected_pattern)
 				pattern_offsets.erase(selected_pattern)
 				pattern_variants.erase(selected_pattern)
 				pattern_sizes.erase(selected_pattern)
+
 			else:
 				selected_count += 1
+
+				if selected_pattern == LevelPattern.CROSS:
+					break
+
+				available_patterns.erase(LevelPattern.CROSS)
+					
 	var pattern_names: Array[String] = []
 
 	for pattern in active_patterns:
@@ -702,5 +734,23 @@ func count_wall_positions() -> int:
 		for column in range(columns):
 			if is_wall_position(row, column):
 				count += 1
+
+	return count
+
+func is_horizontal_pattern(pattern: LevelPattern) -> bool:
+	return (
+		pattern == LevelPattern.HORIZONTAL_WALL
+		or pattern == LevelPattern.DOUBLE_HORIZONTAL
+		or pattern == LevelPattern.HORIZONTAL_PLATFORMS
+		or pattern == LevelPattern.HORIZONTAL_GAP
+		or pattern == LevelPattern.CROSS
+	)
+
+func count_horizontal_patterns() -> int:
+	var count: int = 0
+
+	for pattern in active_patterns:
+		if is_horizontal_pattern(pattern):
+			count += 1
 
 	return count
