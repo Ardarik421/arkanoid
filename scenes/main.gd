@@ -168,6 +168,7 @@ func reset_ball():
 
 	ball.visible = true
 	ball.set_physics_process(true)
+	ball.speed = 700.0
 
 	ball.global_position = Vector2(
 		paddle.global_position.x,
@@ -187,8 +188,10 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.speed = source_ball.speed
 	new_ball.is_attached = false
 
-	source_ball.add_collision_exception_with(new_ball)
-	new_ball.add_collision_exception_with(source_ball)
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.add_collision_exception_with(new_ball)
+			new_ball.add_collision_exception_with(ball)
 
 	active_balls.append(new_ball)
 
@@ -202,10 +205,21 @@ func split_balls():
 			continue
 
 		var original_direction = ball.direction.normalized()
+		var split_angle = randf_range(30.0, 60.0)
 		var new_ball = spawn_ball(ball)
 
-		ball.direction = original_direction.rotated(deg_to_rad(-45.0))
-		new_ball.direction = original_direction.rotated(deg_to_rad(45.0))
+		ball.direction = original_direction.rotated(deg_to_rad(-split_angle))
+		new_ball.direction = original_direction.rotated(deg_to_rad(split_angle))
+
+func set_all_balls_speed(new_speed: float):
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.speed = new_speed
+
+func stop_all_balls():
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.is_attached = true
 
 func lose_life():
 	lives -= 1
@@ -245,7 +259,6 @@ func restart_game():
 	game_over = false
 
 func start_next_level():
-	
 	current_level += 1
 	update_level_label()
 
@@ -268,10 +281,12 @@ func start_next_level():
 
 	game_won = false
 
+	game_won = false
+
 func reset_level_effects():
 	lives = 3
 	$Paddle.set_width(160.0)
-	$Ball.speed = 700.0
+	set_all_balls_speed(700.0)
 
 # =========================
 # ПОБЕДА И ПОРАЖЕНИЕ
@@ -292,7 +307,7 @@ func show_victory():
 	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
 	$WinLabel.visible = true
 
-	$Ball.is_attached = true
+	stop_all_balls()
 	$Paddle.can_move = false
 
 func get_level_bonus() -> int:
@@ -354,10 +369,10 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 			update_lives_label()
 			
 		Bonus.BonusType.SLOW_BALL:
-			$Ball.speed = 500.0
+			set_all_balls_speed(500.0)
 
 		Bonus.BonusType.FAST_BALL:
-			$Ball.speed = 1000.0
+			set_all_balls_speed(1000.0)
 			
 		Bonus.BonusType.SPLIT_BALLS:
 			split_balls.call_deferred()
@@ -867,10 +882,15 @@ func generate_bricks():
 	breakable_bricks_left = 0
 
 	var minimum_breakable_bricks: int = 10
+	var max_generation_attempts: int = 100
+	var generation_attempts: int = 0
+
 	var breakable_cells: Array[Vector2i] = []
 	var wall_cells: Array[Vector2i] = []
 
-	while breakable_cells.size() < minimum_breakable_bricks:
+	while breakable_cells.size() < minimum_breakable_bricks and generation_attempts < max_generation_attempts:
+		generation_attempts += 1
+
 		breakable_cells.clear()
 		wall_cells.clear()
 
@@ -884,6 +904,21 @@ func generate_bricks():
 
 				elif randf() <= current_fill_chance:
 					breakable_cells.append(cell)
+
+		if breakable_cells.size() < minimum_breakable_bricks:
+			breakable_cells.clear()
+
+			for row in range(rows):
+				for column in range(columns):
+					var cell = Vector2i(column, row)
+
+					if cell not in wall_cells:
+						breakable_cells.append(cell)
+
+			print(
+				"Использована запасная генерация. Разрушаемых кирпичей: ",
+				breakable_cells.size()
+			)
 
 	for row in range(rows):
 		for column in range(columns):
