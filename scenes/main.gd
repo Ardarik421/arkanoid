@@ -172,7 +172,7 @@ func lose_life():
 
 func restart_game():
 	current_level = 1
-	lives = 3
+	reset_level_effects()
 	score = 0
 	balls_lost_this_level = 0
 
@@ -202,7 +202,7 @@ func start_next_level():
 	current_level += 1
 	update_level_label()
 
-	lives = 3
+	reset_level_effects()
 	balls_lost_this_level = 0
 
 	update_lives_label()
@@ -220,6 +220,11 @@ func start_next_level():
 	reset_ball()
 
 	game_won = false
+
+func reset_level_effects():
+	lives = 3
+	$Paddle.set_width(160.0)
+	$Ball.speed = 700.0
 
 # =========================
 # ПОБЕДА И ПОРАЖЕНИЕ
@@ -267,7 +272,7 @@ func _on_brick_destroyed(points: int, brick_position: Vector2):
 
 	update_score_label()
 	
-	if randf() < 0.25:
+	if randf() < 0.60:
 		var bonus = bonus_scene.instantiate()
 		add_child(bonus)
 		bonus.global_position = brick_position
@@ -277,10 +282,23 @@ func _on_brick_destroyed(points: int, brick_position: Vector2):
 		game_won = true
 		show_victory()
 
-func _on_bonus_collected(bonus_type):
+func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
-		0:
+		Bonus.BonusType.EXPAND_PADDLE:
 			$Paddle.set_width(240.0)
+
+		Bonus.BonusType.SHRINK_PADDLE:
+			$Paddle.set_width(100.0)
+			
+		Bonus.BonusType.EXTRA_LIFE:
+			lives += 1
+			update_lives_label()
+			
+		Bonus.BonusType.SLOW_BALL:
+			$Ball.speed = 500.0
+
+		Bonus.BonusType.FAST_BALL:
+			$Ball.speed = 1000.0
 
 # =========================
 # ИНТЕРФЕЙС

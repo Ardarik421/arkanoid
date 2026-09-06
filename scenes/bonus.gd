@@ -1,13 +1,15 @@
 extends Area2D
 
+class_name Bonus
+
 signal collected(bonus_type: BonusType)
 
 enum BonusType {
 	EXPAND_PADDLE,
 	SHRINK_PADDLE,
+	EXTRA_LIFE,
 	SLOW_BALL,
-	FAST_BALL,
-	EXTRA_LIFE
+	FAST_BALL
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
@@ -17,6 +19,8 @@ enum BonusType {
 
 
 func _ready():
+	bonus_type = BonusType.values().pick_random()
+	
 	queue_redraw()
 	body_entered.connect(_on_body_entered)
 
@@ -26,7 +30,21 @@ func _draw():
 		Vector2(size, size)
 	)
 
-	draw_rect(rect, Color.WHITE)
+	match bonus_type:
+		BonusType.EXPAND_PADDLE:
+			draw_rect(rect, Color.WHITE)
+
+		BonusType.SHRINK_PADDLE:
+			draw_rect(rect, Color(0.5, 0.5, 0.5))
+			
+		BonusType.EXTRA_LIFE:
+			draw_rect(rect, Color(0.8, 0.8, 0.8))
+		
+		BonusType.SLOW_BALL:
+			draw_rect(rect, Color(0.65, 0.65, 0.65))
+
+		BonusType.FAST_BALL:
+			draw_rect(rect, Color(0.3, 0.3, 0.3))
 
 func _process(delta):
 	global_position.y += fall_speed * delta
