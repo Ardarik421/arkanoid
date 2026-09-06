@@ -11,7 +11,8 @@ enum BonusType {
 	SLOW_BALL,
 	FAST_BALL,
 	SPLIT_BALLS,
-	PIERCING_BALL
+	PIERCING_BALL,
+	EXPLOSIVE_BALL
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
@@ -64,6 +65,10 @@ func _draw():
 		BonusType.PIERCING_BALL:
 			bonus_color = Color(0.8, 0.6, 0.2)
 			bonus_text = "P"
+		
+		BonusType.EXPLOSIVE_BALL:
+			bonus_color = Color(1.0, 0.2, 0.1)
+			bonus_text = "E"
 
 	draw_rect(rect, bonus_color)
 

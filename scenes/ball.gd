@@ -7,6 +7,7 @@ extends CharacterBody2D
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
 var is_piercing: bool = false
+var is_explosive: bool = false
 
 func _ready():
 	queue_redraw()
@@ -33,10 +34,10 @@ func _physics_process(delta):
 
 		elif collider.has_method("hit"):
 			if is_piercing and not collider.indestructible:
-				collider.destroy()
+				collider.destroy(is_explosive)
 			else:
 				direction = direction.bounce(collision.get_normal())
-				collider.hit()
+				collider.hit(is_explosive)
 
 		else:
 			direction = direction.bounce(collision.get_normal())

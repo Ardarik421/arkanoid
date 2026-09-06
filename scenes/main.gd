@@ -170,6 +170,7 @@ func reset_ball():
 	ball.set_physics_process(true)
 	ball.speed = 700.0
 	ball.is_piercing = false
+	ball.is_explosive = false
 	ball.queue_redraw()
 
 	ball.global_position = Vector2(
@@ -189,6 +190,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.global_position = source_ball.global_position
 	new_ball.speed = source_ball.speed
 	new_ball.is_piercing = source_ball.is_piercing
+	new_ball.is_explosive = source_ball.is_explosive
 	new_ball.is_attached = false
 
 	for ball in active_balls:
@@ -223,6 +225,12 @@ func set_all_balls_piercing(enabled: bool):
 	for ball in active_balls:
 		if is_instance_valid(ball):
 			ball.is_piercing = enabled
+			ball.queue_redraw()
+
+func set_all_balls_explosive(enabled: bool):
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.is_explosive = enabled
 			ball.queue_redraw()
 
 func stop_all_balls():
@@ -366,6 +374,23 @@ func _on_brick_destroyed(points: int, brick_position: Vector2):
 		game_won = true
 		show_victory()
 
+func _on_brick_exploded(explosion_position: Vector2):
+	var max_x_distance = brick_width + gap_x + 1.0
+	var max_y_distance = brick_height + gap_y + 1.0
+
+	for brick in $Bricks.get_children():
+		if not is_instance_valid(brick):
+			continue
+
+		if brick.global_position == explosion_position:
+			continue
+
+		var distance_x = abs(brick.global_position.x - explosion_position.x)
+		var distance_y = abs(brick.global_position.y - explosion_position.y)
+
+		if distance_x <= max_x_distance and distance_y <= max_y_distance:
+			brick.hit(false)
+
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
 		Bonus.BonusType.EXPAND_PADDLE:
@@ -389,6 +414,9 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 			
 		Bonus.BonusType.PIERCING_BALL:
 			set_all_balls_piercing(true)
+			
+		Bonus.BonusType.EXPLOSIVE_BALL:
+			set_all_balls_explosive(true)
 
 func clear_bonuses():
 	for child in get_children():
@@ -978,3 +1006,4 @@ func generate_bricks():
 
 			$Bricks.add_child(brick)
 			brick.destroyed.connect(_on_brick_destroyed)
+			brick.exploded.connect(_on_brick_exploded)

@@ -1,6 +1,7 @@
 extends StaticBody2D
 
 signal destroyed(points: int, brick_position: Vector2)
+signal exploded(brick_position: Vector2)
 
 @export var width: float = 70.0
 @export var height: float = 30.0
@@ -9,6 +10,8 @@ signal destroyed(points: int, brick_position: Vector2)
 @export var max_health: int = 1
 @export var points: int = 100
 @export var indestructible: bool = false
+
+var is_destroyed: bool = false
 
 func _ready():
 	queue_redraw()
@@ -40,21 +43,33 @@ func _draw():
 		else:
 			draw_rect(rect, Color(0.80, 0.80, 0.80))
 
-func hit():
-	if indestructible:
+func hit(explosive_hit: bool = false):
+	if indestructible or is_destroyed:
 		return
 
 	health -= 1
 
 	if health <= 0:
+		is_destroyed = true
+
 		destroyed.emit(points, global_position)
+
+		if explosive_hit:
+			exploded.emit(global_position)
+
 		queue_free()
 	else:
 		queue_redraw()
 
-func destroy():
-	if indestructible:
+func destroy(explosive_hit: bool = false):
+	if indestructible or is_destroyed:
 		return
 
+	is_destroyed = true
+
 	destroyed.emit(points, global_position)
+
+	if explosive_hit:
+		exploded.emit(global_position)
+
 	queue_free()
