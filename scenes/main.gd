@@ -86,6 +86,8 @@ var active_balls: Array[CharacterBody2D] = []
 
 const BALL_SCENE = preload("res://scenes/ball.tscn")
 
+var shield_active: bool = false
+
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -114,6 +116,7 @@ var pattern_sizes: Dictionary = {}
 
 func _ready():
 	
+	set_shield_enabled(false)
 	active_balls.append($Ball)
 	
 	if use_test_level:
@@ -191,6 +194,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.speed = source_ball.speed
 	new_ball.is_piercing = source_ball.is_piercing
 	new_ball.is_explosive = source_ball.is_explosive
+	new_ball.shield_active = shield_active
 	new_ball.is_attached = false
 
 	for ball in active_balls:
@@ -232,6 +236,14 @@ func set_all_balls_explosive(enabled: bool):
 		if is_instance_valid(ball):
 			ball.is_explosive = enabled
 			ball.queue_redraw()
+
+func set_shield_enabled(enabled: bool):
+	shield_active = enabled
+	$Shield.visible = enabled
+
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.shield_active = enabled
 
 func stop_all_balls():
 	for ball in active_balls:
@@ -304,6 +316,7 @@ func reset_level_effects():
 	lives = 3
 	$Paddle.set_width(160.0)
 	set_all_balls_speed(700.0)
+	set_shield_enabled(false)
 
 # =========================
 # ПОБЕДА И ПОРАЖЕНИЕ
@@ -417,6 +430,9 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 			
 		Bonus.BonusType.EXPLOSIVE_BALL:
 			set_all_balls_explosive(true)
+		
+		Bonus.BonusType.SHIELD:
+			set_shield_enabled(true)
 
 func clear_bonuses():
 	for child in get_children():

@@ -8,8 +8,11 @@ var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
 var is_piercing: bool = false
 var is_explosive: bool = false
+var shield_active: bool = false
+var shield_y: float = 1040.0
 
 func _ready():
+	set_collision_mask_value(1, true)	
 	queue_redraw()
 
 func _draw():
@@ -23,7 +26,12 @@ func _draw():
 func _physics_process(delta):
 	if is_attached:
 		return
-
+	
+	if shield_active and direction.y > 0.0:
+		if global_position.y + radius >= shield_y:
+			global_position.y = shield_y - radius
+			direction.y = -abs(direction.y)
+	
 	var collision = move_and_collide(direction * speed * delta)
 
 	if collision:
