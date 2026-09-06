@@ -16,6 +16,8 @@ extends Node2D
 
 @export_range(1, 100) var test_start_level: int = 1
 @export var use_test_level: bool = true
+@export var use_test_pattern: bool = false
+@export var test_pattern: LevelPattern = LevelPattern.VERTICAL_WALL
 
 enum LevelPattern {
 	RANDOM,
@@ -43,8 +45,6 @@ enum LevelStyle {
 	MAZE
 }
 
-@export var level_pattern: LevelPattern = LevelPattern.RANDOM
-
 var lives: int = 3
 var score: int = 0
 var balls_lost_this_level: int = 0
@@ -56,6 +56,9 @@ var game_over: bool = false
 var current_level: int = 1
 
 var active_patterns: Array[LevelPattern] = []
+var pattern_offsets: Dictionary = {}
+var pattern_variants: Dictionary = {}
+var pattern_sizes: Dictionary = {}
 
 var current_fill_chance: float = 0.8
 
@@ -243,6 +246,9 @@ func update_level_label():
 	
 func apply_level_settings():
 	active_patterns.clear()
+	pattern_offsets.clear()
+	pattern_variants.clear()
+	pattern_sizes.clear()
 
 	var difficulty = get_level_difficulty()
 
@@ -303,20 +309,65 @@ func apply_level_settings():
 		" | Fill: ", current_fill_chance
 		)
 
-	var structure_count = get_structure_count()
-	var max_wall_bricks = get_max_wall_bricks()
-	var selected_count = 0
+	if use_test_pattern:
+		active_patterns.append(test_pattern)
 
-	while selected_count < structure_count and not available_patterns.is_empty():
-		var selected_pattern = available_patterns.pick_random()
+		pattern_offsets[test_pattern] = Vector2i(
+			randi_range(-1, 1),
+			randi_range(-1, 1)
+		)
 
-		available_patterns.erase(selected_pattern)
-		active_patterns.append(selected_pattern)
-
-		if count_wall_positions() > max_wall_bricks:
-			active_patterns.erase(selected_pattern)
+		pattern_variants[test_pattern] = randi_range(0, 1)
+		
+		if (
+			test_pattern == LevelPattern.HORIZONTAL_WALL
+			or test_pattern == LevelPattern.DOUBLE_HORIZONTAL
+		):
+			pattern_sizes[test_pattern] = randi_range(3, 4)
 		else:
-			selected_count += 1
+			pattern_sizes[test_pattern] = randi_range(3, 5)
+
+	else:
+		var structure_count = get_structure_count()
+		var max_wall_bricks = get_max_wall_bricks()
+		var selected_count = 0
+
+		while selected_count < structure_count and not available_patterns.is_empty():
+			var selected_pattern = available_patterns.pick_random()
+
+			available_patterns.erase(selected_pattern)
+			active_patterns.append(selected_pattern)
+
+			pattern_offsets[selected_pattern] = Vector2i(
+				randi_range(-1, 1),
+				randi_range(-1, 1)
+			)
+			
+			pattern_variants[selected_pattern] = randi_range(0, 1)
+			
+			if (
+				selected_pattern == LevelPattern.HORIZONTAL_WALL
+				or selected_pattern == LevelPattern.DOUBLE_HORIZONTAL
+			):
+				pattern_sizes[selected_pattern] = randi_range(3, 4)
+			else:
+				pattern_sizes[selected_pattern] = randi_range(3, 5)
+			
+			pattern_sizes.erase(selected_pattern)
+
+			if count_wall_positions() > max_wall_bricks:
+				active_patterns.erase(selected_pattern)
+				pattern_offsets.erase(selected_pattern)
+				pattern_variants.erase(selected_pattern)
+				pattern_sizes.erase(selected_pattern)
+			else:
+				selected_count += 1
+	var pattern_names: Array[String] = []
+
+	for pattern in active_patterns:
+		pattern_names.append(LevelPattern.keys()[pattern])
+
+	print("Patterns: ", ", ".join(pattern_names))
 
 func start_next_level():
 	
@@ -529,52 +580,116 @@ func get_level_fill_chance() -> float:
 
 func is_wall_position(row: int, column: int) -> bool:
 	for pattern in active_patterns:
+		
+		var offset: Vector2i = pattern_offsets.get(
+			pattern,
+			Vector2i.ZERO
+		)
+			
+		var variant: int = pattern_variants.get(pattern, 0)
+		var size: int = pattern_sizes.get(pattern, 4)
+		
 		if pattern == LevelPattern.VERTICAL_WALL:
-			if column == 5 and row >= 2 and row <= 5:
-				return true
-
-		elif pattern == LevelPattern.CROSS:
 			if (
-				(column == 5 and row >= 1 and row <= 6)
-				or
-				(row == 3 and column >= 3 and column <= 7)
+				column == 5 + offset.x
+				and row >= 2 + offset.y
+				and row < 2 + offset.y + size
 			):
 				return true
 
+		elif pattern == LevelPattern.CROSS:
+			if variant == 0:
+				if (
+					(column == 5 + offset.x
+					and row >= 1 + offset.y
+					and row <= 6 + offset.y)
+					or
+					(row == 3 + offset.y
+					and column >= 3 + offset.x
+					and column <= 7 + offset.x)
+				):
+					return true
+
+			else:
+				if (
+					(column == 5 + offset.x
+					and row >= 1 + offset.y
+					and row <= 6 + offset.y)
+					or
+					(row == 4 + offset.y
+					and column >= 3 + offset.x
+					and column <= 7 + offset.x)
+				):
+					return true
+
 		elif pattern == LevelPattern.DOUBLE_VERTICAL:
 			if (
-				(column == 3 and row >= 1 and row <= 6)
+				(column == 3 + offset.x
+				and row >= 1 + offset.y
+				and row < 1 + offset.y + size)
 				or
-				(column == 7 and row >= 1 and row <= 6)
+				(column == 7 + offset.x
+				and row >= 1 + offset.y
+				and row < 1 + offset.y + size)
 			):
 				return true
 
 		elif pattern == LevelPattern.HORIZONTAL_WALL:
-			if row == 3 and column >= 2 and column <= 8:
+			if (
+				row == 3 + offset.y
+				and column >= 2 + offset.x
+				and column < 2 + offset.x + size
+			):
 				return true
 
 		elif pattern == LevelPattern.DOUBLE_HORIZONTAL:
+			var start_column = 1 + offset.x
+
+			if variant == 1:
+				start_column += 4
+
 			if (
-				(row == 2 and column >= 1 and column <= 9)
+				(row == 2 + offset.y
+				and column >= start_column
+				and column < start_column + size)
 				or
-				(row == 5 and column >= 1 and column <= 9)
+				(row == 5 + offset.y
+				and column >= start_column
+				and column < start_column + size)
 			):
 				return true
 
 		elif pattern == LevelPattern.HORIZONTAL_PLATFORMS:
-			if (
-				(row == 2 and column >= 1 and column <= 4)
-				or
-				(row == 4 and column >= 6 and column <= 9)
-			):
-				return true
+			if variant == 0:
+				if (
+					(row == 2 + offset.y
+					and column >= 1 + offset.x
+					and column <= 4 + offset.x)
+					or
+					(row == 4 + offset.y
+					and column >= 6 + offset.x
+					and column <= 9 + offset.x)
+				):
+					return true
+
+			else:
+				if (
+					(row == 4 + offset.y
+					and column >= 1 + offset.x
+					and column <= 4 + offset.x)
+					or
+					(row == 2 + offset.y
+					and column >= 6 + offset.x
+					and column <= 9 + offset.x)
+				):
+					return true
 
 		elif pattern == LevelPattern.HORIZONTAL_GAP:
 			if (
-				row == 3
-				and column >= 1
-				and column <= 9
-				and column != 5
+				row == 3 + offset.y
+				and column >= 1 + offset.x
+				and column <= 9 + offset.x
+				and column != 5 + offset.x
 			):
 				return true
 
