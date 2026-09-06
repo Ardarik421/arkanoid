@@ -60,6 +60,8 @@ var active_patterns: Array[LevelPattern] = []
 var current_fill_chance: float = 0.8
 
 var current_level_style: LevelStyle = LevelStyle.BALANCED
+var previous_level_style: LevelStyle = LevelStyle.BALANCED
+var has_previous_style: bool = false
 
 func _ready():
 	if use_test_level:
@@ -244,7 +246,16 @@ func apply_level_settings():
 
 	var difficulty = get_level_difficulty()
 
-	current_level_style = get_random_level_style()
+	var new_style = get_random_level_style()
+
+	if has_previous_style:
+		while new_style == previous_level_style:
+			new_style = get_random_level_style()
+
+	current_level_style = new_style
+	previous_level_style = current_level_style
+	has_previous_style = true
+
 	current_fill_chance = get_level_fill_chance()
 		
 	var available_patterns: Array[LevelPattern] = []
@@ -342,15 +353,53 @@ func get_level_difficulty() -> LevelDifficulty:
 		return LevelDifficulty.ADVANCED
 	
 func get_random_level_style() -> LevelStyle:
-	var styles: Array[LevelStyle] = [
-		LevelStyle.BALANCED,
-		LevelStyle.DENSE,
-		LevelStyle.SPARSE,
-		LevelStyle.TOUGH,
-		LevelStyle.MAZE
-	]
+	var difficulty = get_level_difficulty()
+	var roll = randf()
 
-	return styles.pick_random()
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			if roll < 0.45:
+				return LevelStyle.BALANCED
+			elif roll < 0.75:
+				return LevelStyle.DENSE
+			else:
+				return LevelStyle.SPARSE
+
+		LevelDifficulty.NORMAL:
+			if roll < 0.35:
+				return LevelStyle.BALANCED
+			elif roll < 0.60:
+				return LevelStyle.DENSE
+			elif roll < 0.85:
+				return LevelStyle.SPARSE
+			else:
+				return LevelStyle.TOUGH
+
+		LevelDifficulty.HARD:
+			if roll < 0.30:
+				return LevelStyle.BALANCED
+			elif roll < 0.50:
+				return LevelStyle.DENSE
+			elif roll < 0.70:
+				return LevelStyle.SPARSE
+			elif roll < 0.85:
+				return LevelStyle.TOUGH
+			else:
+				return LevelStyle.MAZE
+
+		LevelDifficulty.ADVANCED:
+			if roll < 0.25:
+				return LevelStyle.BALANCED
+			elif roll < 0.45:
+				return LevelStyle.DENSE
+			elif roll < 0.65:
+				return LevelStyle.SPARSE
+			elif roll < 0.82:
+				return LevelStyle.TOUGH
+			else:
+				return LevelStyle.MAZE
+
+	return LevelStyle.BALANCED
 
 func get_structure_count() -> int:
 	var difficulty = get_level_difficulty()
