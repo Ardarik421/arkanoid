@@ -82,6 +82,10 @@ var breakable_bricks_left: int = 0
 var game_won: bool = false
 var game_over: bool = false
 
+var active_balls: Array[CharacterBody2D] = []
+
+const BALL_SCENE = preload("res://scenes/ball.tscn")
+
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -109,6 +113,9 @@ var pattern_sizes: Dictionary = {}
 # =========================
 
 func _ready():
+	
+	active_balls.append($Ball)
+	
 	if use_test_level:
 		current_level = test_start_level
 	else:
@@ -150,8 +157,17 @@ func _process(delta):
 # =========================
 
 func reset_ball():
+	for ball in active_balls.duplicate():
+		if is_instance_valid(ball) and ball != $Ball:
+			ball.queue_free()
+
+	active_balls.clear()
+
 	var paddle = $Paddle
 	var ball = $Ball
+
+	ball.visible = true
+	ball.set_physics_process(true)
 
 	ball.global_position = Vector2(
 		paddle.global_position.x,
@@ -159,6 +175,37 @@ func reset_ball():
 	)
 
 	ball.attach_to_paddle()
+
+	active_balls.append(ball)
+
+func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
+	var new_ball = BALL_SCENE.instantiate()
+
+	add_child(new_ball)
+
+	new_ball.global_position = source_ball.global_position
+	new_ball.speed = source_ball.speed
+	new_ball.is_attached = false
+
+	source_ball.add_collision_exception_with(new_ball)
+	new_ball.add_collision_exception_with(source_ball)
+
+	active_balls.append(new_ball)
+
+	return new_ball
+
+func split_balls():
+	var balls_to_split = active_balls.duplicate()
+
+	for ball in balls_to_split:
+		if not is_instance_valid(ball):
+			continue
+
+		var original_direction = ball.direction.normalized()
+		var new_ball = spawn_ball(ball)
+
+		ball.direction = original_direction.rotated(deg_to_rad(-45.0))
+		new_ball.direction = original_direction.rotated(deg_to_rad(45.0))
 
 func lose_life():
 	lives -= 1
@@ -263,7 +310,19 @@ func get_level_bonus() -> int:
 # =========================
 
 func _on_death_zone_body_entered(body):
-	if body.name == "Ball":
+	if not body in active_balls:
+		return
+
+	active_balls.erase(body)
+
+	if body == $Ball:
+		body.is_attached = true
+		body.visible = false
+		body.set_physics_process(false)
+	else:
+		body.queue_free()
+
+	if active_balls.is_empty():
 		lose_life()
 
 func _on_brick_destroyed(points: int, brick_position: Vector2):
@@ -299,6 +358,9 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 
 		Bonus.BonusType.FAST_BALL:
 			$Ball.speed = 1000.0
+			
+		Bonus.BonusType.SPLIT_BALLS:
+			split_balls.call_deferred()
 
 # =========================
 # ИНТЕРФЕЙС

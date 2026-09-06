@@ -9,7 +9,8 @@ enum BonusType {
 	SHRINK_PADDLE,
 	EXTRA_LIFE,
 	SLOW_BALL,
-	FAST_BALL
+	FAST_BALL,
+	SPLIT_BALLS
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
@@ -45,6 +46,9 @@ func _draw():
 
 		BonusType.FAST_BALL:
 			draw_rect(rect, Color(0.3, 0.3, 0.3))
+			
+		BonusType.SPLIT_BALLS:
+			draw_rect(rect, Color(0.0, 0.8, 1.2))
 
 func _process(delta):
 	global_position.y += fall_speed * delta
