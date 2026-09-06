@@ -14,8 +14,6 @@ extends Node2D
 @export var gap_x: float = 8.0
 @export var gap_y: float = 8.0
 
-@export_range(0.0, 1.0) var fill_chance: float = 0.8
-
 @export_range(1, 100) var test_start_level: int = 1
 @export var use_test_level: bool = true
 
@@ -37,6 +35,14 @@ enum LevelDifficulty {
 	ADVANCED
 }
 
+enum LevelStyle {
+	BALANCED,
+	DENSE,
+	SPARSE,
+	TOUGH,
+	MAZE
+}
+
 @export var level_pattern: LevelPattern = LevelPattern.RANDOM
 
 var lives: int = 3
@@ -51,6 +57,9 @@ var current_level: int = 1
 
 var active_patterns: Array[LevelPattern] = []
 
+var current_fill_chance: float = 0.8
+
+var current_level_style: LevelStyle = LevelStyle.BALANCED
 
 func _ready():
 	if use_test_level:
@@ -73,7 +82,7 @@ func generate_bricks():
 
 			var is_wall_brick = is_wall_position(row, column)
 
-			if not is_wall_brick and randf() > fill_chance:
+			if not is_wall_brick and randf() > current_fill_chance:
 				continue
 
 			var brick = brick_scene.instantiate()
@@ -84,13 +93,15 @@ func generate_bricks():
 
 			else:
 				var roll = randf()
+				var three_hit_chance = get_three_hit_chance()
+				var two_hit_chance = get_two_hit_chance()
 
-				if roll < 0.10:
+				if roll < three_hit_chance:
 					brick.health = 3
 					brick.max_health = 3
 					brick.points = 500
 
-				elif roll < 0.35:
+				elif roll < three_hit_chance + two_hit_chance:
 					brick.health = 2
 					brick.max_health = 2
 					brick.points = 250
@@ -232,6 +243,10 @@ func apply_level_settings():
 	active_patterns.clear()
 
 	var difficulty = get_level_difficulty()
+
+	current_level_style = get_random_level_style()
+	current_fill_chance = get_level_fill_chance()
+		
 	var available_patterns: Array[LevelPattern] = []
 
 	match difficulty:
@@ -270,16 +285,27 @@ func apply_level_settings():
 				LevelPattern.HORIZONTAL_PLATFORMS,
 				LevelPattern.HORIZONTAL_GAP
 			]
+	print(
+		"Level: ", current_level,
+		" | Difficulty: ", LevelDifficulty.keys()[get_level_difficulty()],
+		" | Style: ", LevelStyle.keys()[current_level_style],
+		" | Fill: ", current_fill_chance
+		)
 
 	var structure_count = get_structure_count()
+	var max_wall_bricks = get_max_wall_bricks()
+	var selected_count = 0
 
-	for i in range(structure_count):
-		if available_patterns.is_empty():
-			break
-
+	while selected_count < structure_count and not available_patterns.is_empty():
 		var selected_pattern = available_patterns.pick_random()
-		active_patterns.append(selected_pattern)
+
 		available_patterns.erase(selected_pattern)
+		active_patterns.append(selected_pattern)
+
+		if count_wall_positions() > max_wall_bricks:
+			active_patterns.erase(selected_pattern)
+		else:
+			selected_count += 1
 
 func start_next_level():
 	
@@ -315,8 +341,33 @@ func get_level_difficulty() -> LevelDifficulty:
 	else:
 		return LevelDifficulty.ADVANCED
 	
+func get_random_level_style() -> LevelStyle:
+	var styles: Array[LevelStyle] = [
+		LevelStyle.BALANCED,
+		LevelStyle.DENSE,
+		LevelStyle.SPARSE,
+		LevelStyle.TOUGH,
+		LevelStyle.MAZE
+	]
+
+	return styles.pick_random()
+
 func get_structure_count() -> int:
 	var difficulty = get_level_difficulty()
+
+	if current_level_style == LevelStyle.MAZE:
+		match difficulty:
+			LevelDifficulty.BEGINNER:
+				return 1
+
+			LevelDifficulty.NORMAL:
+				return randi_range(1, 2)
+
+			LevelDifficulty.HARD:
+				return randi_range(2, 3)
+
+			LevelDifficulty.ADVANCED:
+				return randi_range(2, 3)
 
 	match difficulty:
 		LevelDifficulty.BEGINNER:
@@ -332,6 +383,100 @@ func get_structure_count() -> int:
 			return randi_range(1, 3)
 
 	return 0
+
+func get_max_wall_bricks() -> int:
+	var difficulty = get_level_difficulty()
+
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			return 7
+
+		LevelDifficulty.NORMAL:
+			return 12
+
+		LevelDifficulty.HARD:
+			return 18
+
+		LevelDifficulty.ADVANCED:
+			return 24
+
+	return 7
+
+func get_three_hit_chance() -> float:
+	var difficulty = get_level_difficulty()
+	var chance: float = 0.03
+
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			chance = 0.03
+
+		LevelDifficulty.NORMAL:
+			chance = 0.07
+
+		LevelDifficulty.HARD:
+			chance = 0.12
+
+		LevelDifficulty.ADVANCED:
+			chance = 0.15
+
+	if current_level_style == LevelStyle.TOUGH:
+		chance += 0.10
+
+	return chance
+
+func get_two_hit_chance() -> float:
+	var difficulty = get_level_difficulty()
+	var chance: float = 0.12
+
+	match difficulty:
+		LevelDifficulty.BEGINNER:
+			chance = 0.12
+
+		LevelDifficulty.NORMAL:
+			chance = 0.20
+
+		LevelDifficulty.HARD:
+			chance = 0.28
+
+		LevelDifficulty.ADVANCED:
+			chance = 0.32
+
+	if current_level_style == LevelStyle.TOUGH:
+		chance += 0.15
+
+	return chance
+
+func get_level_fill_chance() -> float:
+	match current_level_style:
+		LevelStyle.DENSE:
+			return randf_range(0.85, 0.95)
+
+		LevelStyle.SPARSE:
+			return randf_range(0.55, 0.68)
+
+		LevelStyle.TOUGH:
+			return randf_range(0.72, 0.82)
+
+		LevelStyle.MAZE:
+			return randf_range(0.65, 0.78)
+
+		LevelStyle.BALANCED:
+			var difficulty = get_level_difficulty()
+
+			match difficulty:
+				LevelDifficulty.BEGINNER:
+					return randf_range(0.65, 0.75)
+
+				LevelDifficulty.NORMAL:
+					return randf_range(0.70, 0.82)
+
+				LevelDifficulty.HARD:
+					return randf_range(0.72, 0.88)
+
+				LevelDifficulty.ADVANCED:
+					return randf_range(0.68, 0.90)
+
+	return 0.75
 
 func is_wall_position(row: int, column: int) -> bool:
 	for pattern in active_patterns:
@@ -385,4 +530,13 @@ func is_wall_position(row: int, column: int) -> bool:
 				return true
 
 	return false	
-	
+
+func count_wall_positions() -> int:
+	var count = 0
+
+	for row in range(rows):
+		for column in range(columns):
+			if is_wall_position(row, column):
+				count += 1
+
+	return count
