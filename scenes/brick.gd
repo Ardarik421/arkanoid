@@ -1,6 +1,6 @@
 extends StaticBody2D
 
-signal destroyed(points: int)
+signal destroyed(points: int, brick_position: Vector2)
 
 @export var width: float = 70.0
 @export var height: float = 30.0
@@ -47,7 +47,7 @@ func hit():
 	health -= 1
 
 	if health <= 0:
-		destroyed.emit(points)
+		destroyed.emit(points, global_position)
 		queue_free()
 	else:
 		queue_redraw()

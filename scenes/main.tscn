@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cue3rmvxipnq8" path="res://scenes/main.gd" id="1_sugp2"]
 [ext_resource type="PackedScene" uid="uid://b4kt1kvh5w7el" path="res://scenes/paddle.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://c21lyl7xsd1i0" path="res://scenes/brick.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://can5q72w1heag" path="res://scenes/bonus.tscn" id="5_tbgi4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 size = Vector2(40, 1080)
@@ -17,6 +18,7 @@ size = Vector2(960, 80)
 [node name="Main" type="Node2D" unique_id=1023616930]
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
+bonus_scene = ExtResource("5_tbgi4")
 test_start_level = 20
 use_test_level = false
 

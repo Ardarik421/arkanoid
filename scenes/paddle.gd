@@ -61,3 +61,13 @@ func _physics_process(delta):
 		left_limit + half_width,
 		right_limit - half_width
 	)
+
+func set_width(new_width: float):
+	width = new_width
+
+	var shape = $CollisionShape2D.shape
+
+	if shape is RectangleShape2D:
+		shape.size.x = width
+
+	queue_redraw()

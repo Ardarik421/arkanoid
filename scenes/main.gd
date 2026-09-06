@@ -36,6 +36,7 @@ enum LevelStyle {
 # =========================
 
 @export var brick_scene: PackedScene
+@export var bonus_scene: PackedScene
 
 
 # =========================
@@ -260,15 +261,26 @@ func _on_death_zone_body_entered(body):
 	if body.name == "Ball":
 		lose_life()
 
-func _on_brick_destroyed(points: int):
+func _on_brick_destroyed(points: int, brick_position: Vector2):
 	score += points
 	breakable_bricks_left -= 1
 
 	update_score_label()
+	
+	if randf() < 0.25:
+		var bonus = bonus_scene.instantiate()
+		add_child(bonus)
+		bonus.global_position = brick_position
+		bonus.collected.connect(_on_bonus_collected)
 
 	if breakable_bricks_left <= 0 and not game_won:
 		game_won = true
 		show_victory()
+
+func _on_bonus_collected(bonus_type):
+	match bonus_type:
+		0:
+			$Paddle.set_width(240.0)
 
 # =========================
 # ИНТЕРФЕЙС
