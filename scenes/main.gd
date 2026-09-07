@@ -66,6 +66,44 @@ enum LevelStyle {
 @export var use_test_pattern: bool = false
 @export var test_pattern: LevelPattern = LevelPattern.VERTICAL_WALL
 
+@export_group("Bonus Test")
+
+@export var use_test_bonuses: bool = false
+
+@export var test_piercing: bool = false
+@export var test_explosive: bool = false
+@export var test_shield: bool = false
+@export var test_magnet: bool = false
+@export var test_fast: bool = false
+@export var test_hyper: bool = false
+
+func apply_test_bonuses():
+	if not use_test_bonuses:
+		return
+
+	if test_piercing:
+		set_all_balls_piercing(true)
+		piercing_time = PIERCING_DURATION
+
+	if test_explosive:
+		set_all_balls_explosive(true)
+		explosive_time = EXPLOSIVE_DURATION
+
+	if test_shield:
+		set_shield_enabled(true)
+		shield_time = SHIELD_DURATION
+
+	if test_magnet:
+		set_magnet_enabled(true)
+		magnet_time = MAGNET_DURATION
+
+	if test_fast:
+		fast_time = FAST_DURATION
+
+	if test_hyper:
+		hyper_time = HYPER_DURATION
+
+	update_ball_speed()
 
 # =========================
 # СОСТОЯНИЕ ИГРЫ
@@ -87,8 +125,32 @@ var active_balls: Array[CharacterBody2D] = []
 const BALL_SCENE = preload("res://scenes/ball.tscn")
 
 var shield_active: bool = false
-
 var magnet_active: bool = false
+
+var piercing_time: float = 0.0
+var explosive_time: float = 0.0
+var shield_time: float = 0.0
+var magnet_time: float = 0.0
+var fast_time: float = 0.0
+var hyper_time: float = 0.0
+
+const PIERCING_DURATION: float = 7.0
+const PIERCING_REPEAT_DURATION: float = 4.0
+const EXPLOSIVE_DURATION: float = 12.0
+const EXPLOSIVE_REPEAT_DURATION: float = 6.0
+const SHIELD_DURATION: float = 15.0
+const SHIELD_REPEAT_DURATION: float = 7.0
+const MAGNET_DURATION: float = 15.0
+const MAGNET_REPEAT_DURATION: float = 7.0
+const FAST_DURATION: float = 12.0
+const FAST_REPEAT_DURATION: float = 6.0
+const HYPER_DURATION: float = 6.0
+const HYPER_REPEAT_DURATION: float = 3.0
+
+const PADDLE_DEFAULT_WIDTH: float = 160.0
+const PADDLE_MIN_WIDTH: float = 40.0
+const PADDLE_MAX_WIDTH: float = 280.0
+const PADDLE_WIDTH_STEP: float = 40.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -99,7 +161,6 @@ var previous_level_style: LevelStyle = LevelStyle.BALANCED
 var has_previous_style: bool = false
 
 var current_fill_chance: float = 0.8
-
 
 # =========================
 # СОСТОЯНИЕ СТРУКТУР УРОВНЯ
@@ -127,6 +188,7 @@ func _ready():
 	
 	apply_level_settings()
 	generate_bricks()
+	apply_test_bonuses()
 	
 	update_lives_label()
 	update_score_label()
@@ -142,7 +204,49 @@ func _process(_delta):
 		if Input.is_action_just_pressed("launch_ball"):
 			restart_game()
 		return
+	
+	if piercing_time > 0.0:
+		piercing_time -= _delta
 
+	if piercing_time <= 0.0:
+		piercing_time = 0.0
+		set_all_balls_piercing(false)
+	
+	if explosive_time > 0.0:
+		explosive_time -= _delta
+
+	if explosive_time <= 0.0:
+		explosive_time = 0.0
+		set_all_balls_explosive(false)
+	
+	if shield_time > 0.0:
+		shield_time -= _delta
+
+	if shield_time <= 0.0:
+		shield_time = 0.0
+		set_shield_enabled(false)
+
+	if magnet_time > 0.0:
+		magnet_time -= _delta
+
+	if magnet_time <= 0.0:
+		magnet_time = 0.0
+		set_magnet_enabled(false)
+		
+	if fast_time > 0.0:
+		fast_time -= _delta
+
+	if fast_time <= 0.0:
+		fast_time = 0.0
+		update_ball_speed()
+
+	if hyper_time > 0.0:
+		hyper_time -= _delta
+
+	if hyper_time <= 0.0:
+		hyper_time = 0.0
+		update_ball_speed()
+	
 	if Input.is_action_just_pressed("launch_ball"):
 		for ball in active_balls:
 			if is_instance_valid(ball) and ball.is_attached:
@@ -248,6 +352,16 @@ func set_magnet_enabled(enabled: bool):
 		if is_instance_valid(ball):
 			ball.magnet_active = enabled
 
+func update_ball_speed():
+	if hyper_time > 0.0:
+		set_all_balls_speed(1400.0)
+
+	elif fast_time > 0.0:
+		set_all_balls_speed(1000.0)
+
+	else:
+		set_all_balls_speed(700.0)
+
 func stop_all_balls():
 	for ball in active_balls:
 		if is_instance_valid(ball):
@@ -317,8 +431,24 @@ func start_next_level():
 
 func reset_level_effects():
 	lives = 3
-	$Paddle.set_width(160.0)
-	set_all_balls_speed(700.0)
+	$Paddle.set_width(PADDLE_DEFAULT_WIDTH)
+	
+	fast_time = 0.0
+	hyper_time = 0.0
+	update_ball_speed()
+	
+	piercing_time = 0.0
+	set_all_balls_piercing(false)
+	
+	explosive_time = 0.0
+	set_all_balls_explosive(false)
+	
+	shield_time = 0.0
+	set_shield_enabled(false)
+	
+	magnet_time = 0.0
+	set_magnet_enabled(false)
+	
 	set_shield_enabled(false)
 	set_magnet_enabled(false)
 
@@ -413,36 +543,65 @@ func _on_brick_exploded(explosion_position: Vector2):
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
+
 		Bonus.BonusType.EXPAND_PADDLE:
-			$Paddle.set_width(240.0)
+			var new_width = $Paddle.width + PADDLE_WIDTH_STEP
+			$Paddle.set_width(min(new_width, PADDLE_MAX_WIDTH))
 
 		Bonus.BonusType.SHRINK_PADDLE:
-			$Paddle.set_width(100.0)
-			
+			var new_width = $Paddle.width - PADDLE_WIDTH_STEP
+			$Paddle.set_width(max(new_width, PADDLE_MIN_WIDTH))
+
 		Bonus.BonusType.EXTRA_LIFE:
 			lives += 1
 			update_lives_label()
-			
-		Bonus.BonusType.SLOW_BALL:
-			set_all_balls_speed(500.0)
+
+		Bonus.BonusType.HYPER_BALL:
+			if hyper_time > 0.0:
+				hyper_time += HYPER_REPEAT_DURATION
+			else:
+				hyper_time = HYPER_DURATION
+
+			update_ball_speed()
 
 		Bonus.BonusType.FAST_BALL:
-			set_all_balls_speed(1000.0)
-			
+			if fast_time > 0.0:
+				fast_time += FAST_REPEAT_DURATION
+			else:
+				fast_time = FAST_DURATION
+
+			update_ball_speed()
+
 		Bonus.BonusType.SPLIT_BALLS:
 			split_balls.call_deferred()
-			
+
 		Bonus.BonusType.PIERCING_BALL:
-			set_all_balls_piercing(true)
-			
+			if piercing_time > 0.0:
+				piercing_time += PIERCING_REPEAT_DURATION
+			else:
+				piercing_time = PIERCING_DURATION
+				set_all_balls_piercing(true)
+
 		Bonus.BonusType.EXPLOSIVE_BALL:
-			set_all_balls_explosive(true)
-		
+			if explosive_time > 0.0:
+				explosive_time += EXPLOSIVE_REPEAT_DURATION
+			else:
+				explosive_time = EXPLOSIVE_DURATION
+				set_all_balls_explosive(true)
+
 		Bonus.BonusType.SHIELD:
-			set_shield_enabled(true)
-		
+			if shield_time > 0.0:
+				shield_time += SHIELD_REPEAT_DURATION
+			else:
+				shield_time = SHIELD_DURATION
+				set_shield_enabled(true)
+
 		Bonus.BonusType.MAGNET:
-			set_magnet_enabled(true)
+			if magnet_time > 0.0:
+				magnet_time += MAGNET_REPEAT_DURATION
+			else:
+				magnet_time = MAGNET_DURATION
+				set_magnet_enabled(true)
 
 func clear_bonuses():
 	for child in get_children():
@@ -745,7 +904,6 @@ func get_two_hit_chance() -> float:
 # =========================
 # НАСТРОЙКА СТРУКТУР УРОВНЯ
 # =========================
-
 
 func get_structure_count() -> int:
 	var difficulty = get_level_difficulty()

@@ -8,7 +8,7 @@ enum BonusType {
 	EXPAND_PADDLE,
 	SHRINK_PADDLE,
 	EXTRA_LIFE,
-	SLOW_BALL,
+	HYPER_BALL,
 	FAST_BALL,
 	SPLIT_BALLS,
 	PIERCING_BALL,
@@ -52,9 +52,9 @@ func _draw():
 			bonus_color = Color(0.8, 0.8, 0.8)
 			bonus_text = "+1"
 
-		BonusType.SLOW_BALL:
+		BonusType.HYPER_BALL:
 			bonus_color = Color(0.65, 0.65, 0.65)
-			bonus_text = "S"
+			bonus_text = "H"
 
 		BonusType.FAST_BALL:
 			bonus_color = Color(0.6, 0.3, 0.3)
