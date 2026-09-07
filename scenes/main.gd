@@ -88,6 +88,7 @@ const BALL_SCENE = preload("res://scenes/ball.tscn")
 
 var shield_active: bool = false
 
+var magnet_active: bool = false
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -131,10 +132,7 @@ func _ready():
 	update_score_label()
 	update_level_label()
 
-func _process(delta):
-	var ball = $Ball
-	var paddle = $Paddle
-
+func _process(_delta):
 	if game_won:
 		if Input.is_action_just_pressed("launch_ball"):
 			start_next_level()
@@ -145,15 +143,10 @@ func _process(delta):
 			restart_game()
 		return
 
-	if ball.is_attached:
-		ball.global_position = Vector2(
-			paddle.global_position.x,
-			paddle.global_position.y - 40
-		)
-
-		if Input.is_action_just_pressed("launch_ball"):
-			ball.launch()
-
+	if Input.is_action_just_pressed("launch_ball"):
+		for ball in active_balls:
+			if is_instance_valid(ball) and ball.is_attached:
+				ball.launch()
 
 # =========================
 # УПРАВЛЕНИЕ ИГРОЙ
@@ -174,6 +167,8 @@ func reset_ball():
 	ball.speed = 700.0
 	ball.is_piercing = false
 	ball.is_explosive = false
+	ball.magnet_active = magnet_active
+	ball.shield_active = shield_active
 	ball.queue_redraw()
 
 	ball.global_position = Vector2(
@@ -195,6 +190,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.is_piercing = source_ball.is_piercing
 	new_ball.is_explosive = source_ball.is_explosive
 	new_ball.shield_active = shield_active
+	new_ball.magnet_active = magnet_active
 	new_ball.is_attached = false
 
 	for ball in active_balls:
@@ -244,6 +240,13 @@ func set_shield_enabled(enabled: bool):
 	for ball in active_balls:
 		if is_instance_valid(ball):
 			ball.shield_active = enabled
+
+func set_magnet_enabled(enabled: bool):
+	magnet_active = enabled
+
+	for ball in active_balls:
+		if is_instance_valid(ball):
+			ball.magnet_active = enabled
 
 func stop_all_balls():
 	for ball in active_balls:
@@ -317,6 +320,7 @@ func reset_level_effects():
 	$Paddle.set_width(160.0)
 	set_all_balls_speed(700.0)
 	set_shield_enabled(false)
+	set_magnet_enabled(false)
 
 # =========================
 # ПОБЕДА И ПОРАЖЕНИЕ
@@ -436,6 +440,9 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 		
 		Bonus.BonusType.SHIELD:
 			set_shield_enabled(true)
+		
+		Bonus.BonusType.MAGNET:
+			set_magnet_enabled(true)
 
 func clear_bonuses():
 	for child in get_children():

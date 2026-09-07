@@ -9,7 +9,9 @@ var is_attached: bool = true
 var is_piercing: bool = false
 var is_explosive: bool = false
 var shield_active: bool = false
+var magnet_active: bool = false
 var shield_y: float = 1040.0
+var attached_offset_x: float = 0.0
 
 func _ready():
 	set_collision_mask_value(1, true)	
@@ -25,6 +27,11 @@ func _draw():
 
 func _physics_process(delta):
 	if is_attached:
+		var paddle = get_parent().get_node("Paddle")
+
+		global_position.x = paddle.global_position.x + attached_offset_x
+		global_position.y = paddle.global_position.y - 40
+
 		return
 	
 	if shield_active and direction.y > 0.0:
@@ -38,7 +45,10 @@ func _physics_process(delta):
 		var collider = collision.get_collider()
 
 		if collider.name == "Paddle":
-			bounce_from_paddle(collider)
+			if magnet_active:
+				attach_to_paddle()
+			else:
+				bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
 			if is_piercing and not collider.indestructible:
@@ -66,6 +76,11 @@ func bounce_from_paddle(paddle):
 
 func attach_to_paddle():
 	is_attached = true
+
+	var paddle = get_parent().get_node("Paddle")
+
+	attached_offset_x = global_position.x - paddle.global_position.x
+	global_position.y = paddle.global_position.y - 40
 
 func launch():
 	is_attached = false

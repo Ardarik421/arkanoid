@@ -13,7 +13,8 @@ enum BonusType {
 	SPLIT_BALLS,
 	PIERCING_BALL,
 	EXPLOSIVE_BALL,
-	SHIELD
+	SHIELD,
+	MAGNET
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
@@ -74,6 +75,10 @@ func _draw():
 		BonusType.SHIELD:
 			bonus_color = Color(0.2, 0.6, 1.0)
 			bonus_text = "B"
+		
+		BonusType.MAGNET:
+			bonus_color = Color(0.7, 0.2, 0.9)
+			bonus_text = "M"
 
 	draw_rect(rect, bonus_color)
 

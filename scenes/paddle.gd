@@ -10,8 +10,10 @@ extends CharacterBody2D
 
 var can_move: bool = true
 var use_mouse_control: bool = false
+var fixed_y: float
 
 func _ready():
+	fixed_y = global_position.y
 	queue_redraw()
 
 func _draw():
@@ -61,6 +63,9 @@ func _physics_process(delta):
 		left_limit + half_width,
 		right_limit - half_width
 	)
+
+	global_position.y = fixed_y
+	velocity.y = 0.0
 
 func set_width(new_width: float):
 	width = new_width
