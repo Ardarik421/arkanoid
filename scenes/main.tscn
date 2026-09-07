@@ -24,6 +24,13 @@ brick_scene = ExtResource("3_sugp2")
 bonus_scene = ExtResource("5_tbgi4")
 test_start_level = 20
 use_test_level = false
+use_test_bonuses = true
+test_piercing = true
+test_explosive = true
+test_shield = true
+test_magnet = true
+test_fast = true
+test_hyper = true
 
 [node name="Walls" type="Node2D" parent="." unique_id=1927932240]
 
@@ -62,10 +69,11 @@ shape = SubResource("RectangleShape2D_2k4f0")
 
 [node name="LivesLabel" type="Label" parent="." unique_id=576695795]
 offset_left = 20.0
-offset_right = 300.0
+offset_top = 20.0
+offset_right = 100.0
 offset_bottom = 60.0
 theme_override_font_sizes/font_size = 28
-text = "Жизни: 3"
+text = "HP: 3"
 vertical_alignment = 1
 
 [node name="GameOverLabel" type="Label" parent="." unique_id=303475574]
@@ -108,24 +116,21 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="." unique_id=361577964]
-offset_right = 960.0
+offset_left = 110.0
+offset_top = 20.0
+offset_right = 190.0
 offset_bottom = 60.0
 theme_override_font_sizes/font_size = 28
-text = "Счёт: 0"
-horizontal_alignment = 1
+text = "0"
 vertical_alignment = 1
 
 [node name="LevelLabel" type="Label" parent="." unique_id=1069848913]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 660.0
-offset_right = 940.0
+offset_left = 200.0
+offset_top = 20.0
+offset_right = 290.0
 offset_bottom = 60.0
-grow_horizontal = 2
 theme_override_font_sizes/font_size = 28
-text = "Уровень: 1"
-horizontal_alignment = 2
+text = "LVL: 1"
 vertical_alignment = 1
 
 [node name="Shield" type="StaticBody2D" parent="." unique_id=1753832067]
@@ -135,5 +140,44 @@ position = Vector2(480, 1040)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Shield" unique_id=1149921399]
 shape = SubResource("RectangleShape2D_mxp4v")
 disabled = true
+
+[node name="EffectsUI" type="HBoxContainer" parent="." unique_id=367337261]
+offset_left = 467.0
+offset_top = 20.0
+offset_right = 940.0
+offset_bottom = 60.0
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="Piercing" type="Label" parent="EffectsUI" unique_id=1437575256]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "P 7.0"
+
+[node name="Explosive" type="Label" parent="EffectsUI" unique_id=1610261575]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "E 12.0"
+
+[node name="Shield" type="Label" parent="EffectsUI" unique_id=1697420844]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "B 15.0"
+
+[node name="Magnet" type="Label" parent="EffectsUI" unique_id=1670060544]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "M 15.0"
+
+[node name="Fast" type="Label" parent="EffectsUI" unique_id=157303934]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "F 12.0"
+
+[node name="Hyper" type="Label" parent="EffectsUI" unique_id=2138204108]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "H 6.0"
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_death_zone_body_entered"]

@@ -38,7 +38,6 @@ enum LevelStyle {
 @export var brick_scene: PackedScene
 @export var bonus_scene: PackedScene
 
-
 # =========================
 # НАСТРОЙКИ СЕТКИ КИРПИЧЕЙ
 # =========================
@@ -54,7 +53,6 @@ enum LevelStyle {
 
 @export var gap_x: float = 8.0
 @export var gap_y: float = 8.0
-
 
 # =========================
 # НАСТРОЙКИ ТЕСТИРОВАНИЯ
@@ -195,6 +193,8 @@ func _ready():
 	update_level_label()
 
 func _process(_delta):
+	update_effects_ui()
+	
 	if game_won:
 		if Input.is_action_just_pressed("launch_ball"):
 			start_next_level()
@@ -613,13 +613,28 @@ func clear_bonuses():
 # =========================
 
 func update_lives_label():
-	$LivesLabel.text = "Жизни: " + str(lives)
+	$LivesLabel.text = "HP " + str(lives)
 
 func update_score_label():
-	$ScoreLabel.text = "Счёт: " + str(score)
+	$ScoreLabel.text = str(score)
 
 func update_level_label():
-	$LevelLabel.text = "Уровень: " + str(current_level)
+	$LevelLabel.text = "LVL " + str(current_level)
+
+func update_effects_ui():
+	update_effect_label($EffectsUI/Piercing, "P", piercing_time)
+	update_effect_label($EffectsUI/Explosive, "E", explosive_time)
+	update_effect_label($EffectsUI/Shield, "B", shield_time)
+	update_effect_label($EffectsUI/Magnet, "M", magnet_time)
+	update_effect_label($EffectsUI/Fast, "F", fast_time)
+	update_effect_label($EffectsUI/Hyper, "H", hyper_time)
+
+func update_effect_label(label: Label, prefix: String, time_left: float):
+	if time_left > 0.0:
+		label.visible = true
+		label.text = "%s %.1f" % [prefix, time_left]
+	else:
+		label.visible = false
 
 # =========================
 # НАСТРОЙКА УРОВНЯ
