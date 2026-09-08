@@ -50,7 +50,16 @@ custom_minimum_size = Vector2(0, 70)
 theme_override_font_sizes/font_size = 28
 text = "ВЫХОД"
 
+[node name="NewGameConfirmation" type="ConfirmationDialog" parent="."]
+title = "НОВАЯ ИГРА"
+initial_position = 2
+size = Vector2i(520, 220)
+ok_button_text = "ДА"
+cancel_button_text = "НЕТ"
+dialog_text = "Начать новую игру?\nТекущий прогресс будет удалён."
+
 [connection signal="pressed" from="Menu/NewGameButton" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Menu/LevelSelectButton" to="." method="_on_level_select_pressed"]
 [connection signal="pressed" from="Menu/ExitButton" to="." method="_on_exit_pressed"]
+[connection signal="confirmed" from="NewGameConfirmation" to="." method="_on_new_game_confirmed"]
