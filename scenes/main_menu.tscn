@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Menu" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 280.0
+offset_top = 320.0
+offset_right = 680.0
+offset_bottom = 760.0
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="Menu"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "ARKANOID"
+horizontal_alignment = 1
+
+[node name="NewGameButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+theme_override_font_sizes/font_size = 28
+text = "НОВАЯ ИГРА"
+
+[node name="ContinueButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+theme_override_font_sizes/font_size = 28
+text = "ПРОДОЛЖИТЬ"
+
+[node name="ExitButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+theme_override_font_sizes/font_size = 28
+text = "ВЫХОД"
+
+[connection signal="pressed" from="Menu/NewGameButton" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Menu/ExitButton" to="." method="_on_exit_pressed"]
