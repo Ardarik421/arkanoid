@@ -524,7 +524,7 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 
 	update_score_label()
 
-	if guaranteed_bonus or randf() < 0.60:
+	if guaranteed_bonus or randf() < get_bonus_drop_chance():
 		var bonus = bonus_scene.instantiate()
 
 		if powerful_bonus:
@@ -896,6 +896,15 @@ func get_level_fill_chance() -> float:
 		0.50,
 		0.97
 	)
+
+func get_bonus_drop_chance() -> float:
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
+
+	return lerp(0.45, 0.25, progress)
 
 # =========================
 # НАСТРОЙКА ПРОЧНОСТИ КИРПИЧЕЙ
