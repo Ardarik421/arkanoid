@@ -3,10 +3,11 @@ extends Node
 const SAVE_PATH: String = "user://progress.save"
 
 var highest_unlocked_level: int = 1
+var selected_level: int = 1
 
 func _ready():
 	load_progress()
-	print("Загружен прогресс. Последний открытый уровень: ", highest_unlocked_level)
+	selected_level = highest_unlocked_level
 
 func save_progress():
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -51,4 +52,5 @@ func unlock_level(level: int):
 
 func reset_progress():
 	highest_unlocked_level = 1
+	selected_level = 1
 	save_progress()
