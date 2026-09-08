@@ -29,28 +29,32 @@ enum DropPool {
 @export var size: float = 28.0
 
 static var next_drop_pool: DropPool = DropPool.ANY
+var forced_bonus_type: int = -1
 
 func _ready():
-	match next_drop_pool:
-		DropPool.UTILITY:
-			bonus_type = [
-				BonusType.EXPAND_PADDLE,
-				BonusType.EXTRA_LIFE,
-				BonusType.HYPER_BALL,
-				BonusType.FAST_BALL,
-				BonusType.SHIELD,
-				BonusType.MAGNET
-			].pick_random()
+	if forced_bonus_type >= 0:
+		bonus_type = forced_bonus_type as BonusType
+	else:
+		match next_drop_pool:
+			DropPool.UTILITY:
+				bonus_type = [
+					BonusType.EXPAND_PADDLE,
+					BonusType.EXTRA_LIFE,
+					BonusType.HYPER_BALL,
+					BonusType.FAST_BALL,
+					BonusType.SHIELD,
+					BonusType.MAGNET
+				].pick_random()
 
-		DropPool.POWERFUL:
-			bonus_type = [
-				BonusType.PIERCING_BALL,
-				BonusType.EXPLOSIVE_BALL,
-				BonusType.SPLIT_BALLS
-			].pick_random()
+			DropPool.POWERFUL:
+				bonus_type = [
+					BonusType.PIERCING_BALL,
+					BonusType.EXPLOSIVE_BALL,
+					BonusType.SPLIT_BALLS
+				].pick_random()
 
-		DropPool.ANY:
-			bonus_type = BonusType.values().pick_random()
+			DropPool.ANY:
+				bonus_type = BonusType.values().pick_random()
 
 	next_drop_pool = DropPool.ANY
 
