@@ -1,6 +1,6 @@
 extends StaticBody2D
 
-signal destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool)
+signal destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool)
 signal exploded(brick_position: Vector2)
 
 @export var width: float = 70.0
@@ -98,6 +98,14 @@ func _draw():
 	elif guaranteed_bonus:
 		draw_rect(rect, Color(1.0, 0.75, 0.15), false, 4.0)
 
+func prepare_bonus_drop():
+	if powerful_bonus:
+		Bonus.next_drop_pool = Bonus.DropPool.POWERFUL
+	elif guaranteed_bonus:
+		Bonus.next_drop_pool = Bonus.DropPool.UTILITY
+	else:
+		Bonus.next_drop_pool = Bonus.DropPool.ANY
+
 func hit(explosive_hit: bool = false):
 	if indestructible or is_destroyed:
 		return
@@ -106,8 +114,8 @@ func hit(explosive_hit: bool = false):
 
 	if health <= 0:
 		is_destroyed = true
-
-		destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
+		prepare_bonus_drop()
+		destroyed.emit(points, global_position, guaranteed_bonus)
 
 		if explosive_hit:
 			exploded.emit(global_position)
@@ -121,8 +129,8 @@ func destroy(explosive_hit: bool = false):
 		return
 
 	is_destroyed = true
-
-	destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
+	prepare_bonus_drop()
+	destroyed.emit(points, global_position, guaranteed_bonus)
 
 	if explosive_hit:
 		exploded.emit(global_position)
