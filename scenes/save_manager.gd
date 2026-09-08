@@ -6,6 +6,7 @@ var highest_unlocked_level: int = 1
 
 func _ready():
 	load_progress()
+	print("Загружен прогресс. Последний открытый уровень: ", highest_unlocked_level)
 
 func save_progress():
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
