@@ -12,9 +12,14 @@ signal exploded(brick_position: Vector2)
 @export var indestructible: bool = false
 var guaranteed_bonus: bool = false
 
+const BONUS_BRICK_CHANCE: float = 0.10
+
 var is_destroyed: bool = false
 
 func _ready():
+	if not indestructible:
+		guaranteed_bonus = randf() < BONUS_BRICK_CHANCE
+
 	queue_redraw()
 
 func _draw():
@@ -43,6 +48,9 @@ func _draw():
 			draw_rect(rect, Color(0.50, 0.50, 0.50))
 		else:
 			draw_rect(rect, Color(0.80, 0.80, 0.80))
+
+	if guaranteed_bonus:
+		draw_rect(rect, Color(1.0, 0.75, 0.15), false, 4.0)
 
 func hit(explosive_hit: bool = false):
 	if indestructible or is_destroyed:
