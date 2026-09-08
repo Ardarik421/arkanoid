@@ -17,18 +17,42 @@ enum BonusType {
 	MAGNET
 }
 
+enum DropPool {
+	ANY,
+	UTILITY,
+	POWERFUL
+}
+
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
 
 @export var fall_speed: float = 250.0
 @export var size: float = 28.0
 
-var forced_bonus_type: int = -1
+static var next_drop_pool: DropPool = DropPool.ANY
 
 func _ready():
-	if forced_bonus_type >= 0:
-		bonus_type = forced_bonus_type as BonusType
-	else:
-		bonus_type = BonusType.values().pick_random()
+	match next_drop_pool:
+		DropPool.UTILITY:
+			bonus_type = [
+				BonusType.EXPAND_PADDLE,
+				BonusType.EXTRA_LIFE,
+				BonusType.HYPER_BALL,
+				BonusType.FAST_BALL,
+				BonusType.SHIELD,
+				BonusType.MAGNET
+			].pick_random()
+
+		DropPool.POWERFUL:
+			bonus_type = [
+				BonusType.PIERCING_BALL,
+				BonusType.EXPLOSIVE_BALL,
+				BonusType.SPLIT_BALLS
+			].pick_random()
+
+		DropPool.ANY:
+			bonus_type = BonusType.values().pick_random()
+
+	next_drop_pool = DropPool.ANY
 
 	queue_redraw()
 	body_entered.connect(_on_body_entered)
