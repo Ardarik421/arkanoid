@@ -268,7 +268,6 @@ func reset_ball():
 
 	ball.visible = true
 	ball.set_physics_process(true)
-	ball.speed = 700.0
 	ball.is_piercing = false
 	ball.is_explosive = false
 	ball.magnet_active = magnet_active
@@ -283,6 +282,8 @@ func reset_ball():
 	ball.attach_to_paddle()
 
 	active_balls.append(ball)
+	
+	update_ball_speed()
 
 func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	var new_ball = BALL_SCENE.instantiate()
@@ -508,13 +509,13 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
-func _on_brick_destroyed(points: int, brick_position: Vector2):
+func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool):
 	score += points
 	breakable_bricks_left -= 1
 
 	update_score_label()
 	
-	if randf() < 0.60:
+	if guaranteed_bonus or randf() < 0.60:
 		var bonus = bonus_scene.instantiate()
 		add_child(bonus)
 		bonus.global_position = brick_position
