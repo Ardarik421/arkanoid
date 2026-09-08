@@ -111,6 +111,7 @@ var current_level: int = 1
 
 var lives: int = 3
 var score: int = 0
+var score_at_level_start: int = 0
 
 var balls_lost_this_level: int = 0
 var breakable_bricks_left: int = 0
@@ -121,6 +122,7 @@ var game_over: bool = false
 var active_balls: Array[CharacterBody2D] = []
 
 const BALL_SCENE = preload("res://scenes/ball.tscn")
+const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
 
 var shield_active: bool = false
 var magnet_active: bool = false
@@ -175,26 +177,27 @@ var pattern_sizes: Dictionary = {}
 # =========================
 
 func _ready():
-	
 	set_shield_enabled(false)
 	active_balls.append($Ball)
-	
+
 	if use_test_level:
 		current_level = test_start_level
 	else:
-		current_level = 1
-	
+		current_level = SaveManager.selected_level
+
+	score_at_level_start = score
+
 	apply_level_settings()
 	generate_bricks()
 	apply_test_bonuses()
-	
+
 	update_lives_label()
 	update_score_label()
 	update_level_label()
 
 func _process(_delta):
 	update_effects_ui()
-	
+
 	if game_won:
 		if Input.is_action_just_pressed("launch_ball"):
 			start_next_level()
@@ -202,23 +205,25 @@ func _process(_delta):
 
 	if game_over:
 		if Input.is_action_just_pressed("launch_ball"):
-			restart_game()
+			restart_level()
+		elif Input.is_action_just_pressed("ui_cancel"):
+			return_to_main_menu()
 		return
-	
+
 	if piercing_time > 0.0:
 		piercing_time -= _delta
 
 	if piercing_time <= 0.0:
 		piercing_time = 0.0
 		set_all_balls_piercing(false)
-	
+
 	if explosive_time > 0.0:
 		explosive_time -= _delta
 
 	if explosive_time <= 0.0:
 		explosive_time = 0.0
 		set_all_balls_explosive(false)
-	
+
 	if shield_time > 0.0:
 		shield_time -= _delta
 
@@ -232,7 +237,7 @@ func _process(_delta):
 	if magnet_time <= 0.0:
 		magnet_time = 0.0
 		set_magnet_enabled(false)
-		
+
 	if fast_time > 0.0:
 		fast_time -= _delta
 
@@ -246,7 +251,7 @@ func _process(_delta):
 	if hyper_time <= 0.0:
 		hyper_time = 0.0
 		update_ball_speed()
-	
+
 	if Input.is_action_just_pressed("launch_ball"):
 		for ball in active_balls:
 			if is_instance_valid(ball) and ball.is_attached:
@@ -282,7 +287,7 @@ func reset_ball():
 	ball.attach_to_paddle()
 
 	active_balls.append(ball)
-	
+
 	update_ball_speed()
 
 func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
@@ -378,10 +383,9 @@ func lose_life():
 	else:
 		show_game_over()
 
-func restart_game():
-	current_level = 1
+func restart_level():
 	reset_level_effects()
-	score = 0
+	score = score_at_level_start
 	balls_lost_this_level = 0
 
 	update_level_label()
@@ -394,6 +398,8 @@ func restart_game():
 	$Paddle.can_move = true
 	$Paddle.global_position = Vector2(480, 980)
 
+	clear_bonuses()
+
 	for brick in $Bricks.get_children():
 		$Bricks.remove_child(brick)
 		brick.queue_free()
@@ -401,12 +407,17 @@ func restart_game():
 	apply_level_settings()
 	generate_bricks()
 	reset_ball()
+	apply_test_bonuses()
 
 	game_won = false
 	game_over = false
 
+func return_to_main_menu():
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+
 func start_next_level():
 	current_level += 1
+	score_at_level_start = score
 	update_level_label()
 
 	reset_level_effects()
@@ -428,29 +439,24 @@ func start_next_level():
 
 	game_won = false
 
-	game_won = false
-
 func reset_level_effects():
 	lives = 3
 	$Paddle.set_width(PADDLE_DEFAULT_WIDTH)
-	
+
 	fast_time = 0.0
 	hyper_time = 0.0
 	update_ball_speed()
-	
+
 	piercing_time = 0.0
 	set_all_balls_piercing(false)
-	
+
 	explosive_time = 0.0
 	set_all_balls_explosive(false)
-	
+
 	shield_time = 0.0
 	set_shield_enabled(false)
-	
+
 	magnet_time = 0.0
-	set_magnet_enabled(false)
-	
-	set_shield_enabled(false)
 	set_magnet_enabled(false)
 
 # =========================
@@ -459,6 +465,7 @@ func reset_level_effects():
 
 func show_game_over():
 	game_over = true
+	$GameOverLabel.text = "ИГРА ОКОНЧЕНА\nSPACE — повторить уровень\nESC — главное меню"
 	$GameOverLabel.visible = true
 	$Paddle.can_move = false
 	reset_ball()
@@ -467,6 +474,7 @@ func show_victory():
 	var bonus = get_level_bonus()
 
 	score += bonus
+	SaveManager.unlock_level(current_level + 1)
 	update_score_label()
 	clear_bonuses()
 
@@ -493,7 +501,7 @@ func get_level_bonus() -> int:
 func _on_death_zone_body_entered(body):
 	if not body is CharacterBody2D:
 		return
-	
+
 	if not body in active_balls:
 		return
 
@@ -564,7 +572,6 @@ func _on_brick_exploded(explosion_position: Vector2):
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
-
 		Bonus.BonusType.EXPAND_PADDLE:
 			var new_width = $Paddle.width + PADDLE_WIDTH_STEP
 			$Paddle.set_width(min(new_width, PADDLE_MAX_WIDTH))
@@ -668,7 +675,6 @@ func apply_level_settings():
 	pattern_sizes.clear()
 
 	var difficulty = get_level_difficulty()
-
 	var new_style = get_random_level_style()
 
 	if has_previous_style:
@@ -680,7 +686,7 @@ func apply_level_settings():
 	has_previous_style = true
 
 	current_fill_chance = get_level_fill_chance()
-		
+
 	var available_patterns: Array[LevelPattern] = []
 
 	match difficulty:
@@ -719,12 +725,13 @@ func apply_level_settings():
 				LevelPattern.HORIZONTAL_PLATFORMS,
 				LevelPattern.HORIZONTAL_GAP
 			]
+
 	print(
 		"Level: ", current_level,
 		" | Difficulty: ", LevelDifficulty.keys()[get_level_difficulty()],
 		" | Style: ", LevelStyle.keys()[current_level_style],
 		" | Fill: ", current_fill_chance
-		)
+	)
 
 	if use_test_pattern:
 		active_patterns.append(test_pattern)
@@ -735,7 +742,7 @@ func apply_level_settings():
 		)
 
 		pattern_variants[test_pattern] = randi_range(0, 1)
-		
+
 		if (
 			test_pattern == LevelPattern.HORIZONTAL_WALL
 			or test_pattern == LevelPattern.DOUBLE_HORIZONTAL
@@ -782,7 +789,6 @@ func apply_level_settings():
 				pattern_offsets.erase(selected_pattern)
 				pattern_variants.erase(selected_pattern)
 				pattern_sizes.erase(selected_pattern)
-
 			else:
 				selected_count += 1
 
@@ -790,7 +796,7 @@ func apply_level_settings():
 					break
 
 				available_patterns.erase(LevelPattern.CROSS)
-					
+
 	var pattern_names: Array[String] = []
 
 	for pattern in active_patterns:
@@ -1015,15 +1021,14 @@ func count_horizontal_patterns() -> int:
 
 func is_wall_position(row: int, column: int) -> bool:
 	for pattern in active_patterns:
-		
 		var offset: Vector2i = pattern_offsets.get(
 			pattern,
 			Vector2i.ZERO
 		)
-			
+
 		var variant: int = pattern_variants.get(pattern, 0)
 		var size: int = pattern_sizes.get(pattern, 4)
-		
+
 		if pattern == LevelPattern.VERTICAL_WALL:
 			if (
 				column == 5 + offset.x
@@ -1128,7 +1133,7 @@ func is_wall_position(row: int, column: int) -> bool:
 			):
 				return true
 
-	return false	
+	return false
 
 func count_wall_positions() -> int:
 	var count = 0
