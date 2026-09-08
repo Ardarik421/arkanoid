@@ -51,7 +51,7 @@ func _physics_process(delta):
 				bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
-			if is_piercing and not collider.indestructible:
+			if is_piercing:
 				collider.destroy(is_explosive)
 			else:
 				direction = direction.bounce(collision.get_normal())

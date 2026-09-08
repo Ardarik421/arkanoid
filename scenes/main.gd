@@ -12,7 +12,8 @@ enum LevelPattern {
 	HORIZONTAL_WALL,
 	DOUBLE_HORIZONTAL,
 	HORIZONTAL_PLATFORMS,
-	HORIZONTAL_GAP
+	HORIZONTAL_GAP,
+	BARRIER_TEST
 }
 
 enum LevelDifficulty {
@@ -568,7 +569,7 @@ func _on_brick_exploded(explosion_position: Vector2):
 		var distance_y = abs(brick.global_position.y - explosion_position.y)
 
 		if distance_x <= max_x_distance and distance_y <= max_y_distance:
-			brick.hit(false)
+			brick.hit_by_explosion()
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
@@ -1126,7 +1127,14 @@ func is_wall_position(row: int, column: int) -> bool:
 				and column != 5 + offset.x
 			):
 				return true
-
+		elif pattern == LevelPattern.BARRIER_TEST:
+			if (
+				row == 4
+				and column >= 3
+				and column <= 7
+			):
+				return true
+				
 	return false
 
 func count_wall_positions() -> int:

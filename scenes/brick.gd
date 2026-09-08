@@ -20,6 +20,12 @@ const BONUS_ASSIGNMENT_META: StringName = &"bonus_assignment_scheduled"
 
 var is_destroyed: bool = false
 
+const BARRIER_HITS_TO_DESTROY: int = 5
+
+var barrier_hits: int = 0
+var barrier_blink_timer: float = 0.0
+var barrier_flash: bool = false
+
 func _ready():
 	queue_redraw()
 
@@ -28,6 +34,37 @@ func _ready():
 	if not bricks_parent.has_meta(BONUS_ASSIGNMENT_META):
 		bricks_parent.set_meta(BONUS_ASSIGNMENT_META, true)
 		call_deferred("_assign_bonus_bricks")
+
+func _process(delta):
+	if not indestructible or barrier_hits <= 0 or is_destroyed:
+		return
+
+	barrier_blink_timer -= delta
+
+	if barrier_blink_timer > 0.0:
+		return
+
+	barrier_flash = not barrier_flash
+
+	if barrier_flash:
+		barrier_blink_timer = 0.08
+	else:
+		barrier_blink_timer = get_barrier_blink_interval()
+
+	queue_redraw()
+
+func get_barrier_blink_interval() -> float:
+	match barrier_hits:
+		1:
+			return 0.90
+		2:
+			return 0.60
+		3:
+			return 0.35
+		4:
+			return 0.18
+
+	return 0.18
 
 func _assign_bonus_bricks():
 	var bricks_parent = get_parent()
@@ -73,7 +110,11 @@ func _draw():
 	)
 
 	if indestructible:
-		draw_rect(rect, Color(0.15, 0.15, 0.15))
+		if barrier_flash:
+			draw_rect(rect, Color(0.55, 0.80, 1.0))
+		else:
+			draw_rect(rect, Color(0.10, 0.18, 0.24))
+
 		return
 
 	if max_health == 1:
@@ -107,7 +148,23 @@ func prepare_bonus_drop():
 		Bonus.next_drop_pool = Bonus.DropPool.ANY
 
 func hit(explosive_hit: bool = false):
-	if indestructible or is_destroyed:
+	if is_destroyed:
+		return
+
+	if indestructible:
+		if explosive_hit:
+			destroy_barrier(true)
+			return
+
+		barrier_hits += 1
+
+		if barrier_hits >= BARRIER_HITS_TO_DESTROY:
+			destroy_barrier()
+			return
+
+		barrier_flash = true
+		barrier_blink_timer = 0.08
+		queue_redraw()
 		return
 
 	health -= 1
@@ -125,7 +182,11 @@ func hit(explosive_hit: bool = false):
 		queue_redraw()
 
 func destroy(explosive_hit: bool = false):
-	if indestructible or is_destroyed:
+	if is_destroyed:
+		return
+
+	if indestructible:
+		destroy_barrier(explosive_hit)
 		return
 
 	is_destroyed = true
@@ -136,3 +197,23 @@ func destroy(explosive_hit: bool = false):
 		exploded.emit(global_position)
 
 	queue_free()
+
+func destroy_barrier(trigger_explosion: bool = false):
+	if is_destroyed:
+		return
+
+	is_destroyed = true
+
+	if trigger_explosion:
+		exploded.emit(global_position)
+
+	queue_free()
+
+func hit_by_explosion():
+	if is_destroyed:
+		return
+
+	if indestructible:
+		destroy_barrier()
+	else:
+		hit(false)
