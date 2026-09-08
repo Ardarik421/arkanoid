@@ -467,6 +467,7 @@ func show_victory():
 	var bonus = get_level_bonus()
 
 	score += bonus
+	SaveManager.unlock_level(current_level + 1)
 	update_score_label()
 	clear_bonuses()
 
