@@ -895,48 +895,52 @@ func get_level_fill_chance() -> float:
 # =========================
 
 func get_three_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.03
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.03
+	var chance = lerp(0.01, 0.20, progress)
 
-		LevelDifficulty.NORMAL:
-			chance = 0.07
+	match current_level_style:
+		LevelStyle.TOUGH:
+			chance += 0.05
 
-		LevelDifficulty.HARD:
-			chance = 0.12
+		LevelStyle.MAZE:
+			chance -= 0.03
 
-		LevelDifficulty.ADVANCED:
-			chance = 0.15
+		LevelStyle.DENSE:
+			chance -= 0.01
 
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.10
+		LevelStyle.SPARSE:
+			chance += 0.02
 
-	return chance
+	return clamp(chance, 0.0, 0.25)
 
 func get_two_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.12
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.12
+	var chance = lerp(0.10, 0.34, progress)
 
-		LevelDifficulty.NORMAL:
-			chance = 0.20
+	match current_level_style:
+		LevelStyle.TOUGH:
+			chance += 0.08
 
-		LevelDifficulty.HARD:
-			chance = 0.28
+		LevelStyle.MAZE:
+			chance -= 0.05
 
-		LevelDifficulty.ADVANCED:
-			chance = 0.32
+		LevelStyle.DENSE:
+			chance -= 0.02
 
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.15
+		LevelStyle.SPARSE:
+			chance += 0.03
 
-	return chance
+	return clamp(chance, 0.05, 0.42)
 
 # =========================
 # НАСТРОЙКА СТРУКТУР УРОВНЯ

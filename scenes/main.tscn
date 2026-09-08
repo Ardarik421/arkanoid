@@ -22,9 +22,7 @@ size = Vector2(920, 12)
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
 bonus_scene = ExtResource("5_tbgi4")
-test_start_level = 20
-use_test_level = false
-use_test_pattern = true
+test_start_level = 100
 test_pattern = 7
 
 [node name="Walls" type="Node2D" parent="." unique_id=1927932240]
