@@ -14,9 +14,9 @@ script = ExtResource("1_menu")
 [node name="Menu" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 280.0
-offset_top = 320.0
+offset_top = 260.0
 offset_right = 680.0
-offset_bottom = 760.0
+offset_bottom = 820.0
 theme_override_constants/separation = 24
 alignment = 1
 
@@ -38,6 +38,12 @@ custom_minimum_size = Vector2(0, 70)
 theme_override_font_sizes/font_size = 28
 text = "ПРОДОЛЖИТЬ"
 
+[node name="LevelSelectButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+theme_override_font_sizes/font_size = 28
+text = "ВЫБОР УРОВНЯ"
+
 [node name="ExitButton" type="Button" parent="Menu"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 70)
@@ -46,4 +52,5 @@ text = "ВЫХОД"
 
 [connection signal="pressed" from="Menu/NewGameButton" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Menu/LevelSelectButton" to="." method="_on_level_select_pressed"]
 [connection signal="pressed" from="Menu/ExitButton" to="." method="_on_exit_pressed"]
