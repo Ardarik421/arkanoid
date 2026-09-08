@@ -9,6 +9,17 @@ func _ready():
 	$Menu/NewGameButton.grab_focus()
 
 func _on_new_game_pressed():
+	if SaveManager.highest_unlocked_level > 1:
+		$NewGameConfirmation.popup_centered()
+		$NewGameConfirmation.get_ok_button().grab_focus()
+		return
+
+	start_new_game()
+
+func _on_new_game_confirmed():
+	start_new_game()
+
+func start_new_game():
 	SaveManager.reset_progress()
 	SaveManager.selected_level = 1
 	get_tree().change_scene_to_file(GAME_SCENE)
