@@ -530,9 +530,12 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 		if powerful_bonus:
 			var powerful_pool = [
 				Bonus.BonusType.PIERCING_BALL,
-				Bonus.BonusType.EXPLOSIVE_BALL,
-				Bonus.BonusType.SPLIT_BALLS
+				Bonus.BonusType.EXPLOSIVE_BALL
 			]
+
+			if get_pressure_tier() == 0:
+				powerful_pool.append(Bonus.BonusType.SPLIT_BALLS)
+
 			bonus.forced_bonus_type = powerful_pool.pick_random()
 
 		elif guaranteed_bonus:
@@ -980,6 +983,39 @@ func get_max_wall_bricks() -> int:
 	)
 
 	return roundi(lerp(7.0, 24.0, progress))
+
+func get_pressure_tier() -> int:
+	var pressure_factors: int = 0
+
+	var dense_pressure = current_fill_chance >= 0.82
+	var armored_pressure = (
+		get_two_hit_chance() + get_three_hit_chance()
+	) >= 0.38
+	var barrier_pressure = count_wall_positions() >= 8
+	var difficult_style = (
+		current_level_style == LevelStyle.TOUGH
+		or current_level_style == LevelStyle.MAZE
+	)
+
+	if dense_pressure:
+		pressure_factors += 1
+
+	if armored_pressure:
+		pressure_factors += 1
+
+	if barrier_pressure:
+		pressure_factors += 1
+
+	if difficult_style:
+		pressure_factors += 1
+
+	if pressure_factors >= 3:
+		return 2
+
+	if pressure_factors >= 2:
+		return 1
+
+	return 0
 
 func is_horizontal_pattern(pattern: LevelPattern) -> bool:
 	return (

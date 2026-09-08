@@ -95,8 +95,25 @@ func _assign_bonus_bricks():
 	for index in range(bonus_count):
 		candidates[index].guaranteed_bonus = true
 
-	if bonus_count > 0 and randf() < POWERFUL_BRICK_CHANCE:
-		candidates[0].powerful_bonus = true
+	var main = bricks_parent.get_parent()
+	var pressure_tier: int = 0
+
+	if main.has_method("get_pressure_tier"):
+		pressure_tier = main.get_pressure_tier()
+
+	var powerful_count: int = 0
+
+	if pressure_tier >= 2:
+		powerful_count = min(2, bonus_count)
+
+	elif pressure_tier == 1:
+		powerful_count = min(1, bonus_count)
+
+	elif bonus_count > 0 and randf() < POWERFUL_BRICK_CHANCE:
+		powerful_count = 1
+
+	for index in range(powerful_count):
+		candidates[index].powerful_bonus = true
 
 	for brick in candidates:
 		brick.queue_redraw()
