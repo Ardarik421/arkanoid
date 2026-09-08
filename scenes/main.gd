@@ -947,54 +947,39 @@ func get_two_hit_chance() -> float:
 # =========================
 
 func get_structure_count() -> int:
-	var difficulty = get_level_difficulty()
+	var minimum_structures: int = 0
+	var maximum_structures: int = 1
+
+	if current_level >= 10:
+		minimum_structures = 1
+		maximum_structures = 2
+
+	if current_level >= 30:
+		maximum_structures = 3
+
+	if current_level >= 60:
+		minimum_structures = 2
 
 	if current_level_style == LevelStyle.MAZE:
-		match difficulty:
-			LevelDifficulty.BEGINNER:
-				return 1
+		minimum_structures += 1
+		maximum_structures += 1
 
-			LevelDifficulty.NORMAL:
-				return randi_range(1, 2)
+	minimum_structures = min(minimum_structures, 3)
+	maximum_structures = min(maximum_structures, 3)
 
-			LevelDifficulty.HARD:
-				return randi_range(2, 3)
-
-			LevelDifficulty.ADVANCED:
-				return randi_range(2, 3)
-
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			return randi_range(0, 1)
-
-		LevelDifficulty.NORMAL:
-			return 1
-
-		LevelDifficulty.HARD:
-			return randi_range(1, 2)
-
-		LevelDifficulty.ADVANCED:
-			return randi_range(1, 3)
-
-	return 0
+	return randi_range(
+		minimum_structures,
+		max(maximum_structures, minimum_structures)
+	)
 
 func get_max_wall_bricks() -> int:
-	var difficulty = get_level_difficulty()
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			return 7
-
-		LevelDifficulty.NORMAL:
-			return 12
-
-		LevelDifficulty.HARD:
-			return 18
-
-		LevelDifficulty.ADVANCED:
-			return 24
-
-	return 7
+	return roundi(lerp(7.0, 24.0, progress))
 
 func is_horizontal_pattern(pattern: LevelPattern) -> bool:
 	return (
