@@ -268,8 +268,8 @@ func reset_ball():
 
 	ball.visible = true
 	ball.set_physics_process(true)
-	ball.is_piercing = false
-	ball.is_explosive = false
+	ball.is_piercing = piercing_time > 0.0
+	ball.is_explosive = explosive_time > 0.0
 	ball.magnet_active = magnet_active
 	ball.shield_active = shield_active
 	ball.queue_redraw()
@@ -509,14 +509,34 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
-func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool):
+func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool):
 	score += points
 	breakable_bricks_left -= 1
 
 	update_score_label()
-	
+
 	if guaranteed_bonus or randf() < 0.60:
 		var bonus = bonus_scene.instantiate()
+
+		if powerful_bonus:
+			var powerful_pool = [
+				Bonus.BonusType.PIERCING_BALL,
+				Bonus.BonusType.EXPLOSIVE_BALL,
+				Bonus.BonusType.SPLIT_BALLS
+			]
+			bonus.forced_bonus_type = powerful_pool.pick_random()
+
+		elif guaranteed_bonus:
+			var guaranteed_pool = [
+				Bonus.BonusType.EXPAND_PADDLE,
+				Bonus.BonusType.EXTRA_LIFE,
+				Bonus.BonusType.HYPER_BALL,
+				Bonus.BonusType.FAST_BALL,
+				Bonus.BonusType.SHIELD,
+				Bonus.BonusType.MAGNET
+			]
+			bonus.forced_bonus_type = guaranteed_pool.pick_random()
+
 		add_child(bonus)
 		bonus.global_position = brick_position
 		bonus.collected.connect(_on_bonus_collected)
