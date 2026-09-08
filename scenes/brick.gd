@@ -11,11 +11,60 @@ signal exploded(brick_position: Vector2)
 @export var points: int = 100
 @export var indestructible: bool = false
 var guaranteed_bonus: bool = false
+var powerful_bonus: bool = false
+
+const MIN_BONUS_BRICKS_PER_LEVEL: int = 2
+const MAX_BONUS_BRICKS_PER_LEVEL: int = 4
+const POWERFUL_BRICK_CHANCE: float = 0.50
+const BONUS_ASSIGNMENT_META: StringName = &"bonus_assignment_scheduled"
 
 var is_destroyed: bool = false
 
 func _ready():
 	queue_redraw()
+
+	var bricks_parent = get_parent()
+
+	if not bricks_parent.has_meta(BONUS_ASSIGNMENT_META):
+		bricks_parent.set_meta(BONUS_ASSIGNMENT_META, true)
+		call_deferred("_assign_bonus_bricks")
+
+func _assign_bonus_bricks():
+	var bricks_parent = get_parent()
+
+	if not is_instance_valid(bricks_parent):
+		return
+
+	var candidates: Array = []
+
+	for brick in bricks_parent.get_children():
+		if not is_instance_valid(brick):
+			continue
+
+		if brick.indestructible:
+			continue
+
+		brick.guaranteed_bonus = false
+		brick.powerful_bonus = false
+		candidates.append(brick)
+
+	candidates.shuffle()
+
+	var bonus_count = min(
+		randi_range(MIN_BONUS_BRICKS_PER_LEVEL, MAX_BONUS_BRICKS_PER_LEVEL),
+		candidates.size()
+	)
+
+	for index in range(bonus_count):
+		candidates[index].guaranteed_bonus = true
+
+	if bonus_count > 0 and randf() < POWERFUL_BRICK_CHANCE:
+		candidates[0].powerful_bonus = true
+
+	for brick in candidates:
+		brick.queue_redraw()
+
+	bricks_parent.remove_meta(BONUS_ASSIGNMENT_META)
 
 func _draw():
 	var rect = Rect2(
@@ -44,6 +93,19 @@ func _draw():
 		else:
 			draw_rect(rect, Color(0.80, 0.80, 0.80))
 
+	if powerful_bonus:
+		draw_rect(rect, Color(1.0, 0.25, 0.05), false, 4.0)
+	elif guaranteed_bonus:
+		draw_rect(rect, Color(1.0, 0.75, 0.15), false, 4.0)
+
+func prepare_bonus_drop():
+	if powerful_bonus:
+		Bonus.next_drop_pool = Bonus.DropPool.POWERFUL
+	elif guaranteed_bonus:
+		Bonus.next_drop_pool = Bonus.DropPool.UTILITY
+	else:
+		Bonus.next_drop_pool = Bonus.DropPool.ANY
+
 func hit(explosive_hit: bool = false):
 	if indestructible or is_destroyed:
 		return
@@ -52,7 +114,7 @@ func hit(explosive_hit: bool = false):
 
 	if health <= 0:
 		is_destroyed = true
-
+		prepare_bonus_drop()
 		destroyed.emit(points, global_position, guaranteed_bonus)
 
 		if explosive_hit:
@@ -67,7 +129,7 @@ func destroy(explosive_hit: bool = false):
 		return
 
 	is_destroyed = true
-
+	prepare_bonus_drop()
 	destroyed.emit(points, global_position, guaranteed_bonus)
 
 	if explosive_hit:
