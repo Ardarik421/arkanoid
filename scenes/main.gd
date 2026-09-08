@@ -668,13 +668,13 @@ func update_effect_label(label: Label, prefix: String, time_left: float):
 # НАСТРОЙКА УРОВНЯ
 # =========================
 
+
 func apply_level_settings():
 	active_patterns.clear()
 	pattern_offsets.clear()
 	pattern_variants.clear()
 	pattern_sizes.clear()
 
-	var difficulty = get_level_difficulty()
 	var new_style = get_random_level_style()
 
 	if has_previous_style:
@@ -687,44 +687,25 @@ func apply_level_settings():
 
 	current_fill_chance = get_level_fill_chance()
 
-	var available_patterns: Array[LevelPattern] = []
+	var available_patterns: Array[LevelPattern] = [
+		LevelPattern.VERTICAL_WALL
+	]
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL
-			]
+	if current_level >= 4:
+		available_patterns.append(LevelPattern.DOUBLE_VERTICAL)
 
-		LevelDifficulty.NORMAL:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.HORIZONTAL_PLATFORMS
-			]
+	if current_level >= 8:
+		available_patterns.append(LevelPattern.HORIZONTAL_WALL)
 
-		LevelDifficulty.HARD:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.CROSS,
-				LevelPattern.DOUBLE_HORIZONTAL,
-				LevelPattern.HORIZONTAL_PLATFORMS,
-				LevelPattern.HORIZONTAL_GAP
-			]
+	if current_level >= 13:
+		available_patterns.append(LevelPattern.HORIZONTAL_PLATFORMS)
 
-		LevelDifficulty.ADVANCED:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.CROSS,
-				LevelPattern.DOUBLE_HORIZONTAL,
-				LevelPattern.HORIZONTAL_PLATFORMS,
-				LevelPattern.HORIZONTAL_GAP
-			]
+	if current_level >= 20:
+		available_patterns.append(LevelPattern.DOUBLE_HORIZONTAL)
+		available_patterns.append(LevelPattern.CROSS)
+
+	if current_level >= 30:
+		available_patterns.append(LevelPattern.HORIZONTAL_GAP)
 
 	print(
 		"Level: ", current_level,
@@ -738,7 +719,7 @@ func apply_level_settings():
 
 		pattern_offsets[test_pattern] = Vector2i(
 			randi_range(-1, 1),
-			randi_range(-1, 1)
+			get_pattern_vertical_offset(test_pattern)
 		)
 
 		pattern_variants[test_pattern] = randi_range(0, 1)
@@ -764,7 +745,7 @@ func apply_level_settings():
 
 			pattern_offsets[selected_pattern] = Vector2i(
 				randi_range(-1, 1),
-				randi_range(-1, 1)
+				get_pattern_vertical_offset(selected_pattern)
 			)
 
 			pattern_variants[selected_pattern] = randi_range(0, 1)
@@ -803,6 +784,19 @@ func apply_level_settings():
 		pattern_names.append(LevelPattern.keys()[pattern])
 
 	print("Patterns: ", ", ".join(pattern_names))
+
+func get_pattern_vertical_offset(pattern: LevelPattern) -> int:
+	if (
+		pattern == LevelPattern.HORIZONTAL_WALL
+		or pattern == LevelPattern.DOUBLE_HORIZONTAL
+		or pattern == LevelPattern.HORIZONTAL_PLATFORMS
+		or pattern == LevelPattern.HORIZONTAL_GAP
+		or pattern == LevelPattern.CROSS
+	):
+		if current_level < 40:
+			return randi_range(0, 1)
+
+	return randi_range(-1, 1)
 
 func get_level_difficulty() -> LevelDifficulty:
 	if current_level <= 3:
