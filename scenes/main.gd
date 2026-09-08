@@ -862,36 +862,40 @@ func get_random_level_style() -> LevelStyle:
 	return LevelStyle.BALANCED
 
 func get_level_fill_chance() -> float:
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
+
+	var base_fill = lerp(0.70, 0.82, progress)
+	var variation: float = 0.0
+
 	match current_level_style:
 		LevelStyle.DENSE:
-			return randf_range(0.85, 0.95)
+			base_fill += 0.14
+			variation = 0.03
 
 		LevelStyle.SPARSE:
-			return randf_range(0.55, 0.68)
+			base_fill -= 0.14
+			variation = 0.04
 
 		LevelStyle.TOUGH:
-			return randf_range(0.72, 0.82)
+			base_fill -= 0.02
+			variation = 0.04
 
 		LevelStyle.MAZE:
-			return randf_range(0.65, 0.78)
+			base_fill -= 0.07
+			variation = 0.04
 
 		LevelStyle.BALANCED:
-			var difficulty = get_level_difficulty()
+			variation = 0.05
 
-			match difficulty:
-				LevelDifficulty.BEGINNER:
-					return randf_range(0.65, 0.75)
-
-				LevelDifficulty.NORMAL:
-					return randf_range(0.70, 0.82)
-
-				LevelDifficulty.HARD:
-					return randf_range(0.72, 0.88)
-
-				LevelDifficulty.ADVANCED:
-					return randf_range(0.68, 0.90)
-
-	return 0.75
+	return clamp(
+		base_fill + randf_range(-variation, variation),
+		0.50,
+		0.97
+	)
 
 # =========================
 # НАСТРОЙКА ПРОЧНОСТИ КИРПИЧЕЙ
