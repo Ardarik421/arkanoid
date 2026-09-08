@@ -12,15 +12,49 @@ signal exploded(brick_position: Vector2)
 @export var indestructible: bool = false
 var guaranteed_bonus: bool = false
 
-const BONUS_BRICK_CHANCE: float = 0.10
+const BONUS_BRICKS_PER_LEVEL: int = 3
+const BONUS_ASSIGNMENT_META: StringName = &"bonus_assignment_scheduled"
 
 var is_destroyed: bool = false
 
 func _ready():
-	if not indestructible:
-		guaranteed_bonus = randf() < BONUS_BRICK_CHANCE
-
 	queue_redraw()
+
+	var bricks_parent = get_parent()
+
+	if not bricks_parent.has_meta(BONUS_ASSIGNMENT_META):
+		bricks_parent.set_meta(BONUS_ASSIGNMENT_META, true)
+		call_deferred("_assign_bonus_bricks")
+
+func _assign_bonus_bricks():
+	var bricks_parent = get_parent()
+
+	if not is_instance_valid(bricks_parent):
+		return
+
+	var candidates: Array = []
+
+	for brick in bricks_parent.get_children():
+		if not is_instance_valid(brick):
+			continue
+
+		if brick.indestructible:
+			continue
+
+		brick.guaranteed_bonus = false
+		candidates.append(brick)
+
+	candidates.shuffle()
+
+	var bonus_count = min(BONUS_BRICKS_PER_LEVEL, candidates.size())
+
+	for index in range(bonus_count):
+		candidates[index].guaranteed_bonus = true
+
+	for brick in candidates:
+		brick.queue_redraw()
+
+	bricks_parent.remove_meta(BONUS_ASSIGNMENT_META)
 
 func _draw():
 	var rect = Rect2(
