@@ -19,14 +19,17 @@ enum BonusType {
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
 
-
 @export var fall_speed: float = 250.0
 @export var size: float = 28.0
 
+var forced_bonus_type: int = -1
 
 func _ready():
-	bonus_type = BonusType.values().pick_random()
-	
+	if forced_bonus_type >= 0:
+		bonus_type = forced_bonus_type as BonusType
+	else:
+		bonus_type = BonusType.values().pick_random()
+
 	queue_redraw()
 	body_entered.connect(_on_body_entered)
 
@@ -63,19 +66,19 @@ func _draw():
 		BonusType.SPLIT_BALLS:
 			bonus_color = Color(0.0, 0.8, 1.0)
 			bonus_text = "x2"
-		
+
 		BonusType.PIERCING_BALL:
 			bonus_color = Color(0.8, 0.6, 0.2)
 			bonus_text = "P"
-		
+
 		BonusType.EXPLOSIVE_BALL:
 			bonus_color = Color(1.0, 0.2, 0.1)
 			bonus_text = "E"
-		
+
 		BonusType.SHIELD:
 			bonus_color = Color(0.2, 0.6, 1.0)
 			bonus_text = "B"
-		
+
 		BonusType.MAGNET:
 			bonus_color = Color(0.7, 0.2, 0.9)
 			bonus_text = "M"
