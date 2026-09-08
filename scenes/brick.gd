@@ -1,6 +1,6 @@
 extends StaticBody2D
 
-signal destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool)
+signal destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool)
 signal exploded(brick_position: Vector2)
 
 @export var width: float = 70.0
@@ -115,7 +115,7 @@ func hit(explosive_hit: bool = false):
 	if health <= 0:
 		is_destroyed = true
 		prepare_bonus_drop()
-		destroyed.emit(points, global_position, guaranteed_bonus)
+		destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
 
 		if explosive_hit:
 			exploded.emit(global_position)
@@ -130,7 +130,7 @@ func destroy(explosive_hit: bool = false):
 
 	is_destroyed = true
 	prepare_bonus_drop()
-	destroyed.emit(points, global_position, guaranteed_bonus)
+	destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
 
 	if explosive_hit:
 		exploded.emit(global_position)
