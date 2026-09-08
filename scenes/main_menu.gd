@@ -5,7 +5,7 @@ const LEVEL_SELECT_SCENE: String = "res://scenes/level_select.tscn"
 
 func _ready():
 	$Menu/ContinueButton.disabled = SaveManager.highest_unlocked_level <= 1
-	$Menu/LevelSelectButton.disabled = SaveManager.highest_unlocked_level < 5
+	$Menu/LevelSelectButton.disabled = false
 	$Menu/NewGameButton.grab_focus()
 
 func _on_new_game_pressed():
