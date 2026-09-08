@@ -182,7 +182,7 @@ func _ready():
 	if use_test_level:
 		current_level = test_start_level
 	else:
-		current_level = 1
+		current_level = SaveManager.selected_level
 	
 	apply_level_settings()
 	generate_bricks()
