@@ -153,6 +153,8 @@ const PADDLE_MIN_WIDTH: float = 40.0
 const PADDLE_MAX_WIDTH: float = 280.0
 const PADDLE_WIDTH_STEP: float = 40.0
 
+const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
+
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
 # =========================
@@ -518,13 +520,30 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
+func get_active_bonus_count() -> int:
+	var count: int = 0
+
+	for child in get_children():
+		if child is Bonus and not child.is_queued_for_deletion():
+			count += 1
+
+	return count
+
 func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool):
 	score += points
 	breakable_bricks_left -= 1
 
 	update_score_label()
 
-	if guaranteed_bonus or randf() < get_bonus_drop_chance():
+	var can_spawn_random_bonus = (
+		guaranteed_bonus
+		or get_active_bonus_count() < MAX_RANDOM_BONUSES_ON_SCREEN
+	)
+
+	if can_spawn_random_bonus and (
+		guaranteed_bonus
+		or randf() < get_bonus_drop_chance()
+	):
 		var bonus = bonus_scene.instantiate()
 
 		if powerful_bonus:
