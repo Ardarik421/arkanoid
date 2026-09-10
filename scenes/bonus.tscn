@@ -5,6 +5,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 
 [node name="Bonus" type="Area2D" unique_id=752629519]
+scale = Vector2(2, 2)
 script = ExtResource("1_3no7k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1405557837]
