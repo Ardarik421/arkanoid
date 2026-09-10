@@ -20,6 +20,138 @@ size = Vector2(960, 80)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mxp4v"]
 size = Vector2(920, 12)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_lives"]
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.20, 0.68, 1, 0.72)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 10.0
+content_margin_right = 10.0
+shadow_color = Color(0.08, 0.48, 0.85, 0.24)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_score"]
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.82, 0.92, 0.48)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 12.0
+content_margin_right = 12.0
+shadow_color = Color(0, 0, 0, 0.48)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_level"]
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.82, 1, 0.62)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 10.0
+content_margin_right = 10.0
+shadow_color = Color(0.08, 0.48, 0.85, 0.18)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_p"]
+bg_color = Color(0.11, 0.085, 0.018, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.82, 0.22, 0.9)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_e"]
+bg_color = Color(0.13, 0.025, 0.012, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.23, 0.08, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_b"]
+bg_color = Color(0.018, 0.055, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.20, 0.58, 1, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_m"]
+bg_color = Color(0.11, 0.018, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.92, 0.24, 0.96, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_f"]
+bg_color = Color(0.13, 0.07, 0.012, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.62, 0.16, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_h"]
+bg_color = Color(0.085, 0.018, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.36, 1, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 8.0
+content_margin_right = 8.0
+
 [node name="Main" type="Node2D" unique_id=1023616930]
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
@@ -68,11 +200,16 @@ shape = SubResource("RectangleShape2D_2k4f0")
 
 [node name="LivesLabel" type="Label" parent="." unique_id=576695795]
 offset_left = 20.0
-offset_top = 20.0
-offset_right = 100.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 28
-text = "HP: 3"
+offset_top = 16.0
+offset_right = 110.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.78, 0.93, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.22, 0.34, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_lives")
+text = "HP 3"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="GameOverLabel" type="Label" parent="." unique_id=303475574]
@@ -88,10 +225,7 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ИГРА ОКОНЧЕНА
-
-SPACE - новая игра
-"
+text = "ИГРА ОКОНЧЕНА\n\nSPACE - новая игра\n"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -108,28 +242,36 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ПОБЕДА!
-
-SPACE - продолжить"
+text = "ПОБЕДА!\n\nSPACE - продолжить"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="." unique_id=361577964]
-offset_left = 110.0
-offset_top = 20.0
-offset_right = 190.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 28
+offset_left = 120.0
+offset_top = 16.0
+offset_right = 245.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.93, 0.96, 1, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.09, 0.13, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_score")
 text = "0"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LevelLabel" type="Label" parent="." unique_id=1069848913]
-offset_left = 200.0
-offset_top = 20.0
-offset_right = 290.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 28
-text = "LVL: 1"
+offset_left = 255.0
+offset_top = 16.0
+offset_right = 365.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.72, 0.91, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.20, 0.31, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_level")
+text = "LVL 1"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Shield" type="StaticBody2D" parent="." unique_id=1753832067]
@@ -141,43 +283,73 @@ shape = SubResource("RectangleShape2D_mxp4v")
 disabled = true
 
 [node name="EffectsUI" type="HBoxContainer" parent="." unique_id=367337261]
-offset_left = 467.0
-offset_top = 20.0
+offset_left = 390.0
+offset_top = 17.0
 offset_right = 940.0
-offset_bottom = 60.0
-theme_override_constants/separation = 16
+offset_bottom = 61.0
+theme_override_constants/separation = 7
 alignment = 2
 
 [node name="Piercing" type="Label" parent="EffectsUI" unique_id=1437575256]
 layout_mode = 2
 size_flags_horizontal = 8
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.90, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.20, 0.12, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_p")
 text = "P 7.0"
+vertical_alignment = 1
 
 [node name="Explosive" type="Label" parent="EffectsUI" unique_id=1610261575]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.66, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.20, 0.025, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_e")
 text = "E 12.0"
+vertical_alignment = 1
 
 [node name="Shield" type="Label" parent="EffectsUI" unique_id=1697420844]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.66, 0.84, 1, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.08, 0.20, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_b")
 text = "B 15.0"
+vertical_alignment = 1
 
 [node name="Magnet" type="Label" parent="EffectsUI" unique_id=1670060544]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.96, 0.67, 1, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.01, 0.19, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_m")
 text = "M 15.0"
+vertical_alignment = 1
 
 [node name="Fast" type="Label" parent="EffectsUI" unique_id=157303934]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.78, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.19, 0.07, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_f")
 text = "F 12.0"
+vertical_alignment = 1
 
 [node name="Hyper" type="Label" parent="EffectsUI" unique_id=2138204108]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.91, 0.72, 1, 1)
+theme_override_colors/font_outline_color = Color(0.13, 0.01, 0.19, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_h")
 text = "H 6.0"
+vertical_alignment = 1
 
 [node name="PauseLayer" type="CanvasLayer" parent="." unique_id=135469963]
 process_mode = 3
