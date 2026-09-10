@@ -172,6 +172,7 @@ var pattern_sizes: Dictionary = {}
 # =========================
 
 func _ready():
+	
 	set_shield_enabled(false)
 	active_balls.append($Ball)
 
@@ -191,6 +192,7 @@ func _ready():
 	update_level_label()
 
 func _process(_delta):
+		
 	update_effects_ui()
 
 	if game_won:
