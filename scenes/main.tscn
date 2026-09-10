@@ -17,26 +17,25 @@ size = Vector2(960, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2k4f0"]
 size = Vector2(960, 80)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_mxp4v"]
-size = Vector2(920, 12)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_lives"]
+content_margin_left = 10.0
+content_margin_right = 10.0
 bg_color = Color(0.018, 0.035, 0.055, 0.92)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.20, 0.68, 1, 0.72)
+border_color = Color(0.2, 0.68, 1, 0.72)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-content_margin_left = 10.0
-content_margin_right = 10.0
 shadow_color = Color(0.08, 0.48, 0.85, 0.24)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_score"]
+content_margin_left = 12.0
+content_margin_right = 12.0
 bg_color = Color(0.018, 0.035, 0.055, 0.92)
 border_width_left = 2
 border_width_top = 2
@@ -47,12 +46,12 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-content_margin_left = 12.0
-content_margin_right = 12.0
 shadow_color = Color(0, 0, 0, 0.48)
 shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_level"]
+content_margin_left = 10.0
+content_margin_right = 10.0
 bg_color = Color(0.018, 0.035, 0.055, 0.92)
 border_width_left = 2
 border_width_top = 2
@@ -63,12 +62,15 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-content_margin_left = 10.0
-content_margin_right = 10.0
 shadow_color = Color(0.08, 0.48, 0.85, 0.18)
 shadow_size = 5
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mxp4v"]
+size = Vector2(920, 12)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_p"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.11, 0.085, 0.018, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -79,10 +81,10 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_e"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.13, 0.025, 0.012, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -93,24 +95,24 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_b"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.018, 0.055, 0.13, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.20, 0.58, 1, 0.95)
+border_color = Color(0.2, 0.58, 1, 0.95)
 corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_m"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.11, 0.018, 0.13, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -121,10 +123,10 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_f"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.13, 0.07, 0.012, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -135,10 +137,10 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_h"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.085, 0.018, 0.13, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -149,8 +151,6 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
-content_margin_left = 8.0
-content_margin_right = 8.0
 
 [node name="Main" type="Node2D" unique_id=1023616930]
 script = ExtResource("1_sugp2")
@@ -225,7 +225,10 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ИГРА ОКОНЧЕНА\n\nSPACE - новая игра\n"
+text = "ИГРА ОКОНЧЕНА
+
+SPACE - новая игра
+"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -242,7 +245,9 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ПОБЕДА!\n\nSPACE - продолжить"
+text = "ПОБЕДА!
+
+SPACE - продолжить"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -266,7 +271,7 @@ offset_top = 16.0
 offset_right = 365.0
 offset_bottom = 62.0
 theme_override_colors/font_color = Color(0.72, 0.91, 1, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.20, 0.31, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.2, 0.31, 1)
 theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxFlat_hud_level")
@@ -293,8 +298,8 @@ alignment = 2
 [node name="Piercing" type="Label" parent="EffectsUI" unique_id=1437575256]
 layout_mode = 2
 size_flags_horizontal = 8
-theme_override_colors/font_color = Color(1, 0.90, 0.48, 1)
-theme_override_colors/font_outline_color = Color(0.20, 0.12, 0.01, 1)
+theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.12, 0.01, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_p")
@@ -304,7 +309,7 @@ vertical_alignment = 1
 [node name="Explosive" type="Label" parent="EffectsUI" unique_id=1610261575]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.66, 0.46, 1)
-theme_override_colors/font_outline_color = Color(0.20, 0.025, 0.01, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.025, 0.01, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_e")
@@ -314,7 +319,7 @@ vertical_alignment = 1
 [node name="Shield" type="Label" parent="EffectsUI" unique_id=1697420844]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.84, 1, 1)
-theme_override_colors/font_outline_color = Color(0.01, 0.08, 0.20, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.08, 0.2, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_b")

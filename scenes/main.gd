@@ -675,9 +675,13 @@ func update_effects_ui():
 	update_effect_label($EffectsUI/Hyper, "H", hyper_time)
 
 func update_effect_label(label: Label, prefix: String, time_left: float):
+	if label.has_method("set_effect_time"):
+		label.set_effect_time(time_left)
+		return
+
 	if time_left > 0.0:
 		label.visible = true
-		label.text = "%s %.1f" % [prefix, time_left]
+		label.text = "%.1f" % time_left
 	else:
 		label.visible = false
 
