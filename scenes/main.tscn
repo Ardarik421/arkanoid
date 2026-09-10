@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://b4kt1kvh5w7el" path="res://scenes/paddle.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://c21lyl7xsd1i0" path="res://scenes/brick.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://can5q72w1heag" path="res://scenes/bonus.tscn" id="5_tbgi4"]
+[ext_resource type="Script" uid="uid://bauva4yg63gt8" path="res://scenes/pause_menu.gd" id="6_tefeu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 size = Vector2(40, 1080)
@@ -172,5 +173,45 @@ text = "F 12.0"
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "H 6.0"
+
+[node name="PauseLayer" type="CanvasLayer" parent="." unique_id=135469963]
+process_mode = 3
+visible = false
+script = ExtResource("6_tefeu")
+
+[node name="PauseOverlay" type="ColorRect" parent="PauseLayer" unique_id=2109353330]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6509804)
+
+[node name="PauseMenu" type="VBoxContainer" parent="PauseLayer/PauseOverlay" unique_id=266760029]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.0
+offset_top = -46.5
+offset_right = 69.0
+offset_bottom = 46.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseTitle" type="Label" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=119717442]
+layout_mode = 2
+text = "ПАУЗА"
+
+[node name="ContinueButton" type="Button" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=2140518272]
+layout_mode = 2
+text = "Продолжить"
+
+[node name="MainMenuButton" type="Button" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=1917928394]
+layout_mode = 2
+text = "В главное меню"
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_death_zone_body_entered"]
