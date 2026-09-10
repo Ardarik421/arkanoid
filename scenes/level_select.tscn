@@ -4,54 +4,58 @@
 [ext_resource type="Script" path="res://scenes/level_select_background.gd" id="2_background"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
-bg_color = Color(0.012, 0.02, 0.034, 0.88)
+content_margin_left = 26.0
+content_margin_top = 22.0
+content_margin_right = 26.0
+content_margin_bottom = 22.0
+bg_color = Color(0.006, 0.014, 0.028, 0.54)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.22, 0.56, 0.86, 0.55)
+border_color = Color(0.2, 0.58, 0.92, 0.7)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 18
+shadow_color = Color(0, 0, 0, 0.54)
+shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back"]
-bg_color = Color(0.025, 0.045, 0.07, 0.96)
+bg_color = Color(0.018, 0.04, 0.068, 0.9)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.28, 0.68, 1, 0.72)
+border_color = Color(0.28, 0.68, 1, 0.78)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(0.06, 0.35, 0.65, 0.22)
+shadow_color = Color(0.06, 0.35, 0.65, 0.24)
 shadow_size = 7
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back_hover"]
-bg_color = Color(0.04, 0.085, 0.13, 0.98)
+bg_color = Color(0.04, 0.085, 0.13, 0.96)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.45, 0.82, 1, 0.95)
+border_color = Color(0.45, 0.82, 1, 0.98)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(0.08, 0.5, 0.9, 0.34)
+shadow_color = Color(0.08, 0.5, 0.9, 0.36)
 shadow_size = 9
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back_pressed"]
-bg_color = Color(0.018, 0.035, 0.055, 1)
+bg_color = Color(0.012, 0.03, 0.052, 0.98)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.2, 0.54, 0.82, 0.9)
+border_color = Color(0.2, 0.54, 0.82, 0.92)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -78,30 +82,30 @@ script = ExtResource("2_background")
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 76.0
-offset_top = 74.0
-offset_right = 884.0
+offset_left = 56.0
+offset_top = 42.0
+offset_right = 854.0
 offset_bottom = 1004.0
 theme_override_styles/panel = SubResource("StyleBox_panel")
 
 [node name="Content" type="VBoxContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="Panel/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.93, 1, 1)
 theme_override_colors/font_outline_color = Color(0.025, 0.12, 0.2, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 42
 text = "МАРШРУТ ПРЕСЛЕДОВАНИЯ"
 horizontal_alignment = 1
 
 [node name="Info" type="Label" parent="Panel/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.72, 0.8, 1)
-theme_override_font_sizes/font_size = 19
-text = "Контрольные точки пути: от ядра планеты к чёрной дыре"
+theme_override_colors/font_color = Color(0.68, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "От ядра планеты к чёрной дыре"
 horizontal_alignment = 1
 
 [node name="LevelGrid" type="GridContainer" parent="Panel/Content"]
