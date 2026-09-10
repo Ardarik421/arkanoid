@@ -141,111 +141,155 @@ func _draw():
 
 	var damage = max_health - health
 	if damage >= 1:
-		_draw_crack_set_one(Color(0.32, 0.68, 1.0))
+		_draw_crack_set_one(Color(0.38, 0.76, 1.0))
 	if damage >= 2:
-		_draw_crack_set_two(Color(0.32, 0.68, 1.0))
+		_draw_crack_set_two(Color(0.46, 0.84, 1.0))
 
 func _draw_light_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var half_width = width / 2.0
-	var half_height = height / 2.0
-	draw_rect(outer_rect, Color(0.025, 0.04, 0.065))
-	draw_rect(inner_rect, Color(0.11, 0.14, 0.19))
+	var hw = width / 2.0
+	var hh = height / 2.0
+	draw_rect(outer_rect, Color(0.015, 0.025, 0.045))
+	draw_rect(inner_rect, Color(0.10, 0.13, 0.18))
+	draw_rect(inner_rect.grow(-1.0), Color(0.32, 0.40, 0.50), false, 1.0)
 
-	var panel = PackedVector2Array([
-		Vector2(-half_width + 7.0, -half_height + 5.0),
-		Vector2(half_width - 11.0, -half_height + 5.0),
-		Vector2(half_width - 6.0, 0.0),
-		Vector2(half_width - 11.0, half_height - 5.0),
-		Vector2(-half_width + 7.0, half_height - 5.0),
-		Vector2(-half_width + 4.0, 0.0)
+	var stone = PackedVector2Array([
+		Vector2(-hw + 6.0, -hh + 5.0),
+		Vector2(hw - 10.0, -hh + 5.0),
+		Vector2(hw - 5.0, 0.0),
+		Vector2(hw - 10.0, hh - 5.0),
+		Vector2(-hw + 7.0, hh - 5.0),
+		Vector2(-hw + 4.0, 1.0)
 	])
-	draw_colored_polygon(panel, Color(0.18, 0.22, 0.28))
-	draw_polyline(PackedVector2Array([panel[0], panel[1], panel[2], panel[3], panel[4], panel[5], panel[0]]), Color(0.31, 0.39, 0.48), 1.0, true)
-	draw_line(Vector2(-half_width + 3.0, -half_height + 2.0), Vector2(half_width - 3.0, -half_height + 2.0), Color(0.43, 0.52, 0.62), 1.5, true)
-	draw_rect(Rect2(Vector2(-13.0, half_height - 5.0), Vector2(26.0, 2.0)), Color(0.32, 0.68, 1.0, 0.70))
+	draw_colored_polygon(stone, Color(0.18, 0.22, 0.28))
+	draw_polyline(PackedVector2Array([stone[0], stone[1], stone[2], stone[3], stone[4], stone[5], stone[0]]), Color(0.42, 0.48, 0.56), 1.0, true)
+	draw_line(Vector2(-hw + 8.0, -4.0), Vector2(-8.0, -2.0), Color(0.24, 0.29, 0.36), 1.0, true)
+	draw_line(Vector2(6.0, 4.0), Vector2(hw - 10.0, 2.0), Color(0.24, 0.29, 0.36), 1.0, true)
+	draw_rect(Rect2(Vector2(-14.0, hh - 5.0), Vector2(28.0, 2.0)), Color(0.30, 0.70, 1.0, 0.9))
 
 func _draw_reinforced_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var half_width = width / 2.0
-	var half_height = height / 2.0
-	draw_rect(outer_rect, Color(0.018, 0.03, 0.05))
-	draw_rect(inner_rect, Color(0.075, 0.10, 0.145))
-	draw_rect(inner_rect.grow(-1.0), Color(0.22, 0.27, 0.33), false, 1.5)
+	var hw = width / 2.0
+	var hh = height / 2.0
+	draw_rect(outer_rect, Color(0.01, 0.02, 0.035))
+	draw_rect(inner_rect, Color(0.055, 0.075, 0.11))
+	draw_rect(inner_rect.grow(-1.0), Color(0.42, 0.50, 0.58), false, 1.2)
 
-	var left_plate = PackedVector2Array([
-		Vector2(-half_width + 4.0, -half_height + 4.0),
-		Vector2(-half_width + 13.0, -half_height + 4.0),
-		Vector2(-half_width + 18.0, 0.0),
-		Vector2(-half_width + 13.0, half_height - 4.0),
-		Vector2(-half_width + 4.0, half_height - 4.0),
-		Vector2(-half_width + 8.0, 0.0)
+	var center_plate = PackedVector2Array([
+		Vector2(-22.0, -hh + 5.0),
+		Vector2(22.0, -hh + 5.0),
+		Vector2(27.0, 0.0),
+		Vector2(22.0, hh - 5.0),
+		Vector2(-22.0, hh - 5.0),
+		Vector2(-27.0, 0.0)
 	])
-	var right_plate = PackedVector2Array()
-	for point in left_plate:
-		right_plate.append(Vector2(-point.x, point.y))
-	draw_colored_polygon(left_plate, Color(0.17, 0.21, 0.27))
-	draw_colored_polygon(right_plate, Color(0.17, 0.21, 0.27))
-	draw_polyline(PackedVector2Array([left_plate[0], left_plate[1], left_plate[2], left_plate[3], left_plate[4], left_plate[5], left_plate[0]]), Color(0.46, 0.53, 0.61), 1.0, true)
-	draw_polyline(PackedVector2Array([right_plate[0], right_plate[1], right_plate[2], right_plate[3], right_plate[4], right_plate[5], right_plate[0]]), Color(0.46, 0.53, 0.61), 1.0, true)
-	draw_line(Vector2(-12.0, -half_height + 4.0), Vector2(12.0, -half_height + 4.0), Color(0.35, 0.72, 1.0), 2.0, true)
-	draw_line(Vector2(-12.0, half_height - 4.0), Vector2(12.0, half_height - 4.0), Color(0.18, 0.48, 0.78), 1.5, true)
+	draw_colored_polygon(center_plate, Color(0.16, 0.20, 0.26))
+	draw_polyline(PackedVector2Array([center_plate[0], center_plate[1], center_plate[2], center_plate[3], center_plate[4], center_plate[5], center_plate[0]]), Color(0.30, 0.38, 0.47), 1.0, true)
+
+	for side in [-1.0, 1.0]:
+		var x = side * (hw - 8.0)
+		var plate = PackedVector2Array([
+			Vector2(x - 4.0 * side, -hh + 4.0),
+			Vector2(x + 3.0 * side, -hh + 4.0),
+			Vector2(x + 7.0 * side, 0.0),
+			Vector2(x + 3.0 * side, hh - 4.0),
+			Vector2(x - 4.0 * side, hh - 4.0),
+			Vector2(x - 7.0 * side, 0.0)
+		])
+		draw_colored_polygon(plate, Color(0.19, 0.24, 0.30))
+		draw_polyline(PackedVector2Array([plate[0], plate[1], plate[2], plate[3], plate[4], plate[5], plate[0]]), Color(0.58, 0.65, 0.72), 1.0, true)
+
+	draw_rect(Rect2(Vector2(-15.0, -hh + 4.0), Vector2(30.0, 2.5)), Color(0.40, 0.78, 1.0))
+	draw_rect(Rect2(Vector2(-11.0, hh - 5.0), Vector2(22.0, 2.0)), Color(0.18, 0.50, 0.82))
+	draw_circle(Vector2(-27.0, 0.0), 1.4, Color(0.44, 0.80, 1.0))
+	draw_circle(Vector2(27.0, 0.0), 1.4, Color(0.44, 0.80, 1.0))
 
 func _draw_heavy_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var half_width = width / 2.0
-	var half_height = height / 2.0
-	draw_rect(outer_rect, Color(0.012, 0.025, 0.045))
-	draw_rect(inner_rect, Color(0.055, 0.085, 0.13))
-	draw_rect(inner_rect.grow(-1.0), Color(0.25, 0.38, 0.50), false, 1.5)
+	var hw = width / 2.0
+	var hh = height / 2.0
+	draw_rect(outer_rect, Color(0.008, 0.016, 0.03))
+	draw_rect(inner_rect, Color(0.035, 0.055, 0.09))
+	draw_rect(inner_rect.grow(-1.0), Color(0.25, 0.55, 0.78), false, 1.2)
 
-	var left_armor = PackedVector2Array([
-		Vector2(-half_width + 4.0, -half_height + 4.0),
-		Vector2(-13.0, -half_height + 4.0),
-		Vector2(-7.0, -5.0),
-		Vector2(-10.0, 0.0),
-		Vector2(-7.0, 5.0),
-		Vector2(-13.0, half_height - 4.0),
-		Vector2(-half_width + 4.0, half_height - 4.0),
-		Vector2(-half_width + 10.0, 0.0)
-	])
-	var right_armor = PackedVector2Array()
-	for point in left_armor:
-		right_armor.append(Vector2(-point.x, point.y))
-	draw_colored_polygon(left_armor, Color(0.10, 0.15, 0.22))
-	draw_colored_polygon(right_armor, Color(0.10, 0.15, 0.22))
-	draw_polyline(PackedVector2Array([left_armor[0], left_armor[1], left_armor[2], left_armor[3], left_armor[4], left_armor[5], left_armor[6], left_armor[7], left_armor[0]]), Color(0.27, 0.51, 0.72), 1.0, true)
-	draw_polyline(PackedVector2Array([right_armor[0], right_armor[1], right_armor[2], right_armor[3], right_armor[4], right_armor[5], right_armor[6], right_armor[7], right_armor[0]]), Color(0.27, 0.51, 0.72), 1.0, true)
+	for side in [-1.0, 1.0]:
+		var armor = PackedVector2Array([
+			Vector2(side * 4.0, -hh + 4.0),
+			Vector2(side * (hw - 5.0), -hh + 4.0),
+			Vector2(side * (hw - 10.0), -3.0),
+			Vector2(side * 11.0, 0.0),
+			Vector2(side * (hw - 10.0), 3.0),
+			Vector2(side * (hw - 5.0), hh - 4.0),
+			Vector2(side * 4.0, hh - 4.0),
+			Vector2(side * 9.0, 0.0)
+		])
+		draw_colored_polygon(armor, Color(0.08, 0.13, 0.20))
+		draw_polyline(PackedVector2Array([armor[0], armor[1], armor[2], armor[3], armor[4], armor[5], armor[6], armor[7], armor[0]]), Color(0.26, 0.56, 0.78), 1.0, true)
 
 	var crystal = PackedVector2Array([
-		Vector2(0.0, -10.0),
-		Vector2(8.0, -4.0),
-		Vector2(7.0, 5.0),
-		Vector2(0.0, 10.0),
-		Vector2(-7.0, 5.0),
-		Vector2(-8.0, -4.0)
+		Vector2(0.0, -11.0),
+		Vector2(9.0, -3.0),
+		Vector2(7.0, 6.0),
+		Vector2(0.0, 11.0),
+		Vector2(-7.0, 6.0),
+		Vector2(-9.0, -3.0)
 	])
-	draw_colored_polygon(crystal, Color(0.08, 0.35, 0.62))
-	draw_polyline(PackedVector2Array([crystal[0], crystal[1], crystal[2], crystal[3], crystal[4], crystal[5], crystal[0]]), Color(0.35, 0.82, 1.0), 1.5, true)
-	draw_line(Vector2(0.0, -8.0), Vector2(0.0, 8.0), Color(0.68, 0.94, 1.0), 1.0, true)
-	draw_line(Vector2(-5.0, -2.0), Vector2(5.0, -2.0), Color(0.22, 0.68, 1.0), 1.0, true)
+	draw_colored_polygon(crystal, Color(0.06, 0.37, 0.66))
+	draw_polyline(PackedVector2Array([crystal[0], crystal[1], crystal[2], crystal[3], crystal[4], crystal[5], crystal[0]]), Color(0.45, 0.90, 1.0), 1.6, true)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(0.0, -8.0),
+		Vector2(5.0, -2.0),
+		Vector2(0.0, 7.0),
+		Vector2(-5.0, -2.0)
+	]), Color(0.20, 0.70, 1.0, 0.55))
+	draw_line(Vector2(0.0, -7.0), Vector2(0.0, 8.0), Color(0.80, 0.97, 1.0), 1.0, true)
+	draw_line(Vector2(-4.0, -2.0), Vector2(4.0, -2.0), Color(0.68, 0.94, 1.0), 1.0, true)
+	draw_circle(Vector2.ZERO, 2.0, Color(0.82, 0.98, 1.0))
 
 func _draw_guaranteed_brick(outer_rect: Rect2, inner_rect: Rect2):
-	_draw_light_brick(outer_rect, inner_rect)
-	_draw_bonus_frame(Color(1.0, 0.70, 0.10), Color(0.32, 0.18, 0.025))
+	var hw = width / 2.0
+	var hh = height / 2.0
+	draw_rect(outer_rect, Color(0.12, 0.065, 0.005))
+	draw_rect(inner_rect, Color(0.32, 0.17, 0.025))
+	draw_rect(inner_rect.grow(-1.0), Color(1.0, 0.70, 0.10), false, 1.5)
+	draw_rect(Rect2(Vector2(-hw + 5.0, -hh + 4.0), Vector2(width - 10.0, 3.0)), Color(1.0, 0.76, 0.14))
+	draw_rect(Rect2(Vector2(-14.0, hh - 6.0), Vector2(28.0, 3.0)), Color(1.0, 0.60, 0.04))
+	draw_line(Vector2(-24.0, -6.0), Vector2(-10.0, 5.0), Color(0.70, 0.36, 0.03), 1.0, true)
+	draw_line(Vector2(18.0, -7.0), Vector2(6.0, 6.0), Color(0.70, 0.36, 0.03), 1.0, true)
+	draw_circle(Vector2.ZERO, 3.0, Color(1.0, 0.90, 0.52))
 
 func _draw_powerful_brick(outer_rect: Rect2, inner_rect: Rect2):
-	_draw_heavy_brick(outer_rect, inner_rect)
-	_draw_bonus_frame(Color(1.0, 0.20, 0.06), Color(0.30, 0.035, 0.02))
+	var hw = width / 2.0
+	var hh = height / 2.0
+	draw_rect(outer_rect, Color(0.11, 0.006, 0.004))
+	draw_rect(inner_rect, Color(0.28, 0.025, 0.018))
+	draw_rect(inner_rect.grow(-1.0), Color(1.0, 0.22, 0.08), false, 1.5)
 
-func _draw_bonus_frame(frame_color: Color, fill_color: Color):
-	var half_width = width / 2.0
-	var half_height = height / 2.0
-	var frame_rect = Rect2(Vector2(-half_width + 1.5, -half_height + 1.5), Vector2(width - 3.0, height - 3.0))
-	draw_rect(frame_rect, Color(fill_color, 0.38))
-	draw_rect(frame_rect, frame_color, false, 2.5)
-	draw_line(Vector2(-half_width + 7.0, -half_height + 4.0), Vector2(-half_width + 18.0, -half_height + 4.0), Color(frame_color, 0.95), 2.0, true)
-	draw_line(Vector2(half_width - 18.0, -half_height + 4.0), Vector2(half_width - 7.0, -half_height + 4.0), Color(frame_color, 0.95), 2.0, true)
+	for side in [-1.0, 1.0]:
+		var plate = PackedVector2Array([
+			Vector2(side * 6.0, -hh + 4.0),
+			Vector2(side * (hw - 5.0), -hh + 4.0),
+			Vector2(side * (hw - 9.0), -2.0),
+			Vector2(side * 12.0, 0.0),
+			Vector2(side * (hw - 9.0), 2.0),
+			Vector2(side * (hw - 5.0), hh - 4.0),
+			Vector2(side * 6.0, hh - 4.0),
+			Vector2(side * 10.0, 0.0)
+		])
+		draw_colored_polygon(plate, Color(0.34, 0.035, 0.02))
+		draw_polyline(PackedVector2Array([plate[0], plate[1], plate[2], plate[3], plate[4], plate[5], plate[6], plate[7], plate[0]]), Color(0.95, 0.20, 0.06), 1.0, true)
+
+	var core = PackedVector2Array([
+		Vector2(0.0, -10.0),
+		Vector2(8.0, 0.0),
+		Vector2(0.0, 10.0),
+		Vector2(-8.0, 0.0)
+	])
+	draw_colored_polygon(core, Color(0.75, 0.05, 0.02))
+	draw_polyline(PackedVector2Array([core[0], core[1], core[2], core[3], core[0]]), Color(1.0, 0.48, 0.14), 1.7, true)
+	draw_line(Vector2(0.0, -8.0), Vector2(0.0, 8.0), Color(1.0, 0.86, 0.55), 1.0, true)
+	draw_line(Vector2(-5.0, 0.0), Vector2(5.0, 0.0), Color(1.0, 0.52, 0.16), 1.0, true)
+	draw_circle(Vector2.ZERO, 2.2, Color(1.0, 0.94, 0.74))
 
 func _draw_crack_set_one(energy_color: Color):
-	var crack_color = Color(0.60, 0.78, 0.95, 0.88)
+	var crack_color = Color(0.67, 0.86, 1.0, 0.96)
 	draw_polyline(PackedVector2Array([
 		Vector2(-6.0, -14.0),
 		Vector2(-3.0, -7.0),
@@ -256,10 +300,10 @@ func _draw_crack_set_one(energy_color: Color):
 	]), crack_color, 1.25, true)
 	draw_line(Vector2(-3.0, -7.0), Vector2(5.0, -10.0), crack_color, 1.0, true)
 	draw_line(Vector2(-7.0, -2.0), Vector2(-14.0, 2.0), crack_color, 1.0, true)
-	draw_circle(Vector2(-2.0, 3.0), 1.5, Color(energy_color, 0.75))
+	draw_circle(Vector2(-2.0, 3.0), 1.5, Color(energy_color, 0.80))
 
 func _draw_crack_set_two(energy_color: Color):
-	var crack_color = Color(0.72, 0.86, 1.0, 0.92)
+	var crack_color = Color(0.76, 0.91, 1.0, 0.98)
 	draw_polyline(PackedVector2Array([
 		Vector2(18.0, -14.0),
 		Vector2(13.0, -7.0),
@@ -270,48 +314,46 @@ func _draw_crack_set_two(energy_color: Color):
 	draw_line(Vector2(13.0, -7.0), Vector2(5.0, -4.0), crack_color, 1.0, true)
 	draw_line(Vector2(17.0, -1.0), Vector2(25.0, 3.0), crack_color, 1.0, true)
 	draw_line(Vector2(10.0, 5.0), Vector2(3.0, 10.0), crack_color, 1.0, true)
-	draw_circle(Vector2(10.0, 5.0), 1.5, Color(energy_color, 0.85))
+	draw_circle(Vector2(10.0, 5.0), 1.5, Color(energy_color, 0.90))
 
 func _draw_barrier(outer_rect: Rect2, inner_rect: Rect2):
-	var half_width = width / 2.0
-	var half_height = height / 2.0
+	var hw = width / 2.0
+	var hh = height / 2.0
 	var flash_strength = 1.0 if barrier_flash else 0.0
 	var body_color = Color(0.025, 0.045, 0.07).lerp(Color(0.16, 0.36, 0.54), flash_strength * 0.55)
 
-	draw_rect(outer_rect, Color(0.01, 0.02, 0.035))
+	draw_rect(outer_rect, Color(0.008, 0.015, 0.028))
 	draw_rect(inner_rect, body_color)
-	draw_rect(inner_rect, Color(0.31, 0.43, 0.55), false, 2.0)
+	draw_rect(inner_rect.grow(-1.0), Color(0.30, 0.54, 0.72), false, 1.3)
 
-	var left_plate = PackedVector2Array([
-		Vector2(-half_width + 4.0, -half_height + 4.0),
-		Vector2(-9.0, -half_height + 4.0),
-		Vector2(-4.0, -5.0),
-		Vector2(-8.0, 0.0),
-		Vector2(-4.0, 5.0),
-		Vector2(-9.0, half_height - 4.0),
-		Vector2(-half_width + 4.0, half_height - 4.0),
-		Vector2(-half_width + 10.0, 0.0)
-	])
-	var right_plate = PackedVector2Array()
-	for point in left_plate:
-		right_plate.append(Vector2(-point.x, point.y))
+	for side in [-1.0, 1.0]:
+		var frame = PackedVector2Array([
+			Vector2(side * 7.0, -hh + 4.0),
+			Vector2(side * (hw - 5.0), -hh + 4.0),
+			Vector2(side * (hw - 10.0), -2.0),
+			Vector2(side * 12.0, 0.0),
+			Vector2(side * (hw - 10.0), 2.0),
+			Vector2(side * (hw - 5.0), hh - 4.0),
+			Vector2(side * 7.0, hh - 4.0),
+			Vector2(side * 11.0, 0.0)
+		])
+		draw_colored_polygon(frame, Color(0.08, 0.13, 0.20))
+		draw_polyline(PackedVector2Array([frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7], frame[0]]), Color(0.30, 0.52, 0.70), 1.0, true)
 
-	draw_colored_polygon(left_plate, Color(0.09, 0.14, 0.20))
-	draw_colored_polygon(right_plate, Color(0.09, 0.14, 0.20))
-	draw_polyline(PackedVector2Array([left_plate[0], left_plate[1], left_plate[2], left_plate[3], left_plate[4], left_plate[5], left_plate[6], left_plate[7], left_plate[0]]), Color(0.25, 0.42, 0.57), 1.0, true)
-	draw_polyline(PackedVector2Array([right_plate[0], right_plate[1], right_plate[2], right_plate[3], right_plate[4], right_plate[5], right_plate[6], right_plate[7], right_plate[0]]), Color(0.25, 0.42, 0.57), 1.0, true)
-	draw_circle(Vector2.ZERO, 7.0, Color(0.025, 0.07, 0.11))
-	draw_circle(Vector2.ZERO, 5.0, Color(0.08, 0.24, 0.38))
-	draw_circle(Vector2.ZERO, 3.0, Color(0.42, 0.82, 1.0) if barrier_flash else Color(0.16, 0.48, 0.72))
-	draw_line(Vector2(-half_width + 7.0, -half_height + 3.0), Vector2(-15.0, -half_height + 3.0), Color(0.30, 0.68, 1.0), 1.5, true)
-	draw_line(Vector2(15.0, -half_height + 3.0), Vector2(half_width - 7.0, -half_height + 3.0), Color(0.30, 0.68, 1.0), 1.5, true)
+	draw_circle(Vector2.ZERO, 7.0, Color(0.02, 0.07, 0.12))
+	draw_circle(Vector2.ZERO, 5.0, Color(0.08, 0.25, 0.40))
+	draw_circle(Vector2.ZERO, 3.0, Color(0.52, 0.90, 1.0) if barrier_flash else Color(0.20, 0.58, 0.82))
+	draw_line(Vector2(-hw + 8.0, -hh + 3.0), Vector2(-15.0, -hh + 3.0), Color(0.32, 0.72, 1.0), 1.5, true)
+	draw_line(Vector2(15.0, -hh + 3.0), Vector2(hw - 8.0, -hh + 3.0), Color(0.32, 0.72, 1.0), 1.5, true)
+	draw_line(Vector2(-hw + 8.0, hh - 3.0), Vector2(-15.0, hh - 3.0), Color(0.18, 0.46, 0.72), 1.0, true)
+	draw_line(Vector2(15.0, hh - 3.0), Vector2(hw - 8.0, hh - 3.0), Color(0.18, 0.46, 0.72), 1.0, true)
 
 	if barrier_hits >= 1:
 		_draw_crack_set_one(Color(0.32, 0.70, 1.0))
 	if barrier_hits >= 3:
 		_draw_crack_set_two(Color(0.32, 0.70, 1.0))
 	if barrier_hits >= 4:
-		draw_rect(Rect2(Vector2(-half_width - 2.0, -half_height - 2.0), Vector2(width + 4.0, height + 4.0)), Color(0.35, 0.75, 1.0, 0.30), false, 2.0)
+		draw_rect(Rect2(Vector2(-hw - 2.0, -hh - 2.0), Vector2(width + 4.0, height + 4.0)), Color(0.35, 0.75, 1.0, 0.30), false, 2.0)
 
 func prepare_bonus_drop():
 	if powerful_bonus:
