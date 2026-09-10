@@ -16,13 +16,6 @@ enum LevelPattern {
 	BARRIER_TEST
 }
 
-enum LevelDifficulty {
-	BEGINNER,
-	NORMAL,
-	HARD,
-	ADVANCED
-}
-
 enum LevelStyle {
 	BALANCED,
 	DENSE,
@@ -30,7 +23,6 @@ enum LevelStyle {
 	TOUGH,
 	MAZE
 }
-
 
 # =========================
 # ССЫЛКИ НА СЦЕНЫ
@@ -732,7 +724,6 @@ func apply_level_settings():
 
 	print(
 		"Level: ", current_level,
-		" | Difficulty: ", LevelDifficulty.keys()[get_level_difficulty()],
 		" | Style: ", LevelStyle.keys()[current_level_style],
 		" | Fill: ", current_fill_chance
 	)
@@ -821,64 +812,66 @@ func get_pattern_vertical_offset(pattern: LevelPattern) -> int:
 
 	return randi_range(-1, 1)
 
-func get_level_difficulty() -> LevelDifficulty:
-	if current_level <= 3:
-		return LevelDifficulty.BEGINNER
-	elif current_level <= 7:
-		return LevelDifficulty.NORMAL
-	elif current_level <= 12:
-		return LevelDifficulty.HARD
-	else:
-		return LevelDifficulty.ADVANCED
-
 func get_random_level_style() -> LevelStyle:
-	var difficulty = get_level_difficulty()
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
+
+	var tough_chance: float = 0.0
+
+	if current_level >= 4:
+		var tough_progress = clamp(
+			float(current_level - 4) / 96.0,
+			0.0,
+			1.0
+		)
+
+		tough_chance = lerp(0.05, 0.18, tough_progress)
+
+	var maze_chance: float = 0.0
+
+	if current_level >= 8:
+		var maze_progress = clamp(
+			float(current_level - 8) / 92.0,
+			0.0,
+			1.0
+		)
+
+		maze_chance = lerp(0.03, 0.20, maze_progress)
+
+	var basic_share = 1.0 - tough_chance - maze_chance
+
+	var balanced_ratio = lerp(0.45, 0.38, progress)
+	var dense_ratio = lerp(0.30, 0.32, progress)
+	var sparse_ratio = 1.0 - balanced_ratio - dense_ratio
+
+	var balanced_chance = basic_share * balanced_ratio
+	var dense_chance = basic_share * dense_ratio
+	var sparse_chance = basic_share * sparse_ratio
+
 	var roll = randf()
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			if roll < 0.45:
-				return LevelStyle.BALANCED
-			elif roll < 0.75:
-				return LevelStyle.DENSE
-			else:
-				return LevelStyle.SPARSE
+	if roll < balanced_chance:
+		return LevelStyle.BALANCED
 
-		LevelDifficulty.NORMAL:
-			if roll < 0.35:
-				return LevelStyle.BALANCED
-			elif roll < 0.60:
-				return LevelStyle.DENSE
-			elif roll < 0.85:
-				return LevelStyle.SPARSE
-			else:
-				return LevelStyle.TOUGH
+	roll -= balanced_chance
 
-		LevelDifficulty.HARD:
-			if roll < 0.30:
-				return LevelStyle.BALANCED
-			elif roll < 0.50:
-				return LevelStyle.DENSE
-			elif roll < 0.70:
-				return LevelStyle.SPARSE
-			elif roll < 0.85:
-				return LevelStyle.TOUGH
-			else:
-				return LevelStyle.MAZE
+	if roll < dense_chance:
+		return LevelStyle.DENSE
 
-		LevelDifficulty.ADVANCED:
-			if roll < 0.25:
-				return LevelStyle.BALANCED
-			elif roll < 0.45:
-				return LevelStyle.DENSE
-			elif roll < 0.65:
-				return LevelStyle.SPARSE
-			elif roll < 0.82:
-				return LevelStyle.TOUGH
-			else:
-				return LevelStyle.MAZE
+	roll -= dense_chance
 
-	return LevelStyle.BALANCED
+	if roll < sparse_chance:
+		return LevelStyle.SPARSE
+
+	roll -= sparse_chance
+
+	if roll < tough_chance:
+		return LevelStyle.TOUGH
+
+	return LevelStyle.MAZE
 
 func get_level_fill_chance() -> float:
 	var progress = clamp(
