@@ -1,6 +1,7 @@
 extends Node2D
 
 var displayed_level: int = -1
+var animation_time: float = 0.0
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -11,15 +12,19 @@ func _ready():
 	call_deferred("_sync_level")
 	queue_redraw()
 
-func _process(_delta):
+func _process(delta):
+	animation_time += delta
+
 	var main = get_parent()
 	if main == null:
+		queue_redraw()
 		return
 
 	var level_value = int(main.get("current_level"))
 	if level_value != displayed_level:
 		displayed_level = level_value
-		queue_redraw()
+
+	queue_redraw()
 
 func _sync_level():
 	var main = get_parent()
@@ -95,17 +100,21 @@ func _draw_distant_rock(progress: float):
 		draw_polyline(outline, Color(0.16, 0.065, 0.035, 0.14 + progress * 0.08), 2.0, true)
 
 func _draw_depth_haze(progress: float):
-	var center = Vector2(480, 965)
+	var pulse = 0.5 + 0.5 * sin(animation_time * 0.42)
+	var center = Vector2(480, 965 - sin(animation_time * 0.16) * 7.0)
 	for radius in range(520, 80, -44):
 		var depth = 1.0 - float(radius) / 560.0
-		var alpha = (0.004 + progress * 0.009) * depth
+		var alpha = (0.004 + progress * 0.009) * depth * lerp(0.82, 1.12, pulse)
 		draw_circle(center, radius, Color(0.72, 0.11, 0.018, alpha))
 
 	for i in range(6):
-		var y = 760.0 + float(i) * 52.0
+		var phase = animation_time * (0.11 + float(i) * 0.008) + float(i) * 0.9
+		var y = 760.0 + float(i) * 52.0 - sin(phase) * (5.0 + float(i))
+		var x = 480.0 + sin(phase * 0.73) * (8.0 + float(i) * 2.0)
 		var width_value = 270.0 + float(i) * 54.0
 		var alpha = (0.006 + progress * 0.010) * (1.0 - float(i) * 0.09)
-		_draw_haze_ellipse(Vector2(480, y), Vector2(width_value, 30.0 + float(i) * 5.0), Color(0.65, 0.12, 0.025, alpha))
+		alpha *= 0.86 + sin(phase * 0.81) * 0.10
+		_draw_haze_ellipse(Vector2(x, y), Vector2(width_value, 30.0 + float(i) * 5.0), Color(0.65, 0.12, 0.025, alpha))
 
 func _draw_haze_ellipse(center: Vector2, radii: Vector2, color: Color):
 	var points = PackedVector2Array()
@@ -131,9 +140,11 @@ func _draw_rock_mass(progress: float):
 			draw_line(point, point + inward, Color(0.18, 0.16, 0.15, 0.16), 1.0, true)
 
 func _draw_lava_fissures(progress: float):
-	var dim = Color(0.30, 0.045, 0.010, 0.34 + progress * 0.16)
-	var hot = Color(0.96, 0.18 + progress * 0.09, 0.018, 0.52 + progress * 0.27)
-	var core = Color(1.0, 0.60, 0.12, 0.22 + progress * 0.42)
+	var pulse = 0.5 + 0.5 * sin(animation_time * 1.15)
+	var slow_pulse = 0.5 + 0.5 * sin(animation_time * 0.48 + 1.7)
+	var dim = Color(0.30, 0.045, 0.010, (0.34 + progress * 0.16) * lerp(0.84, 1.08, slow_pulse))
+	var hot = Color(0.96, 0.18 + progress * 0.09, 0.018, (0.52 + progress * 0.27) * lerp(0.82, 1.12, pulse))
+	var core = Color(1.0, 0.60, 0.12, (0.22 + progress * 0.42) * lerp(0.72, 1.18, pulse))
 
 	var cracks = [
 		PackedVector2Array([Vector2(35, 1075), Vector2(68, 1018), Vector2(57, 960), Vector2(91, 914), Vector2(78, 858), Vector2(112, 811), Vector2(102, 756), Vector2(132, 711)]),
@@ -149,17 +160,18 @@ func _draw_lava_fissures(progress: float):
 
 	var small_count = int(2 + progress * float(small_cracks.size() - 2))
 	for i in range(small_count):
-		draw_polyline(small_cracks[i], Color(dim, dim.a * 0.75), 3.0, true)
-		draw_polyline(small_cracks[i], Color(hot, hot.a * 0.62), 1.0, true)
+		var flicker = 0.78 + 0.22 * sin(animation_time * (0.85 + float(i) * 0.11) + float(i) * 1.6)
+		draw_polyline(small_cracks[i], Color(dim, dim.a * 0.75 * flicker), 3.0, true)
+		draw_polyline(small_cracks[i], Color(hot, hot.a * 0.62 * flicker), 1.0, true)
 
-	var horizon_alpha = 0.09 + progress * 0.18
+	var horizon_alpha = (0.09 + progress * 0.18) * lerp(0.84, 1.12, slow_pulse)
 	for radius in range(330, 80, -42):
 		var ring_t = 1.0 - float(radius - 80) / 250.0
 		var color = Color(0.92, 0.12 + ring_t * 0.10, 0.012, horizon_alpha * ring_t * 0.30)
 		draw_circle(Vector2(480, 1125), radius + progress * 36.0, color)
 
-	draw_circle(Vector2(480, 1128), 116.0 + progress * 38.0, Color(1.0, 0.30, 0.018, 0.12 + progress * 0.18))
-	draw_circle(Vector2(480, 1138), 72.0 + progress * 24.0, Color(1.0, 0.58, 0.08, 0.08 + progress * 0.14))
+	draw_circle(Vector2(480, 1128), 116.0 + progress * 38.0, Color(1.0, 0.30, 0.018, (0.12 + progress * 0.18) * lerp(0.86, 1.10, pulse)))
+	draw_circle(Vector2(480, 1138), 72.0 + progress * 24.0, Color(1.0, 0.58, 0.08, (0.08 + progress * 0.14) * lerp(0.80, 1.14, pulse)))
 
 func _draw_rock_texture(progress: float):
 	var facets = [
@@ -181,9 +193,17 @@ func _draw_rock_texture(progress: float):
 func _draw_embres(progress: float):
 	var visible_count = int(6 + progress * float(ember_points.size() - 6))
 	for i in range(visible_count):
-		var point = ember_points[i]
+		var base_point = ember_points[i]
+		var speed = 7.0 + float(i % 5) * 2.4
+		var travel = fmod(animation_time * speed + float(i) * 37.0, 190.0)
+		var drift = sin(animation_time * (0.55 + float(i % 4) * 0.08) + float(i) * 1.4) * (3.0 + float(i % 3) * 1.5)
+		var point = Vector2(base_point.x + drift, base_point.y - travel)
+		if point.y < 520.0:
+			point.y += 420.0
+
 		var radius = 0.8 + float(i % 3) * 0.45
-		var alpha = 0.14 + progress * 0.30
+		var twinkle = 0.68 + 0.32 * sin(animation_time * (1.2 + float(i % 4) * 0.17) + float(i))
+		var alpha = (0.14 + progress * 0.30) * twinkle
 		draw_circle(point, radius + 2.5, Color(1.0, 0.12, 0.01, alpha * 0.08))
 		draw_circle(point, radius, Color(1.0, 0.36, 0.045, alpha))
 
