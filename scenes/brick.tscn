@@ -10,7 +10,7 @@ size = Vector2(70, 30)
 script = ExtResource("1_5l4w1")
 
 [node name="BrickEffects" type="Node2D" parent="."]
-z_index = -1
+z_index = 1
 script = ExtResource("2_fx")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2111796268]
