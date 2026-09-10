@@ -105,9 +105,9 @@ func _draw_depth_haze(progress: float):
 		var y = 760.0 + float(i) * 52.0
 		var width_value = 270.0 + float(i) * 54.0
 		var alpha = (0.006 + progress * 0.010) * (1.0 - float(i) * 0.09)
-		draw_ellipse(Vector2(480, y), Vector2(width_value, 30.0 + float(i) * 5.0), Color(0.65, 0.12, 0.025, alpha))
+		_draw_haze_ellipse(Vector2(480, y), Vector2(width_value, 30.0 + float(i) * 5.0), Color(0.65, 0.12, 0.025, alpha))
 
-func draw_ellipse(center: Vector2, radii: Vector2, color: Color):
+func _draw_haze_ellipse(center: Vector2, radii: Vector2, color: Color):
 	var points = PackedVector2Array()
 	for i in range(33):
 		var angle = TAU * float(i) / 32.0
