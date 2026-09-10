@@ -105,7 +105,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.8, 0.9, 1)
 theme_override_font_sizes/font_size = 18
-text = "От ядра планеты к чёрной дыре"
+text = "Из глубины в бесконечность"
 horizontal_alignment = 1
 
 [node name="LevelGrid" type="GridContainer" parent="Panel/Content"]
