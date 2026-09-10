@@ -10,6 +10,19 @@ const CHECKPOINTS: Array[int] = [
 	100
 ]
 
+const CHAPTER_COLORS: Array[Color] = [
+	Color(1.0, 0.38, 0.12, 1.0),
+	Color(0.88, 0.55, 0.16, 1.0),
+	Color(0.42, 0.76, 0.38, 1.0),
+	Color(0.28, 0.72, 0.72, 1.0),
+	Color(0.28, 0.62, 0.96, 1.0),
+	Color(0.34, 0.48, 1.0, 1.0),
+	Color(0.48, 0.38, 1.0, 1.0),
+	Color(0.66, 0.34, 1.0, 1.0),
+	Color(0.82, 0.32, 0.96, 1.0),
+	Color(0.94, 0.42, 0.82, 1.0)
+]
+
 func _ready():
 	create_level_buttons()
 	$Panel/Content/BackButton.grab_focus()
@@ -18,11 +31,66 @@ func create_level_buttons():
 	for level in CHECKPOINTS:
 		var button = Button.new()
 		button.text = str(level)
-		button.custom_minimum_size = Vector2(130, 70)
-		button.add_theme_font_size_override("font_size", 26)
+		button.custom_minimum_size = Vector2(136, 72)
+		button.add_theme_font_size_override("font_size", 25)
+		button.add_theme_constant_override("outline_size", 2)
+		button.add_theme_color_override("font_outline_color", Color(0.01, 0.018, 0.03, 1.0))
 		button.disabled = level > SaveManager.highest_unlocked_level
+		apply_checkpoint_style(button, level)
 		button.pressed.connect(_on_level_pressed.bind(level))
 		$Panel/Content/LevelGrid.add_child(button)
+
+func apply_checkpoint_style(button: Button, level: int):
+	var chapter_index = clampi(int((max(level, 1) - 1) / 10), 0, CHAPTER_COLORS.size() - 1)
+	var accent = CHAPTER_COLORS[chapter_index]
+	var unlocked = not button.disabled
+
+	if unlocked:
+		button.add_theme_color_override("font_color", accent.lightened(0.38))
+		button.add_theme_color_override("font_hover_color", Color(0.96, 0.99, 1.0, 1.0))
+		button.add_theme_color_override("font_focus_color", Color(0.96, 0.99, 1.0, 1.0))
+		button.add_theme_color_override("font_pressed_color", accent.lightened(0.2))
+		button.add_theme_stylebox_override("normal", make_checkpoint_box(accent, false, false))
+		button.add_theme_stylebox_override("hover", make_checkpoint_box(accent, true, false))
+		button.add_theme_stylebox_override("focus", make_checkpoint_box(accent, true, false))
+		button.add_theme_stylebox_override("pressed", make_checkpoint_box(accent, false, true))
+	else:
+		button.add_theme_color_override("font_disabled_color", Color(0.32, 0.36, 0.41, 0.7))
+		button.add_theme_stylebox_override("disabled", make_locked_box())
+
+func make_checkpoint_box(accent: Color, highlighted: bool, pressed: bool) -> StyleBoxFlat:
+	var box = StyleBoxFlat.new()
+	box.bg_color = Color(0.018, 0.03, 0.048, 0.96)
+	if highlighted:
+		box.bg_color = Color(accent.r * 0.12 + 0.025, accent.g * 0.12 + 0.035, accent.b * 0.12 + 0.05, 0.98)
+	if pressed:
+		box.bg_color = Color(0.012, 0.022, 0.038, 1.0)
+	box.border_width_left = 2
+	box.border_width_top = 2
+	box.border_width_right = 2
+	box.border_width_bottom = 2
+	box.border_color = Color(accent.r, accent.g, accent.b, 0.9 if highlighted else 0.62)
+	box.corner_radius_top_left = 10
+	box.corner_radius_top_right = 10
+	box.corner_radius_bottom_right = 10
+	box.corner_radius_bottom_left = 10
+	box.shadow_color = Color(accent.r, accent.g, accent.b, 0.18 if highlighted else 0.08)
+	box.shadow_size = 8 if highlighted else 4
+	return box
+
+func make_locked_box() -> StyleBoxFlat:
+	var box = StyleBoxFlat.new()
+	box.bg_color = Color(0.018, 0.023, 0.03, 0.82)
+	box.border_width_left = 1
+	box.border_width_top = 1
+	box.border_width_right = 1
+	box.border_width_bottom = 1
+	box.border_color = Color(0.22, 0.25, 0.29, 0.52)
+	box.corner_radius_top_left = 10
+	box.corner_radius_top_right = 10
+	box.corner_radius_bottom_right = 10
+	box.corner_radius_bottom_left = 10
+	return box
 
 func _on_level_pressed(level: int):
 	SaveManager.selected_level = level
