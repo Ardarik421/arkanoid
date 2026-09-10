@@ -12,14 +12,8 @@ enum LevelPattern {
 	HORIZONTAL_WALL,
 	DOUBLE_HORIZONTAL,
 	HORIZONTAL_PLATFORMS,
-	HORIZONTAL_GAP
-}
-
-enum LevelDifficulty {
-	BEGINNER,
-	NORMAL,
-	HARD,
-	ADVANCED
+	HORIZONTAL_GAP,
+	BARRIER_TEST
 }
 
 enum LevelStyle {
@@ -29,7 +23,6 @@ enum LevelStyle {
 	TOUGH,
 	MAZE
 }
-
 
 # =========================
 # ССЫЛКИ НА СЦЕНЫ
@@ -151,6 +144,8 @@ const PADDLE_DEFAULT_WIDTH: float = 160.0
 const PADDLE_MIN_WIDTH: float = 40.0
 const PADDLE_MAX_WIDTH: float = 280.0
 const PADDLE_WIDTH_STEP: float = 40.0
+
+const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -517,21 +512,41 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
+func get_active_bonus_count() -> int:
+	var count: int = 0
+
+	for child in get_children():
+		if child is Bonus and not child.is_queued_for_deletion():
+			count += 1
+
+	return count
+
 func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool):
 	score += points
 	breakable_bricks_left -= 1
 
 	update_score_label()
 
-	if guaranteed_bonus or randf() < 0.60:
+	var can_spawn_random_bonus = (
+		guaranteed_bonus
+		or get_active_bonus_count() < MAX_RANDOM_BONUSES_ON_SCREEN
+	)
+
+	if can_spawn_random_bonus and (
+		guaranteed_bonus
+		or randf() < get_bonus_drop_chance()
+	):
 		var bonus = bonus_scene.instantiate()
 
 		if powerful_bonus:
 			var powerful_pool = [
 				Bonus.BonusType.PIERCING_BALL,
-				Bonus.BonusType.EXPLOSIVE_BALL,
-				Bonus.BonusType.SPLIT_BALLS
+				Bonus.BonusType.EXPLOSIVE_BALL
 			]
+
+			if get_pressure_tier() == 0:
+				powerful_pool.append(Bonus.BonusType.SPLIT_BALLS)
+
 			bonus.forced_bonus_type = powerful_pool.pick_random()
 
 		elif guaranteed_bonus:
@@ -568,7 +583,7 @@ func _on_brick_exploded(explosion_position: Vector2):
 		var distance_y = abs(brick.global_position.y - explosion_position.y)
 
 		if distance_x <= max_x_distance and distance_y <= max_y_distance:
-			brick.hit(false)
+			brick.hit_by_explosion()
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	match bonus_type:
@@ -668,13 +683,13 @@ func update_effect_label(label: Label, prefix: String, time_left: float):
 # НАСТРОЙКА УРОВНЯ
 # =========================
 
+
 func apply_level_settings():
 	active_patterns.clear()
 	pattern_offsets.clear()
 	pattern_variants.clear()
 	pattern_sizes.clear()
 
-	var difficulty = get_level_difficulty()
 	var new_style = get_random_level_style()
 
 	if has_previous_style:
@@ -687,48 +702,28 @@ func apply_level_settings():
 
 	current_fill_chance = get_level_fill_chance()
 
-	var available_patterns: Array[LevelPattern] = []
+	var available_patterns: Array[LevelPattern] = [
+		LevelPattern.VERTICAL_WALL
+	]
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL
-			]
+	if current_level >= 4:
+		available_patterns.append(LevelPattern.DOUBLE_VERTICAL)
 
-		LevelDifficulty.NORMAL:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.HORIZONTAL_PLATFORMS
-			]
+	if current_level >= 8:
+		available_patterns.append(LevelPattern.HORIZONTAL_WALL)
 
-		LevelDifficulty.HARD:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.CROSS,
-				LevelPattern.DOUBLE_HORIZONTAL,
-				LevelPattern.HORIZONTAL_PLATFORMS,
-				LevelPattern.HORIZONTAL_GAP
-			]
+	if current_level >= 13:
+		available_patterns.append(LevelPattern.HORIZONTAL_PLATFORMS)
 
-		LevelDifficulty.ADVANCED:
-			available_patterns = [
-				LevelPattern.VERTICAL_WALL,
-				LevelPattern.HORIZONTAL_WALL,
-				LevelPattern.DOUBLE_VERTICAL,
-				LevelPattern.CROSS,
-				LevelPattern.DOUBLE_HORIZONTAL,
-				LevelPattern.HORIZONTAL_PLATFORMS,
-				LevelPattern.HORIZONTAL_GAP
-			]
+	if current_level >= 20:
+		available_patterns.append(LevelPattern.DOUBLE_HORIZONTAL)
+		available_patterns.append(LevelPattern.CROSS)
+
+	if current_level >= 30:
+		available_patterns.append(LevelPattern.HORIZONTAL_GAP)
 
 	print(
 		"Level: ", current_level,
-		" | Difficulty: ", LevelDifficulty.keys()[get_level_difficulty()],
 		" | Style: ", LevelStyle.keys()[current_level_style],
 		" | Fill: ", current_fill_chance
 	)
@@ -738,7 +733,7 @@ func apply_level_settings():
 
 		pattern_offsets[test_pattern] = Vector2i(
 			randi_range(-1, 1),
-			randi_range(-1, 1)
+			get_pattern_vertical_offset(test_pattern)
 		)
 
 		pattern_variants[test_pattern] = randi_range(0, 1)
@@ -764,7 +759,7 @@ func apply_level_settings():
 
 			pattern_offsets[selected_pattern] = Vector2i(
 				randi_range(-1, 1),
-				randi_range(-1, 1)
+				get_pattern_vertical_offset(selected_pattern)
 			)
 
 			pattern_variants[selected_pattern] = randi_range(0, 1)
@@ -804,198 +799,248 @@ func apply_level_settings():
 
 	print("Patterns: ", ", ".join(pattern_names))
 
-func get_level_difficulty() -> LevelDifficulty:
-	if current_level <= 3:
-		return LevelDifficulty.BEGINNER
-	elif current_level <= 7:
-		return LevelDifficulty.NORMAL
-	elif current_level <= 12:
-		return LevelDifficulty.HARD
-	else:
-		return LevelDifficulty.ADVANCED
+func get_pattern_vertical_offset(pattern: LevelPattern) -> int:
+	if (
+		pattern == LevelPattern.HORIZONTAL_WALL
+		or pattern == LevelPattern.DOUBLE_HORIZONTAL
+		or pattern == LevelPattern.HORIZONTAL_PLATFORMS
+		or pattern == LevelPattern.HORIZONTAL_GAP
+		or pattern == LevelPattern.CROSS
+	):
+		if current_level < 40:
+			return randi_range(0, 1)
+
+	return randi_range(-1, 1)
 
 func get_random_level_style() -> LevelStyle:
-	var difficulty = get_level_difficulty()
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
+
+	var tough_chance: float = 0.0
+
+	if current_level >= 4:
+		var tough_progress = clamp(
+			float(current_level - 4) / 96.0,
+			0.0,
+			1.0
+		)
+
+		tough_chance = lerp(0.05, 0.18, tough_progress)
+
+	var maze_chance: float = 0.0
+
+	if current_level >= 8:
+		var maze_progress = clamp(
+			float(current_level - 8) / 92.0,
+			0.0,
+			1.0
+		)
+
+		maze_chance = lerp(0.03, 0.20, maze_progress)
+
+	var basic_share = 1.0 - tough_chance - maze_chance
+
+	var balanced_ratio = lerp(0.45, 0.38, progress)
+	var dense_ratio = lerp(0.30, 0.32, progress)
+	var sparse_ratio = 1.0 - balanced_ratio - dense_ratio
+
+	var balanced_chance = basic_share * balanced_ratio
+	var dense_chance = basic_share * dense_ratio
+	var sparse_chance = basic_share * sparse_ratio
+
 	var roll = randf()
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			if roll < 0.45:
-				return LevelStyle.BALANCED
-			elif roll < 0.75:
-				return LevelStyle.DENSE
-			else:
-				return LevelStyle.SPARSE
+	if roll < balanced_chance:
+		return LevelStyle.BALANCED
 
-		LevelDifficulty.NORMAL:
-			if roll < 0.35:
-				return LevelStyle.BALANCED
-			elif roll < 0.60:
-				return LevelStyle.DENSE
-			elif roll < 0.85:
-				return LevelStyle.SPARSE
-			else:
-				return LevelStyle.TOUGH
+	roll -= balanced_chance
 
-		LevelDifficulty.HARD:
-			if roll < 0.30:
-				return LevelStyle.BALANCED
-			elif roll < 0.50:
-				return LevelStyle.DENSE
-			elif roll < 0.70:
-				return LevelStyle.SPARSE
-			elif roll < 0.85:
-				return LevelStyle.TOUGH
-			else:
-				return LevelStyle.MAZE
+	if roll < dense_chance:
+		return LevelStyle.DENSE
 
-		LevelDifficulty.ADVANCED:
-			if roll < 0.25:
-				return LevelStyle.BALANCED
-			elif roll < 0.45:
-				return LevelStyle.DENSE
-			elif roll < 0.65:
-				return LevelStyle.SPARSE
-			elif roll < 0.82:
-				return LevelStyle.TOUGH
-			else:
-				return LevelStyle.MAZE
+	roll -= dense_chance
 
-	return LevelStyle.BALANCED
+	if roll < sparse_chance:
+		return LevelStyle.SPARSE
+
+	roll -= sparse_chance
+
+	if roll < tough_chance:
+		return LevelStyle.TOUGH
+
+	return LevelStyle.MAZE
 
 func get_level_fill_chance() -> float:
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
+
+	var base_fill = lerp(0.70, 0.82, progress)
+	var variation: float = 0.0
+
 	match current_level_style:
 		LevelStyle.DENSE:
-			return randf_range(0.85, 0.95)
+			base_fill += 0.14
+			variation = 0.03
 
 		LevelStyle.SPARSE:
-			return randf_range(0.55, 0.68)
+			base_fill -= 0.14
+			variation = 0.04
 
 		LevelStyle.TOUGH:
-			return randf_range(0.72, 0.82)
+			base_fill -= 0.02
+			variation = 0.04
 
 		LevelStyle.MAZE:
-			return randf_range(0.65, 0.78)
+			base_fill -= 0.07
+			variation = 0.04
 
 		LevelStyle.BALANCED:
-			var difficulty = get_level_difficulty()
+			variation = 0.05
 
-			match difficulty:
-				LevelDifficulty.BEGINNER:
-					return randf_range(0.65, 0.75)
+	return clamp(
+		base_fill + randf_range(-variation, variation),
+		0.50,
+		0.97
+	)
 
-				LevelDifficulty.NORMAL:
-					return randf_range(0.70, 0.82)
+func get_bonus_drop_chance() -> float:
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-				LevelDifficulty.HARD:
-					return randf_range(0.72, 0.88)
-
-				LevelDifficulty.ADVANCED:
-					return randf_range(0.68, 0.90)
-
-	return 0.75
+	return lerp(0.45, 0.25, progress)
 
 # =========================
 # НАСТРОЙКА ПРОЧНОСТИ КИРПИЧЕЙ
 # =========================
 
 func get_three_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.03
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.03
+	var chance = lerp(0.01, 0.20, progress)
 
-		LevelDifficulty.NORMAL:
-			chance = 0.07
+	match current_level_style:
+		LevelStyle.TOUGH:
+			chance += 0.05
 
-		LevelDifficulty.HARD:
-			chance = 0.12
+		LevelStyle.MAZE:
+			chance -= 0.03
 
-		LevelDifficulty.ADVANCED:
-			chance = 0.15
+		LevelStyle.DENSE:
+			chance -= 0.01
 
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.10
+		LevelStyle.SPARSE:
+			chance += 0.02
 
-	return chance
+	return clamp(chance, 0.0, 0.25)
 
 func get_two_hit_chance() -> float:
-	var difficulty = get_level_difficulty()
-	var chance: float = 0.12
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			chance = 0.12
+	var chance = lerp(0.10, 0.34, progress)
 
-		LevelDifficulty.NORMAL:
-			chance = 0.20
+	match current_level_style:
+		LevelStyle.TOUGH:
+			chance += 0.08
 
-		LevelDifficulty.HARD:
-			chance = 0.28
+		LevelStyle.MAZE:
+			chance -= 0.05
 
-		LevelDifficulty.ADVANCED:
-			chance = 0.32
+		LevelStyle.DENSE:
+			chance -= 0.02
 
-	if current_level_style == LevelStyle.TOUGH:
-		chance += 0.15
+		LevelStyle.SPARSE:
+			chance += 0.03
 
-	return chance
+	return clamp(chance, 0.05, 0.42)
 
 # =========================
 # НАСТРОЙКА СТРУКТУР УРОВНЯ
 # =========================
 
 func get_structure_count() -> int:
-	var difficulty = get_level_difficulty()
+	var minimum_structures: int = 0
+	var maximum_structures: int = 1
+
+	if current_level >= 10:
+		minimum_structures = 1
+		maximum_structures = 2
+
+	if current_level >= 30:
+		maximum_structures = 3
+
+	if current_level >= 60:
+		minimum_structures = 2
 
 	if current_level_style == LevelStyle.MAZE:
-		match difficulty:
-			LevelDifficulty.BEGINNER:
-				return 1
+		minimum_structures += 1
+		maximum_structures += 1
 
-			LevelDifficulty.NORMAL:
-				return randi_range(1, 2)
+	minimum_structures = min(minimum_structures, 3)
+	maximum_structures = min(maximum_structures, 3)
 
-			LevelDifficulty.HARD:
-				return randi_range(2, 3)
-
-			LevelDifficulty.ADVANCED:
-				return randi_range(2, 3)
-
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			return randi_range(0, 1)
-
-		LevelDifficulty.NORMAL:
-			return 1
-
-		LevelDifficulty.HARD:
-			return randi_range(1, 2)
-
-		LevelDifficulty.ADVANCED:
-			return randi_range(1, 3)
-
-	return 0
+	return randi_range(
+		minimum_structures,
+		max(maximum_structures, minimum_structures)
+	)
 
 func get_max_wall_bricks() -> int:
-	var difficulty = get_level_difficulty()
+	var progress = clamp(
+		float(current_level - 1) / 99.0,
+		0.0,
+		1.0
+	)
 
-	match difficulty:
-		LevelDifficulty.BEGINNER:
-			return 7
+	return roundi(lerp(7.0, 24.0, progress))
 
-		LevelDifficulty.NORMAL:
-			return 12
+func get_pressure_tier() -> int:
+	var pressure_factors: int = 0
 
-		LevelDifficulty.HARD:
-			return 18
+	var dense_pressure = current_fill_chance >= 0.82
+	var armored_pressure = (
+		get_two_hit_chance() + get_three_hit_chance()
+	) >= 0.38
+	var barrier_pressure = count_wall_positions() >= 8
+	var difficult_style = (
+		current_level_style == LevelStyle.TOUGH
+		or current_level_style == LevelStyle.MAZE
+	)
 
-		LevelDifficulty.ADVANCED:
-			return 24
+	if dense_pressure:
+		pressure_factors += 1
 
-	return 7
+	if armored_pressure:
+		pressure_factors += 1
+
+	if barrier_pressure:
+		pressure_factors += 1
+
+	if difficult_style:
+		pressure_factors += 1
+
+	if pressure_factors >= 3:
+		return 2
+
+	if pressure_factors >= 2:
+		return 1
+
+	return 0
 
 func is_horizontal_pattern(pattern: LevelPattern) -> bool:
 	return (
@@ -1132,7 +1177,14 @@ func is_wall_position(row: int, column: int) -> bool:
 				and column != 5 + offset.x
 			):
 				return true
-
+		elif pattern == LevelPattern.BARRIER_TEST:
+			if (
+				row == 4
+				and column >= 3
+				and column <= 7
+			):
+				return true
+				
 	return false
 
 func count_wall_positions() -> int:
