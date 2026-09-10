@@ -54,7 +54,43 @@ func _ready():
 				].pick_random()
 
 			DropPool.ANY:
-				bonus_type = BonusType.values().pick_random()
+				var bonus_pool = [
+					BonusType.EXPAND_PADDLE,
+					BonusType.EXPAND_PADDLE,
+					BonusType.EXPAND_PADDLE,
+					BonusType.EXPAND_PADDLE,
+
+					BonusType.SHRINK_PADDLE,
+					BonusType.SHRINK_PADDLE,
+					BonusType.SHRINK_PADDLE,
+
+					BonusType.HYPER_BALL,
+					BonusType.HYPER_BALL,
+					BonusType.HYPER_BALL,
+
+					BonusType.FAST_BALL,
+					BonusType.FAST_BALL,
+					BonusType.FAST_BALL,
+
+					BonusType.SHIELD,
+					BonusType.SHIELD,
+					BonusType.SHIELD,
+
+					BonusType.MAGNET,
+					BonusType.MAGNET,
+					BonusType.MAGNET,
+
+					BonusType.EXTRA_LIFE,
+					BonusType.EXTRA_LIFE,
+
+					BonusType.SPLIT_BALLS,
+					BonusType.SPLIT_BALLS,
+
+					BonusType.PIERCING_BALL,
+					BonusType.EXPLOSIVE_BALL
+				]
+
+				bonus_type = bonus_pool.pick_random()
 
 	next_drop_pool = DropPool.ANY
 
