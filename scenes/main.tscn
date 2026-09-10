@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://can5q72w1heag" path="res://scenes/bonus.tscn" id="5_tbgi4"]
 [ext_resource type="Script" uid="uid://bauva4yg63gt8" path="res://scenes/pause_menu.gd" id="6_tefeu"]
 [ext_resource type="Script" uid="uid://d1hhkv3rlljld" path="res://scenes/chapter_background.gd" id="7_background"]
+[ext_resource type="Script" path="res://scenes/effect_card.gd" id="8_effect_card"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 size = Vector2(40, 1080)
@@ -225,10 +226,7 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ИГРА ОКОНЧЕНА
-
-SPACE - новая игра
-"
+text = "ИГРА ОКОНЧЕНА\n\nSPACE - новая игра\n"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -245,9 +243,7 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ПОБЕДА!
-
-SPACE - продолжить"
+text = "ПОБЕДА!\n\nSPACE - продолжить"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -289,13 +285,14 @@ disabled = true
 
 [node name="EffectsUI" type="HBoxContainer" parent="." unique_id=367337261]
 offset_left = 390.0
-offset_top = 17.0
+offset_top = 16.0
 offset_right = 940.0
-offset_bottom = 61.0
+offset_bottom = 62.0
 theme_override_constants/separation = 7
 alignment = 2
 
 [node name="Piercing" type="Label" parent="EffectsUI" unique_id=1437575256]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
@@ -303,58 +300,81 @@ theme_override_colors/font_outline_color = Color(0.2, 0.12, 0.01, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_p")
-text = "P 7.0"
+text = "7.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "piercing"
 
 [node name="Explosive" type="Label" parent="EffectsUI" unique_id=1610261575]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.66, 0.46, 1)
 theme_override_colors/font_outline_color = Color(0.2, 0.025, 0.01, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_e")
-text = "E 12.0"
+text = "12.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "explosive"
 
 [node name="Shield" type="Label" parent="EffectsUI" unique_id=1697420844]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.84, 1, 1)
 theme_override_colors/font_outline_color = Color(0.01, 0.08, 0.2, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_b")
-text = "B 15.0"
+text = "15.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "shield"
 
 [node name="Magnet" type="Label" parent="EffectsUI" unique_id=1670060544]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.67, 1, 1)
 theme_override_colors/font_outline_color = Color(0.16, 0.01, 0.19, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_m")
-text = "M 15.0"
+text = "15.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "magnet"
 
 [node name="Fast" type="Label" parent="EffectsUI" unique_id=157303934]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.78, 0.46, 1)
 theme_override_colors/font_outline_color = Color(0.19, 0.07, 0.01, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_f")
-text = "F 12.0"
+text = "12.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "fast"
 
 [node name="Hyper" type="Label" parent="EffectsUI" unique_id=2138204108]
+custom_minimum_size = Vector2(82, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.91, 0.72, 1, 1)
 theme_override_colors/font_outline_color = Color(0.13, 0.01, 0.19, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_effect_h")
-text = "H 6.0"
+text = "6.0"
+horizontal_alignment = 2
 vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "hyper"
 
 [node name="PauseLayer" type="CanvasLayer" parent="." unique_id=135469963]
 process_mode = 3
