@@ -7,9 +7,16 @@ var max_time: float = 1.0
 var accent: Color = Color.WHITE
 
 func _ready():
+	setup(effect_kind)
+
+func setup(kind: String):
+	effect_kind = kind
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = Vector2(82.0, 46.0)
+	horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_update_accent()
+	_update_style()
 	queue_redraw()
 
 func set_effect_time(value: float):
@@ -28,6 +35,28 @@ func _update_accent():
 		"magnet": accent = Color(0.92, 0.24, 0.96)
 		"fast": accent = Color(1.0, 0.62, 0.16)
 		"hyper": accent = Color(0.82, 0.36, 1.0)
+
+func _update_style():
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.035, 0.055, 0.94)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(accent, 0.82)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	style.content_margin_left = 37.0
+	style.content_margin_right = 8.0
+	style.shadow_color = Color(accent, 0.16)
+	style.shadow_size = 5
+	add_theme_stylebox_override("normal", style)
+	add_theme_color_override("font_color", Color(accent, 1.0))
+	add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.035, 1.0))
+	add_theme_constant_override("outline_size", 2)
+	add_theme_font_size_override("font_size", 19)
 
 func _draw():
 	var icon_center = Vector2(20.0, 21.0)
