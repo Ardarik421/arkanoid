@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c21lyl7xsd1i0" path="res://scenes/brick.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://can5q72w1heag" path="res://scenes/bonus.tscn" id="5_tbgi4"]
 [ext_resource type="Script" uid="uid://bauva4yg63gt8" path="res://scenes/pause_menu.gd" id="6_tefeu"]
+[ext_resource type="Script" path="res://scenes/chapter_background.gd" id="7_background"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 size = Vector2(40, 1080)
@@ -25,6 +26,10 @@ brick_scene = ExtResource("3_sugp2")
 bonus_scene = ExtResource("5_tbgi4")
 use_test_level = false
 test_pattern = 7
+
+[node name="ChapterBackground" type="Node2D" parent="."]
+z_index = -100
+script = ExtResource("7_background")
 
 [node name="Walls" type="Node2D" parent="." unique_id=1927932240]
 
@@ -83,10 +88,7 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ИГРА ОКОНЧЕНА
-
-SPACE - новая игра
-"
+text = "ИГРА ОКОНЧЕНА\n\nSPACE - новая игра\n"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -103,9 +105,7 @@ offset_bottom = 608.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 48
-text = "ПОБЕДА!
-
-SPACE - продолжить"
+text = "ПОБЕДА!\n\nSPACE - продолжить"
 horizontal_alignment = 1
 vertical_alignment = 1
 
