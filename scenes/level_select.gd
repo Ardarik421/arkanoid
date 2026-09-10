@@ -29,6 +29,10 @@ func _ready():
 
 func create_level_buttons():
 	for level in CHECKPOINTS:
+		if level == 100:
+			add_grid_spacer()
+			add_grid_spacer()
+
 		var button = Button.new()
 		button.text = str(level)
 		button.custom_minimum_size = Vector2(136, 72)
@@ -39,6 +43,12 @@ func create_level_buttons():
 		apply_checkpoint_style(button, level)
 		button.pressed.connect(_on_level_pressed.bind(level))
 		$Panel/Content/LevelGrid.add_child(button)
+
+func add_grid_spacer():
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(136, 72)
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$Panel/Content/LevelGrid.add_child(spacer)
 
 func apply_checkpoint_style(button: Button, level: int):
 	var chapter_index = clampi(int((max(level, 1) - 1) / 10), 0, CHAPTER_COLORS.size() - 1)
@@ -55,37 +65,37 @@ func apply_checkpoint_style(button: Button, level: int):
 		button.add_theme_stylebox_override("focus", make_checkpoint_box(accent, true, false))
 		button.add_theme_stylebox_override("pressed", make_checkpoint_box(accent, false, true))
 	else:
-		button.add_theme_color_override("font_disabled_color", Color(0.32, 0.36, 0.41, 0.7))
+		button.add_theme_color_override("font_disabled_color", Color(0.42, 0.5, 0.62, 0.56))
 		button.add_theme_stylebox_override("disabled", make_locked_box())
 
 func make_checkpoint_box(accent: Color, highlighted: bool, pressed: bool) -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
-	box.bg_color = Color(0.018, 0.03, 0.048, 0.96)
+	box.bg_color = Color(0.012, 0.024, 0.042, 0.82)
 	if highlighted:
-		box.bg_color = Color(accent.r * 0.12 + 0.025, accent.g * 0.12 + 0.035, accent.b * 0.12 + 0.05, 0.98)
+		box.bg_color = Color(accent.r * 0.1 + 0.02, accent.g * 0.1 + 0.03, accent.b * 0.1 + 0.05, 0.9)
 	if pressed:
-		box.bg_color = Color(0.012, 0.022, 0.038, 1.0)
+		box.bg_color = Color(0.008, 0.018, 0.032, 0.96)
 	box.border_width_left = 2
 	box.border_width_top = 2
 	box.border_width_right = 2
 	box.border_width_bottom = 2
-	box.border_color = Color(accent.r, accent.g, accent.b, 0.9 if highlighted else 0.62)
+	box.border_color = Color(accent.r, accent.g, accent.b, 0.95 if highlighted else 0.72)
 	box.corner_radius_top_left = 10
 	box.corner_radius_top_right = 10
 	box.corner_radius_bottom_right = 10
 	box.corner_radius_bottom_left = 10
-	box.shadow_color = Color(accent.r, accent.g, accent.b, 0.18 if highlighted else 0.08)
-	box.shadow_size = 8 if highlighted else 4
+	box.shadow_color = Color(accent.r, accent.g, accent.b, 0.22 if highlighted else 0.1)
+	box.shadow_size = 9 if highlighted else 5
 	return box
 
 func make_locked_box() -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
-	box.bg_color = Color(0.018, 0.023, 0.03, 0.82)
+	box.bg_color = Color(0.008, 0.016, 0.028, 0.68)
 	box.border_width_left = 1
 	box.border_width_top = 1
 	box.border_width_right = 1
 	box.border_width_bottom = 1
-	box.border_color = Color(0.22, 0.25, 0.29, 0.52)
+	box.border_color = Color(0.26, 0.34, 0.46, 0.46)
 	box.corner_radius_top_left = 10
 	box.corner_radius_top_right = 10
 	box.corner_radius_bottom_right = 10
