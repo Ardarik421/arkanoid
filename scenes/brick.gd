@@ -121,40 +121,120 @@ func _assign_bonus_bricks():
 	bricks_parent.remove_meta(BONUS_ASSIGNMENT_META)
 
 func _draw():
-	var rect = Rect2(
-		Vector2(-width / 2.0, -height / 2.0),
-		Vector2(width, height)
-	)
+	var half_width = width / 2.0
+	var half_height = height / 2.0
+	var outer_rect = Rect2(Vector2(-half_width, -half_height), Vector2(width, height))
+	var inner_rect = outer_rect.grow(-2.0)
 
 	if indestructible:
-		if barrier_flash:
-			draw_rect(rect, Color(0.55, 0.80, 1.0))
-		else:
-			draw_rect(rect, Color(0.10, 0.18, 0.24))
-
+		_draw_barrier(outer_rect, inner_rect)
 		return
 
-	if max_health == 1:
-		draw_rect(rect, Color.WHITE)
+	var body_color = Color(0.11, 0.14, 0.19)
+	var inner_color = Color(0.18, 0.22, 0.28)
+	var edge_color = Color(0.40, 0.49, 0.60)
+	var energy_color = Color(0.32, 0.68, 1.0)
 
-	elif max_health == 2:
-		if health == 2:
-			draw_rect(rect, Color(0.45, 0.45, 0.45))
-		else:
-			draw_rect(rect, Color(0.75, 0.75, 0.75))
+	draw_rect(outer_rect, Color(0.025, 0.04, 0.065))
+	draw_rect(inner_rect, body_color)
+	draw_line(Vector2(-half_width + 3.0, -half_height + 2.0), Vector2(half_width - 3.0, -half_height + 2.0), edge_color, 1.5, true)
+	draw_line(Vector2(-half_width + 3.0, half_height - 2.0), Vector2(half_width - 3.0, half_height - 2.0), Color(0.04, 0.08, 0.13), 2.0, true)
 
-	elif max_health == 3:
-		if health == 3:
-			draw_rect(rect, Color(0.25, 0.25, 0.25))
-		elif health == 2:
-			draw_rect(rect, Color(0.50, 0.50, 0.50))
-		else:
-			draw_rect(rect, Color(0.80, 0.80, 0.80))
+	var panel = PackedVector2Array([
+		Vector2(-half_width + 7.0, -half_height + 5.0),
+		Vector2(half_width - 11.0, -half_height + 5.0),
+		Vector2(half_width - 6.0, 0.0),
+		Vector2(half_width - 11.0, half_height - 5.0),
+		Vector2(-half_width + 7.0, half_height - 5.0),
+		Vector2(-half_width + 4.0, 0.0)
+	])
+	draw_colored_polygon(panel, inner_color)
+	draw_polyline(PackedVector2Array([panel[0], panel[1], panel[2], panel[3], panel[4], panel[5], panel[0]]), Color(0.25, 0.31, 0.39), 1.0, true)
+
+	var core_width = width * 0.38
+	draw_rect(Rect2(Vector2(-core_width / 2.0, half_height - 5.0), Vector2(core_width, 2.0)), Color(energy_color, 0.65))
+
+	var damage = max_health - health
+	if damage >= 1:
+		_draw_crack_set_one(energy_color)
+	if damage >= 2:
+		_draw_crack_set_two(energy_color)
 
 	if powerful_bonus:
-		draw_rect(rect, Color(1.0, 0.25, 0.05), false, 4.0)
+		_draw_bonus_frame(Color(1.0, 0.22, 0.06))
 	elif guaranteed_bonus:
-		draw_rect(rect, Color(1.0, 0.75, 0.15), false, 4.0)
+		_draw_bonus_frame(Color(1.0, 0.70, 0.10))
+
+func _draw_crack_set_one(energy_color: Color):
+	var crack_color = Color(0.60, 0.78, 0.95, 0.88)
+	draw_polyline(PackedVector2Array([
+		Vector2(-6.0, -14.0),
+		Vector2(-3.0, -7.0),
+		Vector2(-7.0, -2.0),
+		Vector2(-2.0, 3.0),
+		Vector2(-5.0, 10.0),
+		Vector2(-2.0, 14.0)
+	]), crack_color, 1.25, true)
+	draw_line(Vector2(-3.0, -7.0), Vector2(5.0, -10.0), crack_color, 1.0, true)
+	draw_line(Vector2(-7.0, -2.0), Vector2(-14.0, 2.0), crack_color, 1.0, true)
+	draw_circle(Vector2(-2.0, 3.0), 1.5, Color(energy_color, 0.75))
+
+func _draw_crack_set_two(energy_color: Color):
+	var crack_color = Color(0.72, 0.86, 1.0, 0.92)
+	draw_polyline(PackedVector2Array([
+		Vector2(18.0, -14.0),
+		Vector2(13.0, -7.0),
+		Vector2(17.0, -1.0),
+		Vector2(10.0, 5.0),
+		Vector2(14.0, 14.0)
+	]), crack_color, 1.25, true)
+	draw_line(Vector2(13.0, -7.0), Vector2(5.0, -4.0), crack_color, 1.0, true)
+	draw_line(Vector2(17.0, -1.0), Vector2(25.0, 3.0), crack_color, 1.0, true)
+	draw_line(Vector2(10.0, 5.0), Vector2(3.0, 10.0), crack_color, 1.0, true)
+	draw_circle(Vector2(10.0, 5.0), 1.5, Color(energy_color, 0.85))
+
+func _draw_bonus_frame(frame_color: Color):
+	var half_width = width / 2.0
+	var half_height = height / 2.0
+	var frame_rect = Rect2(Vector2(-half_width + 1.5, -half_height + 1.5), Vector2(width - 3.0, height - 3.0))
+	draw_rect(frame_rect, Color(frame_color, 0.16))
+	draw_rect(frame_rect, frame_color, false, 2.5)
+	draw_line(Vector2(-half_width + 7.0, -half_height + 4.0), Vector2(-half_width + 17.0, -half_height + 4.0), Color(frame_color, 0.95), 2.0, true)
+	draw_line(Vector2(half_width - 17.0, -half_height + 4.0), Vector2(half_width - 7.0, -half_height + 4.0), Color(frame_color, 0.95), 2.0, true)
+
+func _draw_barrier(outer_rect: Rect2, inner_rect: Rect2):
+	var half_width = width / 2.0
+	var half_height = height / 2.0
+	var flash_strength = 1.0 if barrier_flash else 0.0
+	var body_color = Color(0.035, 0.055, 0.075).lerp(Color(0.18, 0.38, 0.56), flash_strength * 0.55)
+
+	draw_rect(outer_rect, Color(0.015, 0.025, 0.04))
+	draw_rect(inner_rect, body_color)
+	draw_rect(inner_rect, Color(0.30, 0.42, 0.54), false, 2.0)
+
+	var left_plate = PackedVector2Array([
+		Vector2(-half_width + 5.0, -half_height + 4.0),
+		Vector2(-7.0, -half_height + 4.0),
+		Vector2(-2.0, 0.0),
+		Vector2(-7.0, half_height - 4.0),
+		Vector2(-half_width + 5.0, half_height - 4.0),
+		Vector2(-half_width + 10.0, 0.0)
+	])
+	var right_plate = PackedVector2Array()
+	for point in left_plate:
+		right_plate.append(Vector2(-point.x, point.y))
+
+	draw_colored_polygon(left_plate, Color(0.10, 0.15, 0.21))
+	draw_colored_polygon(right_plate, Color(0.10, 0.15, 0.21))
+	draw_circle(Vector2.ZERO, 5.0, Color(0.04, 0.10, 0.16))
+	draw_circle(Vector2.ZERO, 3.0, Color(0.30, 0.72, 1.0) if barrier_flash else Color(0.12, 0.35, 0.55))
+
+	if barrier_hits >= 1:
+		_draw_crack_set_one(Color(0.32, 0.70, 1.0))
+	if barrier_hits >= 3:
+		_draw_crack_set_two(Color(0.32, 0.70, 1.0))
+	if barrier_hits >= 4:
+		draw_rect(Rect2(Vector2(-half_width - 2.0, -half_height - 2.0), Vector2(width + 4.0, height + 4.0)), Color(0.35, 0.75, 1.0, 0.30), false, 2.0)
 
 func prepare_bonus_drop():
 	if powerful_bonus:
