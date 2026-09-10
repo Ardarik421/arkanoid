@@ -30,9 +30,15 @@ func _process(delta):
 	age += delta
 
 	for particle in particles:
-		particle["velocity"].y += 145.0 * delta
-		particle["offset"] += particle["velocity"] * delta
-		particle["rotation"] += particle["spin"] * delta
+		var velocity: Vector2 = particle["velocity"]
+		var offset: Vector2 = particle["offset"]
+		var rotation: float = particle["rotation"]
+		velocity.y += 145.0 * delta
+		offset += velocity * delta
+		rotation += float(particle["spin"]) * delta
+		particle["velocity"] = velocity
+		particle["offset"] = offset
+		particle["rotation"] = rotation
 
 	if age >= lifetime:
 		queue_free()
@@ -68,5 +74,6 @@ func _draw():
 		draw_polyline(PackedVector2Array([shard[0], shard[1], shard[2], shard[3], shard[0]]), Color(0.82, 0.95, 1.0, fade * 0.75), 0.9, true)
 
 		if i % 2 == 0:
-			var trail = offset - particle["velocity"].normalized() * (9.0 + size * 2.0)
+			var velocity: Vector2 = particle["velocity"]
+			var trail = offset - velocity.normalized() * (9.0 + size * 2.0)
 			draw_line(offset, trail, Color(flash_color, fade * 0.48), 1.2, true)
