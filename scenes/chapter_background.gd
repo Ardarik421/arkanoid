@@ -63,9 +63,12 @@ func _draw():
 	elif displayed_level <= 90:
 		var progress = float(displayed_level - 81) / 9.0
 		FracturedRealityBackground.draw_background(self, progress, animation_time)
+	elif displayed_level <= 100:
+		var progress = float(displayed_level - 91) / 9.0
+		BlackHoleBackground.draw_background(self, progress, animation_time)
 	else:
 		var progress = 1.0
-		FracturedRealityBackground.draw_background(self, progress, animation_time)
+		BlackHoleBackground.draw_background(self, progress, animation_time)
 
 	_draw_vignette()
 
