@@ -44,8 +44,10 @@ func _draw():
 		_draw_core()
 	elif displayed_level <= 20:
 		_draw_surface()
-	else:
+	elif displayed_level <= 30:
 		_draw_biosphere()
+	else:
+		_draw_upper_atmosphere()
 	_draw_vignette()
 
 func _draw_core():
@@ -81,6 +83,84 @@ func _draw_biosphere():
 	_draw_biosphere_horizon(progress)
 	_draw_biosphere_growth(progress)
 	_draw_biosphere_spores(progress)
+
+func _draw_upper_atmosphere():
+	var chapter_level = clamp(displayed_level, 31, 40)
+	var progress = float(chapter_level - 31) / 9.0
+	_draw_atmosphere_sky(progress)
+	_draw_atmosphere_stars(progress)
+	_draw_planet_limb(progress)
+	_draw_cloud_bands(progress)
+	_draw_atmosphere_satellites(progress)
+	_draw_high_particles(progress)
+
+func _draw_atmosphere_sky(progress: float):
+	var top = Color(0.008,0.028,0.060).lerp(Color(0.004,0.010,0.028),progress)
+	var bottom = Color(0.075,0.22,0.34).lerp(Color(0.025,0.075,0.14),progress)
+	for y in range(0,1080,18):
+		var t = float(y)/1080.0
+		draw_rect(Rect2(0,y,960,18),top.lerp(bottom,pow(t,1.15)))
+	var glow_alpha = 0.045*(1.0-progress*0.45)
+	for i in range(8):
+		var y = 650.0+float(i)*22.0
+		draw_line(Vector2(0,y),Vector2(960,y-15.0),Color(0.22,0.60,0.86,glow_alpha*(1.0-float(i)*0.07)),16.0,true)
+
+func _draw_atmosphere_stars(progress: float):
+	var count = 18+int(progress*42.0)
+	for i in range(count):
+		var x = float((i*163+41)%950)+5.0
+		var y = 70.0+float((i*91)%610)
+		var twinkle = 0.55+0.45*sin(animation_time*(0.7+float(i%4)*0.08)+float(i))
+		var alpha = (0.08+progress*0.18)*(0.72+0.28*twinkle)
+		draw_circle(Vector2(x,y),0.8+float(i%3)*0.45,Color(0.72,0.88,1.0,alpha))
+
+func _draw_planet_limb(progress: float):
+	var center = Vector2(480,1340+progress*110.0)
+	var radius = 690.0+progress*95.0
+	for i in range(8,0,-1):
+		draw_circle(center,radius+float(i)*13.0,Color(0.18,0.55,0.88,0.006*float(i)*(1.0-progress*0.22)))
+	draw_circle(center,radius,Color(0.018,0.055,0.082,0.98))
+	draw_arc(center,radius,-2.82,-0.32,96,Color(0.38,0.76,1.0,0.55-progress*0.12),3.0,true)
+	draw_arc(center,radius-8.0,-2.82,-0.32,96,Color(0.58,0.90,1.0,0.18-progress*0.04),1.2,true)
+	for i in range(5):
+		var y = 880.0+float(i)*34.0+progress*20.0
+		var alpha = (0.045-float(i)*0.006)*(1.0-progress*0.35)
+		draw_line(Vector2(90,y),Vector2(870,y-28.0),Color(0.46,0.78,0.92,alpha),9.0,true)
+
+func _draw_cloud_bands(progress: float):
+	var remaining = 1.0-progress
+	var count = 6-int(progress*3.0)
+	for i in range(max(count,2)):
+		var phase = animation_time*(0.025+float(i)*0.004)+float(i)*1.8
+		var y = 720.0+float(i)*58.0+sin(phase)*7.0+progress*90.0
+		var shift = sin(phase*0.7)*34.0
+		var alpha = (0.035+float(i%2)*0.015)*remaining
+		draw_line(Vector2(-70+shift,y),Vector2(1030+shift,y-35.0),Color(0.72,0.88,0.94,alpha),20.0,true)
+		draw_line(Vector2(80+shift,y+24.0),Vector2(760+shift,y+4.0),Color(0.56,0.78,0.90,alpha*0.55),8.0,true)
+
+func _draw_atmosphere_satellites(progress: float):
+	var visible = int(progress*3.6)
+	var satellites = [Vector2(805,330),Vector2(150,470),Vector2(710,575)]
+	for i in range(min(visible,satellites.size())):
+		var base = satellites[i]
+		var drift = Vector2(sin(animation_time*0.08+i)*8.0,cos(animation_time*0.06+i)*5.0)
+		var p = base+drift
+		var s = 0.75+float(i)*0.12
+		draw_rect(Rect2(p-Vector2(12,5)*s,Vector2(24,10)*s),Color(0.18,0.24,0.30,0.68))
+		draw_line(p+Vector2(-13,0)*s,p+Vector2(-30,0)*s,Color(0.34,0.49,0.58,0.48),1.5,true)
+		draw_line(p+Vector2(13,0)*s,p+Vector2(30,0)*s,Color(0.34,0.49,0.58,0.48),1.5,true)
+		draw_rect(Rect2(p+Vector2(-38,-8)*s,Vector2(12,16)*s),Color(0.09,0.28,0.43,0.48))
+		draw_rect(Rect2(p+Vector2(26,-8)*s,Vector2(12,16)*s),Color(0.09,0.28,0.43,0.48))
+		draw_circle(p,2.0*s,Color(0.50,0.82,1.0,0.50))
+
+func _draw_high_particles(progress: float):
+	var count = 10+int(progress*14.0)
+	for i in range(count):
+		var x = 30.0+float((i*139+29)%900)
+		var base_y = 520.0+float((i*83)%470)
+		var rise = fmod(animation_time*(2.0+float(i%3))+float(i)*43.0,130.0)
+		var drift = sin(animation_time*0.18+i*1.3)*(5.0+progress*5.0)
+		draw_circle(Vector2(x+drift,base_y-rise),0.8+float(i%2)*0.45,Color(0.55,0.82,1.0,0.045+progress*0.045))
 
 func _draw_biosphere_sky(progress: float):
 	var top = Color(0.008,0.035,0.050).lerp(Color(0.012,0.060,0.075),progress)
