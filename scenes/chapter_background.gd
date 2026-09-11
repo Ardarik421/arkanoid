@@ -92,6 +92,8 @@ func _draw_upper_atmosphere():
 	_draw_planet_limb(progress)
 	_draw_cloud_bands(progress)
 	_draw_atmosphere_satellites(progress)
+	_draw_atmosphere_star_flares(progress)
+	_draw_atmosphere_meteors(progress)
 	_draw_high_particles(progress)
 
 func _draw_atmosphere_sky(progress: float):
@@ -152,6 +154,89 @@ func _draw_atmosphere_satellites(progress: float):
 		draw_rect(Rect2(p+Vector2(-38,-8)*s,Vector2(12,16)*s),Color(0.09,0.28,0.43,0.48))
 		draw_rect(Rect2(p+Vector2(26,-8)*s,Vector2(12,16)*s),Color(0.09,0.28,0.43,0.48))
 		draw_circle(p,2.0*s,Color(0.50,0.82,1.0,0.50))
+
+func _draw_atmosphere_star_flares(progress: float):
+	var flare_count = 3 + int(progress * 5.0)
+
+	for i in range(flare_count):
+		var x = 80.0 + float((i * 193 + 71) % 800)
+		var y = 120.0 + float((i * 127 + 43) % 470)
+
+		var phase = animation_time * (0.75 + float(i % 3) * 0.18) + float(i) * 2.1
+		var brightness = pow(max(0.0, sin(phase)), 8.0)
+
+		if brightness < 0.04:
+			continue
+
+		var alpha = brightness * (0.16 + progress * 0.22)
+		var radius = 1.2 + brightness * 1.8
+
+		draw_circle(Vector2(x, y), radius + 5.0, Color(0.45, 0.72, 1.0, alpha * 0.08))
+		draw_circle(Vector2(x, y), radius, Color(0.82, 0.94, 1.0, alpha))
+		draw_line(
+			Vector2(x - 8.0 * brightness, y),
+			Vector2(x + 8.0 * brightness, y),
+			Color(0.72, 0.90, 1.0, alpha * 0.55),
+			1.0,
+			true
+		)
+		draw_line(
+			Vector2(x, y - 8.0 * brightness),
+			Vector2(x, y + 8.0 * brightness),
+			Color(0.72, 0.90, 1.0, alpha * 0.55),
+			1.0,
+			true
+		)
+
+func _draw_atmosphere_meteors(progress: float):
+	var meteor_count = 1 + int(progress * 2.0)
+
+	for i in range(meteor_count):
+		var cycle_length = 8.0 + float(i) * 3.5
+		var local_time = fmod(animation_time + float(i) * 4.7, cycle_length)
+
+		var active_time = 0.75 + progress * 0.20
+		if local_time > active_time:
+			continue
+
+		var t = local_time / active_time
+
+		var start_x = 1050.0 - float(i) * 210.0
+		var start_y = 180.0 + float(i) * 145.0
+		var end_x = 610.0 - float(i) * 150.0
+		var end_y = 430.0 + float(i) * 125.0
+
+		var head = Vector2(
+			lerp(start_x, end_x, t),
+			lerp(start_y, end_y, t)
+		)
+
+		var direction = Vector2(end_x - start_x, end_y - start_y).normalized()
+		var tail_length = 55.0 + progress * 30.0
+		var tail = head - direction * tail_length
+
+		var fade = sin(t * PI)
+		var alpha = fade * (0.20 + progress * 0.16)
+
+		draw_line(
+			tail,
+			head,
+			Color(0.42, 0.68, 1.0, alpha * 0.32),
+			4.0,
+			true
+		)
+		draw_line(
+			tail + direction * 18.0,
+			head,
+			Color(0.78, 0.90, 1.0, alpha),
+			1.4,
+			true
+		)
+		draw_circle(
+			head,
+			2.0,
+			Color(0.92, 0.97, 1.0, alpha)
+		)
 
 func _draw_high_particles(progress: float):
 	var count = 10+int(progress*14.0)
