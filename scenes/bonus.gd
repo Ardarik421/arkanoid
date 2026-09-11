@@ -170,10 +170,9 @@ func _draw_bonus_icon(accent: Color):
 			draw_line(Vector2(-4, 0), Vector2(4, 0), bright, 1.6, true)
 
 		BonusType.HYPER_BALL:
-			var star = PackedVector2Array([Vector2(0, -9), Vector2(2.5, -2.5), Vector2(8, 0), Vector2(2.5, 2.5), Vector2(0, 9), Vector2(-2.5, 2.5), Vector2(-8, 0), Vector2(-2.5, -2.5)])
-			draw_colored_polygon(star, Color(accent, 0.72))
-			draw_polyline(PackedVector2Array([star[0], star[1], star[2], star[3], star[4], star[5], star[6], star[7], star[0]]), bright, 1.1, true)
-			draw_circle(Vector2.ZERO, 2.2, bright)
+			for x in [-7.0, -1.0, 5.0]:
+				draw_polyline(PackedVector2Array([Vector2(x - 3, -6), Vector2(x + 2, 0), Vector2(x - 3, 6)]), glow, 2.2, true)
+			draw_line(Vector2(-10, 0), Vector2(9, 0), Color(bright, 0.82), 1.0, true)
 
 		BonusType.FAST_BALL:
 			for x in [-5.0, 1.0]:
