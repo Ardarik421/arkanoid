@@ -5,7 +5,6 @@ const BURST_SCRIPT = preload("res://scenes/brick_burst.gd")
 var previous_health: int = -1
 var previous_barrier_hits: int = -1
 var flash_time: float = 0.0
-var pulse_time: float = 0.0
 
 func _ready():
 	var brick = get_parent()
@@ -14,7 +13,6 @@ func _ready():
 	queue_redraw()
 
 func _process(delta):
-	pulse_time += delta
 	var brick = get_parent()
 
 	if brick == null:
@@ -22,17 +20,18 @@ func _process(delta):
 
 	var current_health = int(brick.get("health"))
 	var current_barrier_hits = int(brick.get("barrier_hits"))
+	var was_hit = current_health < previous_health or current_barrier_hits > previous_barrier_hits
 
-	if current_health < previous_health or current_barrier_hits > previous_barrier_hits:
+	if was_hit:
 		flash_time = 0.11
+		queue_redraw()
 
 	previous_health = current_health
 	previous_barrier_hits = current_barrier_hits
 
 	if flash_time > 0.0:
 		flash_time = max(0.0, flash_time - delta)
-
-	queue_redraw()
+		queue_redraw()
 
 func _rounded_outline(rect: Rect2, color: Color, width: int, radius: int):
 	var box = StyleBoxFlat.new()
@@ -64,8 +63,7 @@ func _draw():
 	var hw = width_value / 2.0
 	var hh = height_value / 2.0
 	var color = _get_effect_color(brick)
-	var pulse = 0.5 + sin(pulse_time * 2.2) * 0.5
-	var outer_alpha = 0.055 + pulse * 0.025
+	var outer_alpha = 0.067
 
 	for i in range(3):
 		var expand = 2.0 + float(i) * 2.5
@@ -73,7 +71,7 @@ func _draw():
 		_rounded_outline(glow_rect, Color(color, outer_alpha / float(i + 1)), 1 + i, 8 + i * 2)
 
 	var edge_rect = Rect2(Vector2(-hw - 0.5, -hh - 0.5), Vector2(width_value + 1.0, height_value + 1.0))
-	_rounded_outline(edge_rect, Color(color, 0.30 + pulse * 0.10), 1, 7)
+	_rounded_outline(edge_rect, Color(color, 0.35), 1, 7)
 
 	if flash_time > 0.0:
 		var strength = flash_time / 0.11
