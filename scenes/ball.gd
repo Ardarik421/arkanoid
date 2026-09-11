@@ -35,12 +35,12 @@ func _draw():
 	var trail_alpha_scale = 1.0
 
 	if is_piercing:
-		accent = Color(1.0, 0.52, 0.12)
-		shell = Color(1.0, 0.72, 0.28)
-		energy = Color(1.0, 0.91, 0.68)
+		accent = Color(1.0, 0.78, 0.28)
+		shell = Color(1.0, 0.91, 0.62)
+		energy = Color(1.0, 0.97, 0.84)
 		core = Color.WHITE
-		trail_accent = Color(1.0, 0.43, 0.08)
-		trail_core = Color(1.0, 0.96, 0.82)
+		trail_accent = Color(1.0, 0.69, 0.18)
+		trail_core = Color(1.0, 0.99, 0.92)
 		trail_length_scale = 1.75
 		trail_alpha_scale = 1.35
 
@@ -65,7 +65,7 @@ func _draw():
 			var width = lerp(0.8, 3.8, t)
 			draw_line(local_a, local_b, Color(trail_accent, alpha), width, true)
 			if is_piercing:
-				draw_line(local_a, local_b, Color(trail_core, alpha * 0.72), max(0.7, width * 0.38), true)
+				draw_line(local_a, local_b, Color(trail_core, alpha * 0.88), max(0.8, width * 0.46), true)
 			elif is_explosive:
 				draw_line(local_a, local_b, Color(trail_core, alpha * 0.34), max(0.6, width * 0.28), true)
 
@@ -87,11 +87,12 @@ func _draw():
 	draw_circle(Vector2(-5.1, -5.4), 0.75, Color(1.0, 1.0, 1.0, 0.72))
 
 	if is_piercing:
-		draw_circle(Vector2.ZERO, radius * 0.67, Color(1.0, 1.0, 1.0, 0.14 * pulse))
+		draw_circle(Vector2.ZERO, radius * 0.78, Color(1.0, 0.98, 0.88, 0.18 * pulse))
+		draw_circle(Vector2.ZERO, radius * 0.58, Color(1.0, 1.0, 1.0, 0.13 * pulse))
 		for side in [-1.0, 1.0]:
 			var x = side * (radius + 2.5)
-			draw_line(Vector2(x, -4.5), Vector2(x, 4.5), Color(accent, 0.72 * pulse), 1.5, true)
-		draw_line(Vector2(-radius - 4.0, 0.0), Vector2(radius + 4.0, 0.0), Color(1.0, 0.94, 0.78, 0.46 * pulse), 1.1, true)
+			draw_line(Vector2(x, -4.5), Vector2(x, 4.5), Color(accent, 0.68 * pulse), 1.5, true)
+		draw_line(Vector2(-radius - 4.0, 0.0), Vector2(radius + 4.0, 0.0), Color(1.0, 0.99, 0.90, 0.58 * pulse), 1.2, true)
 
 	if is_explosive:
 		for i in range(4):
