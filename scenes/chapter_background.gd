@@ -46,8 +46,15 @@ func _draw():
 		_draw_surface()
 	elif displayed_level <= 30:
 		_draw_biosphere()
-	else:
+	elif displayed_level <= 40:
 		_draw_upper_atmosphere()
+	elif displayed_level <= 50:
+		var progress = float(displayed_level - 41) / 9.0
+		OrbitBackground.draw_background(self, progress, animation_time)
+	else:
+		var progress = 1.0
+		OrbitBackground.draw_background(self, progress, animation_time)
+
 	_draw_vignette()
 
 func _draw_core():
