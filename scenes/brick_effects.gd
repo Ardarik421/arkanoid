@@ -34,6 +34,26 @@ func _process(delta):
 
 	queue_redraw()
 
+func _rounded_outline(rect: Rect2, color: Color, width: int, radius: int):
+	var box = StyleBoxFlat.new()
+	box.bg_color = Color(0, 0, 0, 0)
+	box.border_color = color
+	box.set_border_width_all(width)
+	box.corner_radius_top_left = radius
+	box.corner_radius_top_right = radius
+	box.corner_radius_bottom_left = radius
+	box.corner_radius_bottom_right = radius
+	draw_style_box(box, rect)
+
+func _rounded_fill(rect: Rect2, color: Color, radius: int):
+	var box = StyleBoxFlat.new()
+	box.bg_color = color
+	box.corner_radius_top_left = radius
+	box.corner_radius_top_right = radius
+	box.corner_radius_bottom_left = radius
+	box.corner_radius_bottom_right = radius
+	draw_style_box(box, rect)
+
 func _draw():
 	var brick = get_parent()
 	if brick == null:
@@ -45,22 +65,22 @@ func _draw():
 	var hh = height_value / 2.0
 	var color = _get_effect_color(brick)
 	var pulse = 0.5 + sin(pulse_time * 2.2) * 0.5
-	var outer_alpha = 0.07 + pulse * 0.025
+	var outer_alpha = 0.055 + pulse * 0.025
 
 	for i in range(3):
 		var expand = 2.0 + float(i) * 2.5
 		var glow_rect = Rect2(Vector2(-hw - expand, -hh - expand), Vector2(width_value + expand * 2.0, height_value + expand * 2.0))
-		draw_rect(glow_rect, Color(color, outer_alpha / float(i + 1)), false, 1.5 + float(i) * 0.6)
+		_rounded_outline(glow_rect, Color(color, outer_alpha / float(i + 1)), 1 + i, 8 + i * 2)
 
 	var edge_rect = Rect2(Vector2(-hw - 0.5, -hh - 0.5), Vector2(width_value + 1.0, height_value + 1.0))
-	draw_rect(edge_rect, Color(color, 0.44 + pulse * 0.10), false, 1.15)
+	_rounded_outline(edge_rect, Color(color, 0.30 + pulse * 0.10), 1, 7)
 
 	if flash_time > 0.0:
 		var strength = flash_time / 0.11
 		var flash_rect = Rect2(Vector2(-hw - 3.0, -hh - 3.0), Vector2(width_value + 6.0, height_value + 6.0))
-		draw_rect(flash_rect, Color(color, strength * 0.33), false, 3.5)
-		draw_rect(Rect2(Vector2(-hw + 2.0, -hh + 2.0), Vector2(width_value - 4.0, height_value - 4.0)), Color(1.0, 0.96, 0.88, strength * 0.16))
-		draw_circle(Vector2.ZERO, 4.0 + (1.0 - strength) * 8.0, Color(1.0, 0.93, 0.76, strength * 0.30))
+		_rounded_outline(flash_rect, Color(color, strength * 0.33), 3, 10)
+		_rounded_fill(Rect2(Vector2(-hw + 2.0, -hh + 2.0), Vector2(width_value - 4.0, height_value - 4.0)), Color(color, strength * 0.11), 5)
+		draw_circle(Vector2.ZERO, 4.0 + (1.0 - strength) * 8.0, Color(color, strength * 0.24))
 
 func _exit_tree():
 	var brick = get_parent()
@@ -81,14 +101,9 @@ func _exit_tree():
 	burst.call_deferred("setup", _get_effect_color(brick))
 
 func _get_effect_color(brick) -> Color:
-	if bool(brick.get("powerful_bonus")):
-		return Color(1.0, 0.22, 0.06)
-	if bool(brick.get("guaranteed_bonus")):
-		return Color(1.0, 0.70, 0.10)
 	if bool(brick.get("indestructible")):
-		return Color(0.36, 0.78, 1.0)
-	if int(brick.get("max_health")) >= 3:
-		return Color(0.30, 0.78, 1.0)
-	if int(brick.get("max_health")) == 2:
-		return Color(0.42, 0.75, 1.0)
-	return Color(0.28, 0.66, 1.0)
+		return Color(1.0, 0.30, 0.055)
+	var color_value = brick.get("glass_color")
+	if color_value is Color:
+		return color_value
+	return Color(0.34, 0.76, 1.0)
