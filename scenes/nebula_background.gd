@@ -6,6 +6,7 @@ static func draw_background(canvas: Node2D, progress: float, time: float):
 	_draw_nebula_layers(canvas, progress, time)
 	_draw_dark_lanes(canvas, progress, time)
 	_draw_celestial_objects(canvas, progress, time)
+	_draw_space_details(canvas, progress, time)
 	_draw_stars(canvas, progress, time)
 	_draw_dust(canvas, progress, time)
 	_draw_lensing_hint(canvas, progress, time)
@@ -81,6 +82,47 @@ static func _draw_celestial_objects(canvas: Node2D, progress: float, time: float
 		canvas.draw_circle(flare,3.0+appear*2.0,Color(1.0,0.72,0.58,alpha))
 		canvas.draw_line(flare+Vector2(-15.0*appear,0),flare+Vector2(15.0*appear,0),Color(1.0,0.56,0.44,alpha*0.36),1.0,true)
 		canvas.draw_line(flare+Vector2(0,-15.0*appear),flare+Vector2(0,15.0*appear),Color(0.86,0.72,1.0,alpha*0.28),1.0,true)
+
+static func _draw_space_details(canvas: Node2D, progress: float, time: float):
+	var filament_alpha = 0.015+progress*0.020
+	for i in range(4):
+		var y = 185.0+float(i)*205.0+sin(time*0.018+i)*9.0
+		canvas.draw_arc(Vector2(480.0,y),260.0+float(i)*32.0,3.35,5.72,52,Color(0.36,0.22,0.52,filament_alpha),1.0,true)
+
+	if progress > 0.14:
+		var appear = clamp((progress-0.14)/0.22,0.0,1.0)
+		var cluster = Vector2(720.0,670.0)
+		for i in range(16):
+			var angle = float(i)*2.17
+			var distance = 7.0+float((i*19)%58)
+			var p = cluster+Vector2(cos(angle),sin(angle))*distance
+			var c = Color(0.76,0.62,0.95,0.030*appear)
+			if i%4 == 0:
+				c = Color(0.58,0.78,1.0,0.040*appear)
+			canvas.draw_circle(p,0.8+float(i%3)*0.3,c)
+
+	if progress > 0.30:
+		var appear = clamp((progress-0.30)/0.30,0.0,1.0)
+		var comet = Vector2(140.0+time*1.8,420.0-time*0.42)
+		comet.x = fmod(comet.x+1040.0,1040.0)-40.0
+		canvas.draw_circle(comet,1.6,Color(0.90,0.78,1.0,0.12*appear))
+		canvas.draw_line(comet,comet+Vector2(-34,11),Color(0.56,0.38,0.82,0.050*appear),1.0,true)
+
+	if progress > 0.52:
+		var appear = clamp((progress-0.52)/0.30,0.0,1.0)
+		for i in range(8):
+			var p = Vector2(730.0+float(i)*25.0,805.0+float((i*29)%100)+sin(time*0.025+i)*4.0)
+			var size = 1.8+float(i%4)*1.0
+			canvas.draw_circle(p,size,Color(0.22,0.18,0.28,0.048*appear))
+			canvas.draw_line(p,p+Vector2(5.0+float(i%3)*2.0,-2.0),Color(0.46,0.34,0.54,0.020*appear),0.8,true)
+
+	if progress > 0.72:
+		var appear = clamp((progress-0.72)/0.28,0.0,1.0)
+		var pulse = 0.75+0.25*sin(time*0.28)
+		var p = Vector2(210.0,165.0)
+		canvas.draw_circle(p,2.8,Color(0.68,0.88,1.0,0.13*appear*pulse))
+		canvas.draw_circle(p+Vector2(11,-5),1.8,Color(1.0,0.48,0.70,0.10*appear))
+		canvas.draw_line(p+Vector2(-12,4),p+Vector2(25,-10),Color(0.54,0.48,0.78,0.025*appear),0.8,true)
 
 static func _draw_stars(canvas: Node2D, progress: float, time: float):
 	var far_count = 118+int(progress*72.0)
