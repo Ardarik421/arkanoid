@@ -2,6 +2,17 @@ extends Node2D
 
 var animation_time: float = 0.0
 
+func _ready():
+	visible = false
+	set_process(false)
+
+func set_active(enabled: bool):
+	visible = enabled
+	set_process(enabled)
+	if enabled:
+		animation_time = randf_range(0.0, TAU)
+		queue_redraw()
+
 func _process(delta):
 	animation_time += delta
 	queue_redraw()
