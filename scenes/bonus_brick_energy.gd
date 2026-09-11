@@ -19,6 +19,10 @@ func _draw():
 	var pulse = 0.72 + 0.28 * sin(animation_time * 3.0)
 	var wave = animation_time * 2.2
 
+	_draw_soft_ellipse(Vector2.ZERO, 15.0 + pulse * 3.0, 8.0 + pulse * 1.5, Color(energy, 0.16 + pulse * 0.05))
+	_draw_soft_ellipse(Vector2(sin(wave * 0.7) * 3.5, 0.0), 22.0 + pulse * 2.0, 7.0, Color(energy, 0.08 + pulse * 0.03))
+	_draw_soft_ellipse(Vector2(cos(wave * 0.5) * 5.0, sin(wave * 0.4) * 1.5), 29.0, 5.5, Color(hot, 0.035 + pulse * 0.02))
+
 	for layer in range(5):
 		var radius_x = 20.0 + float(layer) * 4.0 + pulse * 2.5
 		var radius_y = 5.0 + float(layer) * 1.8 + pulse * 1.2
