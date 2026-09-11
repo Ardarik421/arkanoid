@@ -57,9 +57,12 @@ func _draw():
 	elif displayed_level <= 70:
 		var progress = float(displayed_level - 61) / 9.0
 		NebulaBackground.draw_background(self, progress, animation_time)
+	elif displayed_level <= 80:
+		var progress = float(displayed_level - 71) / 9.0
+		DistortedSpaceBackground.draw_background(self, progress, animation_time)
 	else:
 		var progress = 1.0
-		NebulaBackground.draw_background(self, progress, animation_time)
+		DistortedSpaceBackground.draw_background(self, progress, animation_time)
 
 	_draw_vignette()
 
