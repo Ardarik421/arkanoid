@@ -64,64 +64,119 @@ func _draw_surface():
 	var chapter_level = clamp(displayed_level, 11, 20)
 	var progress = float(chapter_level - 11) / 9.0
 	_draw_surface_sky(progress)
+	_draw_surface_planet(progress)
+	_draw_surface_haze(progress)
 	_draw_surface_horizon(progress)
 	_draw_surface_cliffs(progress)
+	_draw_surface_veins(progress)
 	_draw_surface_crystals(progress)
+	_draw_surface_fragments(progress)
 	_draw_surface_dust(progress)
 
 func _draw_surface_sky(progress: float):
-	var top = Color(0.018,0.035,0.055).lerp(Color(0.025,0.065,0.10), progress)
-	var bottom = Color(0.055,0.085,0.105).lerp(Color(0.075,0.13,0.15), progress)
+	var top = Color(0.012,0.027,0.042).lerp(Color(0.020,0.085,0.13), progress)
+	var bottom = Color(0.038,0.065,0.075).lerp(Color(0.075,0.19,0.20), progress)
 	for y in range(0,1080,18):
 		var t = float(y) / 1080.0
-		draw_rect(Rect2(0,y,960,18), top.lerp(bottom,t))
-	var glow = 0.5 + 0.5 * sin(animation_time * 0.25)
-	for r in range(310,60,-35):
-		draw_circle(Vector2(760,245),r,Color(0.16,0.42,0.55,(1.0-float(r)/330.0)*0.012*(0.85+glow*0.15)))
-	for i in range(24):
+		draw_rect(Rect2(0,y,960,18), top.lerp(bottom,pow(t,0.9)))
+	var star_count = 42 - int(progress * 24.0)
+	for i in range(star_count):
 		var x = float((i*137+61)%960)
-		var y = 90.0 + float((i*83)%390)
-		draw_circle(Vector2(x,y),1.0+float(i%2)*0.5,Color(0.62,0.82,0.9,0.12+0.08*sin(animation_time*0.7+i)))
+		var y = 80.0 + float((i*83)%430)
+		var twinkle = 0.12 + 0.13 * (0.5 + 0.5 * sin(animation_time*0.7+i))
+		draw_circle(Vector2(x,y),1.0+float(i%3)*0.35,Color(0.68,0.88,1.0,twinkle*(1.0-progress*0.35)))
+
+func _draw_surface_planet(progress: float):
+	if progress < 0.18:
+		return
+	var appear = clamp((progress - 0.18) / 0.82, 0.0, 1.0)
+	var center = Vector2(755.0 + sin(animation_time*0.05)*5.0, 205.0)
+	var radius = 58.0 + appear*34.0
+	for i in range(5,0,-1):
+		draw_circle(center,radius+float(i)*14.0,Color(0.12,0.42,0.58,0.010*appear*float(i)))
+	draw_circle(center,radius,Color(0.07,0.13,0.16,0.88*appear))
+	draw_circle(center+Vector2(-radius*0.26,-radius*0.18),radius*0.72,Color(0.13,0.25,0.27,0.32*appear))
+	draw_arc(center,radius,-2.3,0.8,48,Color(0.45,0.86,0.92,0.44*appear),2.0,true)
+
+func _draw_surface_haze(progress: float):
+	var pulse = 0.88 + 0.12*sin(animation_time*0.22)
+	var alpha = (0.018 + progress*0.045)*pulse
+	for i in range(7):
+		var y = 470.0 + float(i)*18.0
+		draw_line(Vector2(0,y),Vector2(960,y-8.0),Color(0.20,0.62,0.66,alpha*(1.0-float(i)*0.08)),10.0,true)
 
 func _draw_surface_horizon(progress: float):
 	var distant = PackedVector2Array([Vector2(0,610),Vector2(90,570),Vector2(165,590),Vector2(250,530),Vector2(340,575),Vector2(430,545),Vector2(520,585),Vector2(610,520),Vector2(700,565),Vector2(805,505),Vector2(960,555),Vector2(960,1080),Vector2(0,1080)])
-	draw_colored_polygon(distant,Color(0.035,0.065,0.075,0.92))
+	draw_colored_polygon(distant,Color(0.027,0.057+progress*0.02,0.067+progress*0.03,0.94))
 	var rim = PackedVector2Array([Vector2(0,610),Vector2(90,570),Vector2(165,590),Vector2(250,530),Vector2(340,575),Vector2(430,545),Vector2(520,585),Vector2(610,520),Vector2(700,565),Vector2(805,505),Vector2(960,555)])
-	draw_polyline(rim,Color(0.18,0.48,0.54,0.28+progress*0.12),2.0,true)
+	draw_polyline(rim,Color(0.20,0.62,0.65,0.34+progress*0.25),2.4,true)
+	for i in range(4):
+		var offset = float(i)*22.0
+		draw_polyline(PackedVector2Array([Vector2(0,635+offset),Vector2(190,600+offset),Vector2(390,620+offset),Vector2(600,590+offset),Vector2(780,610+offset),Vector2(960,580+offset)]),Color(0.12,0.27,0.29,0.08+progress*0.035),1.0,true)
 
 func _draw_surface_cliffs(progress: float):
 	var left = PackedVector2Array([Vector2(0,1080),Vector2(0,650),Vector2(55,620),Vector2(105,665),Vector2(145,740),Vector2(122,815),Vector2(185,900),Vector2(220,1080)])
 	var right = PackedVector2Array([Vector2(960,1080),Vector2(960,620),Vector2(900,595),Vector2(850,650),Vector2(820,730),Vector2(842,805),Vector2(780,900),Vector2(742,1080)])
 	for cliff in [left,right]:
-		draw_colored_polygon(cliff,Color(0.045,0.06,0.064,0.96))
+		draw_colored_polygon(cliff,Color(0.035,0.050,0.052,0.98))
 		var outline = PackedVector2Array(cliff)
 		outline.append(cliff[0])
-		draw_polyline(outline,Color(0.18,0.34,0.36,0.26),2.0,true)
-	for i in range(7):
-		var y = 700.0 + i*48.0
-		draw_line(Vector2(18,y),Vector2(92+i*5,y-18),Color(0.16,0.25,0.25,0.18),1.0,true)
-		draw_line(Vector2(942,y-25),Vector2(868-i*4,y),Color(0.16,0.25,0.25,0.18),1.0,true)
+		draw_polyline(outline,Color(0.18,0.42,0.43,0.30+progress*0.12),2.0,true)
+	for i in range(9):
+		var y = 675.0 + i*43.0
+		draw_line(Vector2(18,y),Vector2(92+i*5,y-18),Color(0.17,0.28,0.28,0.22),1.0,true)
+		draw_line(Vector2(942,y-25),Vector2(868-i*4,y),Color(0.17,0.28,0.28,0.22),1.0,true)
+
+func _draw_surface_veins(progress: float):
+	var visible = 2 + int(progress*6.0)
+	var pulse = 0.72 + 0.28*sin(animation_time*0.65)
+	var veins = [
+		PackedVector2Array([Vector2(40,1045),Vector2(66,990),Vector2(58,930),Vector2(88,875)]),
+		PackedVector2Array([Vector2(150,1070),Vector2(135,1018),Vector2(160,962),Vector2(145,905)]),
+		PackedVector2Array([Vector2(918,1040),Vector2(892,986),Vector2(902,932),Vector2(875,880)]),
+		PackedVector2Array([Vector2(805,1060),Vector2(824,1010),Vector2(810,955),Vector2(835,902)]),
+		PackedVector2Array([Vector2(290,1065),Vector2(315,1030),Vector2(306,990)]),
+		PackedVector2Array([Vector2(670,1068),Vector2(645,1032),Vector2(655,990)]),
+		PackedVector2Array([Vector2(105,800),Vector2(125,770),Vector2(118,735)]),
+		PackedVector2Array([Vector2(855,810),Vector2(840,775),Vector2(848,740)])
+	]
+	for i in range(min(visible,veins.size())):
+		draw_polyline(veins[i],Color(0.10,0.45,0.48,0.18+progress*0.15),4.0,true)
+		draw_polyline(veins[i],Color(0.36,0.92,0.90,(0.18+progress*0.28)*pulse),1.2,true)
 
 func _draw_surface_crystals(progress: float):
 	var pulse = 0.82 + 0.18*sin(animation_time*0.8)
-	var positions = [Vector2(72,850),Vector2(135,930),Vector2(825,875),Vector2(900,790),Vector2(270,1025),Vector2(690,1015)]
-	for i in range(positions.size()):
+	var positions = [Vector2(72,850),Vector2(135,930),Vector2(825,875),Vector2(900,790),Vector2(270,1025),Vector2(690,1015),Vector2(185,990),Vector2(770,970),Vector2(105,760),Vector2(865,720)]
+	var visible_count = 3 + int(progress*7.0)
+	for i in range(min(visible_count,positions.size())):
 		var p = positions[i]
-		var h = 25.0 + float((i*17)%38)
+		var h = 30.0 + float((i*17)%42) + progress*10.0
 		var w = 8.0 + float(i%3)*3.0
 		var crystal = PackedVector2Array([p+Vector2(-w,0),p+Vector2(-w*0.55,-h*0.65),p+Vector2(0,-h),p+Vector2(w*0.55,-h*0.65),p+Vector2(w,0)])
-		draw_colored_polygon(crystal,Color(0.08,0.30+progress*0.08,0.36+progress*0.10,0.55))
-		draw_polyline(PackedVector2Array([crystal[0],crystal[1],crystal[2],crystal[3],crystal[4]]),Color(0.32,0.78,0.82,0.42*pulse),1.5,true)
-		draw_line(p+Vector2(0,-h+4),p+Vector2(0,-5),Color(0.55,0.95,0.95,0.20*pulse),1.0,true)
+		draw_colored_polygon(crystal,Color(0.06,0.32+progress*0.12,0.39+progress*0.15,0.68))
+		draw_polyline(PackedVector2Array([crystal[0],crystal[1],crystal[2],crystal[3],crystal[4]]),Color(0.34,0.88,0.90,(0.48+progress*0.22)*pulse),1.5,true)
+		draw_line(p+Vector2(0,-h+4),p+Vector2(0,-5),Color(0.65,1.0,0.98,(0.20+progress*0.16)*pulse),1.0,true)
+
+func _draw_surface_fragments(progress: float):
+	var count = 4 + int(progress*7.0)
+	for i in range(count):
+		var base = Vector2(80.0+float((i*139)%800),650.0+float((i*91)%380))
+		var bob = sin(animation_time*(0.20+float(i%3)*0.05)+i)*2.5
+		var p = base+Vector2(0,bob)
+		var r = 4.0+float(i%4)*2.0
+		var shard = PackedVector2Array([p+Vector2(-r,2),p+Vector2(-r*0.3,-r),p+Vector2(r,0),p+Vector2(0,r*0.8)])
+		draw_colored_polygon(shard,Color(0.08,0.12,0.13,0.55))
+		draw_polyline(PackedVector2Array([shard[0],shard[1],shard[2],shard[3],shard[0]]),Color(0.20,0.48,0.50,0.16+progress*0.08),1.0,true)
 
 func _draw_surface_dust(progress: float):
-	var count = 10 + int(progress*8.0)
+	var count = 14 + int(progress*20.0)
 	for i in range(count):
 		var x = float((i*113+47)%900)+30.0
-		var base_y = 570.0+float((i*71)%440)
-		var rise = fmod(animation_time*(3.0+float(i%4))+i*29.0,95.0)
-		var drift = sin(animation_time*0.35+i*1.7)*5.0
-		draw_circle(Vector2(x+drift,base_y-rise),1.0+float(i%2)*0.5,Color(0.35,0.72,0.70,0.08+progress*0.06))
+		var base_y = 540.0+float((i*71)%500)
+		var rise = fmod(animation_time*(3.0+float(i%4))+i*29.0,110.0)
+		var drift = sin(animation_time*0.35+i*1.7)*(5.0+progress*4.0)
+		var alpha = 0.07+progress*0.10
+		draw_circle(Vector2(x+drift,base_y-rise),1.0+float(i%3)*0.45,Color(0.40,0.86,0.82,alpha))
 
 func _draw_cavern_depth(progress: float):
 	var top_color = Color(0.010,0.012,0.016).lerp(Color(0.026,0.015,0.014),progress)
