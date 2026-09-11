@@ -32,14 +32,13 @@ const GLASS_PALETTE: Array[Color] = [
 ]
 
 var glass_color: Color
-var bonus_animation_time: float = 0.0
 var barrier_hits: int = 0
 var barrier_blink_timer: float = 0.0
 var barrier_flash: bool = false
 
 func _ready():
 	glass_color = GLASS_PALETTE.pick_random()
-	bonus_animation_time = randf_range(0.0, TAU)
+	set_process(false)
 	queue_redraw()
 
 	var bricks_parent = get_parent()
@@ -48,24 +47,20 @@ func _ready():
 		call_deferred("_assign_bonus_bricks")
 
 func _process(delta):
-	var needs_redraw = false
+	if not indestructible or barrier_hits <= 0 or is_destroyed:
+		set_process(false)
+		return
 
-	if guaranteed_bonus and not is_destroyed:
-		bonus_animation_time += delta
-		needs_redraw = true
+	barrier_blink_timer -= delta
+	if barrier_blink_timer > 0.0:
+		return
 
-	if indestructible and barrier_hits > 0 and not is_destroyed:
-		barrier_blink_timer -= delta
-		if barrier_blink_timer <= 0.0:
-			barrier_flash = not barrier_flash
-			if barrier_flash:
-				barrier_blink_timer = 0.08
-			else:
-				barrier_blink_timer = get_barrier_blink_interval()
-			needs_redraw = true
-
-	if needs_redraw:
-		queue_redraw()
+	barrier_flash = not barrier_flash
+	if barrier_flash:
+		barrier_blink_timer = 0.08
+	else:
+		barrier_blink_timer = get_barrier_blink_interval()
+	queue_redraw()
 
 func get_barrier_blink_interval() -> float:
 	match barrier_hits:
@@ -117,6 +112,10 @@ func _assign_bonus_bricks():
 
 	for brick in candidates:
 		brick.queue_redraw()
+		var energy = brick.get_node_or_null("BonusEnergy")
+		if energy != null and energy.has_method("set_active"):
+			energy.set_active(brick.guaranteed_bonus)
+
 	bricks_parent.remove_meta(BONUS_ASSIGNMENT_META)
 
 func _draw():
@@ -133,9 +132,6 @@ func _draw():
 		density = 2
 
 	_draw_glass_brick(rect, density)
-
-	if guaranteed_bonus:
-		_draw_bonus_energy(powerful_bonus)
 
 	var damage = max_health - health
 	if damage >= 1:
@@ -185,33 +181,6 @@ func _draw_glass_brick(rect: Rect2, density: int):
 	draw_line(Vector2(-hw + 15.0, -6.0), Vector2(-8.0, 5.0), Color(glass_color, 0.16), 1.0, true)
 	draw_line(Vector2(8.0, -5.0), Vector2(hw - 15.0, 5.0), Color(1.0, 1.0, 1.0, 0.10), 1.0, true)
 	draw_circle(Vector2.ZERO, 2.0, Color(glass_color, 0.32))
-
-func _draw_bonus_energy(powerful: bool):
-	var energy = Color(1.0, 0.20, 0.08) if powerful else Color(1.0, 0.72, 0.10)
-	var core = Color(1.0, 0.72, 0.38) if powerful else Color(1.0, 0.96, 0.68)
-	var pulse = 0.68 + 0.32 * sin(bonus_animation_time * 3.1)
-	var breathe = 0.5 + 0.5 * sin(bonus_animation_time * 1.7 + 0.8)
-	var drift = Vector2(sin(bonus_animation_time * 1.15) * 2.2, cos(bonus_animation_time * 0.92) * 1.3)
-
-	for i in range(5, 0, -1):
-		var radius = 3.5 + float(i) * 2.7 + pulse * 1.4
-		var alpha = (0.014 + float(6 - i) * 0.010) * (0.72 + pulse * 0.28)
-		draw_circle(drift, radius, Color(energy, alpha))
-
-	var orbit_radius = 8.5 + breathe * 2.0
-	var angle = bonus_animation_time * (1.6 if powerful else 1.25)
-	var orbit_a = drift + Vector2(cos(angle), sin(angle)) * orbit_radius
-	var orbit_b = drift + Vector2(cos(angle + PI), sin(angle + PI)) * orbit_radius
-	draw_circle(orbit_a, 1.0 + pulse * 0.6, Color(core, 0.48 + pulse * 0.28))
-	draw_circle(orbit_b, 0.8 + breathe * 0.5, Color(energy, 0.34 + breathe * 0.20))
-
-	var arc_offset = bonus_animation_time * 0.75
-	draw_arc(drift, 7.0 + pulse * 1.5, arc_offset, arc_offset + 2.2, 22, Color(energy, 0.28 + pulse * 0.18), 1.1, true)
-	draw_arc(drift, 10.5 + breathe * 1.4, arc_offset + PI, arc_offset + PI + 1.65, 22, Color(core, 0.16 + breathe * 0.16), 0.9, true)
-
-	draw_circle(drift, 3.2 + pulse * 1.2, Color(energy, 0.20 + pulse * 0.16))
-	draw_circle(drift, 1.7 + pulse * 0.8, Color(core, 0.72 + pulse * 0.24))
-	draw_circle(drift, 0.7 + pulse * 0.35, Color(1.0, 1.0, 0.92, 0.92))
 
 func _draw_crack_set_one(energy_color: Color):
 	var crack_color = Color(0.90, 0.96, 1.0, 0.78)
@@ -264,6 +233,11 @@ func _draw_lava_crack(points_array: PackedVector2Array, lava: Color, hot: Color)
 	draw_polyline(points_array, lava, 1.35, true)
 	draw_polyline(points_array, Color(hot, 0.78), 0.48, true)
 
+func _trigger_hit_effect():
+	var effects = get_node_or_null("BrickEffects")
+	if effects != null and effects.has_method("trigger_hit_flash"):
+		effects.trigger_hit_flash()
+
 func prepare_bonus_drop():
 	if powerful_bonus:
 		Bonus.next_drop_pool = Bonus.DropPool.POWERFUL
@@ -288,6 +262,8 @@ func hit(explosive_hit: bool = false):
 
 		barrier_flash = true
 		barrier_blink_timer = 0.08
+		set_process(true)
+		_trigger_hit_effect()
 		queue_redraw()
 		return
 
@@ -300,6 +276,7 @@ func hit(explosive_hit: bool = false):
 			exploded.emit(global_position)
 		queue_free()
 	else:
+		_trigger_hit_effect()
 		queue_redraw()
 
 func destroy(explosive_hit: bool = false):
