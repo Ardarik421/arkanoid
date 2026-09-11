@@ -4,6 +4,7 @@ extends RefCounted
 static func draw_background(canvas: Node2D, progress: float, time: float):
 	var escalation = clamp(progress * 5.0, 0.0, 1.0)
 	_draw_space(canvas, progress)
+	_draw_celestial_objects(canvas, progress, escalation, time)
 	_draw_star_field(canvas, progress, escalation, time)
 	_draw_lensing(canvas, escalation, time)
 	_draw_warped_dust(canvas, progress, escalation, time)
@@ -18,6 +19,37 @@ static func _draw_space(canvas: Node2D, progress: float):
 	for y in range(0,1080,18):
 		var t = float(y)/1080.0
 		canvas.draw_rect(Rect2(0,y,960,18),top.lerp(bottom,t))
+
+static func _draw_celestial_objects(canvas: Node2D, progress: float, escalation: float, time: float):
+	var doomed = Vector2(120.0+sin(time*0.010)*3.0,760.0+cos(time*0.008)*2.0)
+	var alpha = 0.13*(1.0-clamp((progress-0.68)/0.32,0.0,1.0))
+	canvas.draw_circle(doomed,48.0,Color(0.035,0.026,0.060,alpha))
+	canvas.draw_circle(doomed+Vector2(-14,-9),31.0,Color(0.21,0.12,0.27,alpha*0.44))
+	canvas.draw_arc(doomed,49.0,-1.32,1.30,54,Color(0.54,0.30,0.68,alpha*0.46),1.3,true)
+	if escalation > 0.30:
+		var crack = (escalation-0.30)/0.70
+		canvas.draw_line(doomed+Vector2(-17,-4),doomed+Vector2(6,12),Color(0.82,0.32,0.82,0.07*crack),1.2,true)
+		canvas.draw_line(doomed+Vector2(5,12),doomed+Vector2(20,3),Color(0.42,0.48,0.92,0.055*crack),1.0,true)
+
+	if progress > 0.24:
+		var appear = clamp((progress-0.24)/0.76,0.0,1.0)
+		var p = Vector2(865.0+sin(time*0.012)*4.0,690.0+cos(time*0.010)*3.0)
+		var moon_alpha = 0.10*appear
+		canvas.draw_circle(p,25.0,Color(0.028,0.036,0.058,moon_alpha))
+		canvas.draw_circle(p+Vector2(-7,-5),16.0,Color(0.17,0.21,0.30,moon_alpha*0.42))
+		var pull = Vector2(790.0,235.0)-p
+		var tangent = Vector2(-pull.y,pull.x).normalized()
+		var trail = tangent*(5.0+appear*18.0)
+		canvas.draw_line(p-trail,p+trail,Color(0.38,0.44,0.74,0.025+appear*0.045),1.0,true)
+
+	if progress > 0.52:
+		var appear = clamp((progress-0.52)/0.48,0.0,1.0)
+		for i in range(9):
+			var angle = -0.55+float(i)*0.14+sin(time*0.012+i)*0.025
+			var distance = 150.0+float(i%3)*24.0
+			var p = Vector2(790.0,235.0)+Vector2(cos(angle),sin(angle))*distance
+			var r = 2.0+float(i%4)*1.0
+			canvas.draw_circle(p,r,Color(0.30,0.20,0.38,0.035+appear*0.040))
 
 static func _draw_star_field(canvas: Node2D, progress: float, escalation: float, time: float):
 	var count = 118+int(progress*42.0)
