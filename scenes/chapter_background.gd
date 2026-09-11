@@ -153,9 +153,9 @@ func _draw_surface_crystals(progress: float):
 		var h = 30.0 + float((i*17)%42) + progress*10.0
 		var w = 8.0 + float(i%3)*3.0
 		var crystal = PackedVector2Array([p+Vector2(-w,0),p+Vector2(-w*0.55,-h*0.65),p+Vector2(0,-h),p+Vector2(w*0.55,-h*0.65),p+Vector2(w,0)])
-		draw_colored_polygon(crystal,Color(0.06,0.32+progress*0.12,0.39+progress*0.15,0.68))
-		draw_polyline(PackedVector2Array([crystal[0],crystal[1],crystal[2],crystal[3],crystal[4]]),Color(0.34,0.88,0.90,(0.48+progress*0.22)*pulse),1.5,true)
-		draw_line(p+Vector2(0,-h+4),p+Vector2(0,-5),Color(0.65,1.0,0.98,(0.20+progress*0.16)*pulse),1.0,true)
+		draw_colored_polygon(crystal,Color(0.055,0.19+progress*0.06,0.22+progress*0.08,0.46))
+		draw_polyline(PackedVector2Array([crystal[0],crystal[1],crystal[2],crystal[3],crystal[4]]),Color(0.24,0.52,0.56,(0.24+progress*0.10)*pulse),1.2,true)
+		draw_line(p+Vector2(0,-h+4),p+Vector2(0,-5),Color(0.44,0.70,0.72,(0.09+progress*0.06)*pulse),1.0,true)
 
 func _draw_surface_fragments(progress: float):
 	var count = 4 + int(progress*7.0)
