@@ -3,6 +3,8 @@ extends CharacterBody2D
 @export var speed: float = 450.0
 @export var radius: float = 12.0
 @export var max_bounce_angle: float = 50.0
+@export var aim_turn_speed: float = 75.0
+@export var aim_line_length: float = 165.0
 
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
@@ -13,6 +15,7 @@ var magnet_active: bool = false
 var shield_y: float = 1040.0
 var attached_offset_x: float = 0.0
 var visual_time: float = 0.0
+var launch_aim_angle: float = 0.0
 
 var trail_points: Array[Vector2] = []
 var trail_max_points: int = 10
@@ -69,6 +72,16 @@ func _draw():
 			elif is_explosive:
 				draw_line(local_a, local_b, Color(trail_core, alpha * 0.34), max(0.6, width * 0.28), true)
 
+	if is_attached:
+		var aim_angle = deg_to_rad(launch_aim_angle)
+		var aim_direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized()
+		var aim_start = aim_direction * (radius + 7.0)
+		var aim_end = aim_direction * aim_line_length
+		var aim_alpha = 0.46 + 0.10 * sin(visual_time * 4.0)
+		draw_line(aim_start, aim_end, Color(0.10, 0.64, 1.0, 0.16), 4.0, true)
+		draw_line(aim_start, aim_end, Color(0.72, 0.95, 1.0, aim_alpha), 1.1, true)
+		draw_circle(aim_end, 2.2, Color(0.78, 0.97, 1.0, aim_alpha))
+
 	draw_circle(Vector2.ZERO, radius + 9.0, Color(accent, 0.045 * pulse))
 	draw_circle(Vector2.ZERO, radius + 5.0, Color(accent, 0.10 * pulse))
 	draw_circle(Vector2.ZERO, radius + 2.0, Color(shell, 0.18))
@@ -106,6 +119,11 @@ func _physics_process(delta):
 
 	if is_attached:
 		var paddle = get_parent().get_node("Paddle")
+		var movement = paddle.velocity.x
+
+		if abs(movement) > 20.0:
+			launch_aim_angle += sign(movement) * aim_turn_speed * delta
+			launch_aim_angle = clamp(launch_aim_angle, -max_bounce_angle, max_bounce_angle)
 
 		global_position.x = paddle.global_position.x + attached_offset_x
 		global_position.y = paddle.global_position.y - 40
@@ -167,8 +185,7 @@ func bounce_from_paddle(paddle):
 		sin(angle),
 		-cos(angle)
 	).normalized()
-	
-	var is_attached: bool = false
+	is_attached = false
 
 func attach_to_paddle():
 	is_attached = true
@@ -184,12 +201,8 @@ func launch():
 	trail_points.clear()
 	trail_points.append(global_position)
 
-	var horizontal = randf_range(0.45, 0.75)
-
-	if randf() < 0.5:
-		horizontal *= -1.0
-
+	var aim_angle = deg_to_rad(launch_aim_angle)
 	direction = Vector2(
-		horizontal,
-		-1.0
+		sin(aim_angle),
+		-cos(aim_angle)
 	).normalized()
