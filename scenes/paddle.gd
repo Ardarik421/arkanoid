@@ -65,6 +65,8 @@ func _draw():
 		var spread = 16.0 + float(i) * 5.0
 		draw_line(Vector2(-spread, -2.0), Vector2(spread, -2.0), Color(0.20, 0.76, 1.0, (0.12 - float(i) * 0.025) * pulse), 3.0 + float(2 - i), true)
 
+	_draw_life_cores(hw, pulse)
+
 	draw_line(Vector2(-hw + 13.0, -hh + 2.5), Vector2(hw - 13.0, -hh + 2.5), Color(0.76, 0.96, 1.0, 0.78), 1.6, true)
 	draw_line(Vector2(-hw + 18.0, -hh + 5.0), Vector2(hw - 30.0, -hh + 5.0), Color(1.0, 1.0, 1.0, 0.18), 0.8, true)
 	draw_line(Vector2(-hw + 17.0, hh - 3.0), Vector2(hw - 17.0, hh - 3.0), Color(0.08, 0.48, 0.82, 0.30), 1.0, true)
@@ -75,6 +77,28 @@ func _draw():
 		var cap_rect = Rect2(Vector2(cap_center - cap_width * 0.5, -hh + 4.0), Vector2(cap_width, visual_height - 8.0))
 		_rounded_box(cap_rect, Color(0.035, 0.055, 0.075, 0.92), Color(0.48, 0.86, 1.0, 0.64), 1.0, 6)
 		draw_circle(Vector2(cap_center, 0.0), 2.0, Color(0.30, 0.82, 1.0, 0.52 * pulse))
+
+func _draw_life_cores(hw: float, pulse: float):
+	var main = get_parent()
+	if main == null:
+		return
+
+	var life_count = int(main.get("lives"))
+	if life_count <= 0:
+		return
+
+	var available_width = max(28.0, hw * 2.0 - 76.0)
+	var spacing = min(17.0, available_width / max(1.0, float(life_count)))
+	var radius = clamp(spacing * 0.26, 2.4, 4.2)
+	var total_width = spacing * float(life_count - 1)
+	var start_x = -total_width * 0.5
+
+	for i in range(life_count):
+		var center = Vector2(start_x + spacing * float(i), 1.0)
+		draw_circle(center, radius + 3.5, Color(0.08, 0.58, 1.0, 0.07 * pulse))
+		draw_circle(center, radius + 1.5, Color(0.16, 0.72, 1.0, 0.15))
+		draw_circle(center, radius, Color(0.72, 0.95, 1.0, 0.90))
+		draw_circle(center + Vector2(-radius * 0.28, -radius * 0.28), max(0.8, radius * 0.28), Color(1.0, 1.0, 1.0, 0.92))
 
 func _input(event):
 	if event is InputEventMouseMotion:
