@@ -148,39 +148,36 @@ func _rounded_box(rect: Rect2, fill: Color, border: Color, border_width: float, 
 	draw_style_box(box, rect)
 
 func _draw_glass_brick(rect: Rect2, density: int):
-	var fill_alpha = 0.075
-	var edge_alpha = 0.72
-	var inner_alpha = 0.10
-
-	if density == 2:
-		fill_alpha = 0.20
-		edge_alpha = 0.86
-		inner_alpha = 0.18
-	elif density >= 3:
-		fill_alpha = 0.42
-		edge_alpha = 0.96
-		inner_alpha = 0.30
-
-	var dark_base = Color(glass_color.r * 0.22, glass_color.g * 0.22, glass_color.b * 0.27, fill_alpha)
-	if density >= 3:
-		dark_base = Color(glass_color.r * 0.10, glass_color.g * 0.10, glass_color.b * 0.14, fill_alpha + 0.18)
-
-	_rounded_box(rect.grow(2.5), Color(0, 0, 0, 0), Color(glass_color, 0.08 + 0.035 * density), 2.0, 8)
-	_rounded_box(rect, dark_base, Color(glass_color, edge_alpha), 1.0 + density * 0.35, 7)
-	_rounded_box(rect.grow(-2.0), Color(glass_color, inner_alpha * 0.34), Color(1.0, 1.0, 1.0, 0.16 + density * 0.035), 1.0, 5)
-
 	var hw = width * 0.5
 	var hh = height * 0.5
-	draw_line(Vector2(-hw + 8.0, -hh + 3.5), Vector2(hw - 8.0, -hh + 3.5), Color(0.92, 0.98, 1.0, 0.34 + density * 0.08), 1.0, true)
-	draw_line(Vector2(-hw + 10.0, hh - 4.0), Vector2(hw - 10.0, hh - 4.0), Color(glass_color, 0.18 + density * 0.08), 1.0, true)
 
-	if density >= 2:
-		draw_line(Vector2(-hw + 11.0, -4.0), Vector2(-5.0, 5.0), Color(glass_color, 0.12), 1.0, true)
-		draw_line(Vector2(8.0, -5.0), Vector2(hw - 13.0, 3.0), Color(1.0, 1.0, 1.0, 0.08), 1.0, true)
+	if density == 1:
+		_rounded_box(rect.grow(2.0), Color(0, 0, 0, 0), Color(glass_color, 0.055), 1.0, 9)
+		_rounded_box(rect, Color(glass_color.r * 0.10, glass_color.g * 0.10, glass_color.b * 0.12, 0.025), Color(glass_color, 0.62), 1.0, 7)
+		_rounded_box(rect.grow(-2.0), Color(1.0, 1.0, 1.0, 0.012), Color(1.0, 1.0, 1.0, 0.10), 1.0, 5)
+		draw_line(Vector2(-hw + 10.0, -hh + 3.5), Vector2(hw - 16.0, -hh + 3.5), Color(0.96, 0.99, 1.0, 0.30), 0.8, true)
+		draw_line(Vector2(hw - 14.0, -hh + 4.0), Vector2(hw - 7.0, -hh + 7.0), Color(1.0, 1.0, 1.0, 0.16), 0.7, true)
+		return
 
-	if density >= 3:
-		_rounded_box(rect.grow(-6.0), Color(0.005, 0.008, 0.018, 0.30), Color(glass_color, 0.18), 1.0, 3)
-		draw_circle(Vector2.ZERO, 2.0, Color(glass_color, 0.32))
+	if density == 2:
+		_rounded_box(rect.grow(2.0), Color(0, 0, 0, 0), Color(glass_color, 0.075), 1.0, 9)
+		_rounded_box(rect, Color(glass_color.r * 0.16, glass_color.g * 0.16, glass_color.b * 0.19, 0.18), Color(glass_color, 0.82), 2.0, 7)
+		_rounded_box(rect.grow(-2.0), Color(glass_color, 0.045), Color(1.0, 1.0, 1.0, 0.16), 1.0, 5)
+		draw_line(Vector2(-hw + 8.0, -hh + 3.5), Vector2(hw - 10.0, -hh + 3.5), Color(0.94, 0.98, 1.0, 0.42), 1.0, true)
+		draw_line(Vector2(-hw + 11.0, hh - 4.0), Vector2(hw - 14.0, hh - 4.0), Color(glass_color, 0.22), 1.0, true)
+		draw_line(Vector2(-hw + 13.0, -5.0), Vector2(-7.0, 5.0), Color(1.0, 1.0, 1.0, 0.10), 1.0, true)
+		draw_line(Vector2(9.0, -5.0), Vector2(hw - 14.0, 3.0), Color(glass_color, 0.13), 1.0, true)
+		return
+
+	_rounded_box(rect.grow(2.5), Color(0, 0, 0, 0), Color(glass_color, 0.10), 2.0, 9)
+	_rounded_box(rect, Color(glass_color.r * 0.055, glass_color.g * 0.055, glass_color.b * 0.075, 0.72), Color(glass_color, 0.96), 2.0, 7)
+	_rounded_box(rect.grow(-2.0), Color(0.008, 0.010, 0.020, 0.48), Color(1.0, 1.0, 1.0, 0.19), 1.0, 5)
+	_rounded_box(rect.grow(-6.0), Color(0.002, 0.004, 0.010, 0.62), Color(glass_color, 0.22), 1.0, 3)
+	draw_line(Vector2(-hw + 8.0, -hh + 3.5), Vector2(hw - 8.0, -hh + 3.5), Color(0.96, 0.99, 1.0, 0.50), 1.2, true)
+	draw_line(Vector2(-hw + 10.0, hh - 4.0), Vector2(hw - 10.0, hh - 4.0), Color(glass_color, 0.34), 1.1, true)
+	draw_line(Vector2(-hw + 15.0, -6.0), Vector2(-8.0, 5.0), Color(glass_color, 0.16), 1.0, true)
+	draw_line(Vector2(8.0, -5.0), Vector2(hw - 15.0, 5.0), Color(1.0, 1.0, 1.0, 0.11), 1.0, true)
+	draw_circle(Vector2.ZERO, 2.2, Color(glass_color, 0.40))
 
 func _draw_bonus_marker(powerful: bool):
 	var marker = Color(1.0, 0.22, 0.07) if powerful else Color(1.0, 0.72, 0.12)
@@ -217,30 +214,33 @@ func _draw_crack_set_two(energy_color: Color):
 
 func _draw_obsidian_barrier(rect: Rect2):
 	var flash_strength = 1.0 if barrier_flash else 0.0
-	var edge = Color(0.34, 0.10, 0.055).lerp(Color(1.0, 0.42, 0.10), flash_strength)
-	_rounded_box(rect.grow(2.0), Color(0, 0, 0, 0), Color(1.0, 0.20, 0.04, 0.10 + flash_strength * 0.18), 2.0, 8)
-	_rounded_box(rect, Color(0.012, 0.009, 0.014, 0.98), edge, 1.4, 7)
-	_rounded_box(rect.grow(-3.0), Color(0.025, 0.018, 0.026, 0.98), Color(0.18, 0.08, 0.06, 0.80), 1.0, 5)
+	var edge = Color(0.20, 0.075, 0.045).lerp(Color(0.90, 0.30, 0.07), flash_strength)
+	_rounded_box(rect.grow(2.0), Color(0, 0, 0, 0), Color(1.0, 0.20, 0.04, 0.055 + flash_strength * 0.16), 2.0, 9)
+	_rounded_box(rect, Color(0.010, 0.008, 0.013, 0.99), edge, 1.0, 7)
+	_rounded_box(rect.grow(-3.0), Color(0.022, 0.016, 0.025, 0.99), Color(0.13, 0.055, 0.045, 0.72), 1.0, 5)
 
-	var lava = Color(1.0, 0.24, 0.025, 0.88 + flash_strength * 0.12)
-	var hot = Color(1.0, 0.72, 0.12, 0.94)
-	var crack_sets = min(4, barrier_hits + 1)
+	if barrier_hits <= 0:
+		return
 
-	if crack_sets >= 1:
-		_draw_lava_crack(PackedVector2Array([Vector2(-31,-8), Vector2(-20,-5), Vector2(-14,1), Vector2(-5,-2), Vector2(1,4)]), lava, hot)
-	if crack_sets >= 2:
-		_draw_lava_crack(PackedVector2Array([Vector2(31,-9), Vector2(21,-5), Vector2(16,2), Vector2(8,5), Vector2(1,4)]), lava, hot)
-	if crack_sets >= 3:
-		_draw_lava_crack(PackedVector2Array([Vector2(-24,12), Vector2(-17,6), Vector2(-8,8), Vector2(1,4), Vector2(6,-4)]), lava, hot)
-	if crack_sets >= 4:
-		_draw_lava_crack(PackedVector2Array([Vector2(27,12), Vector2(19,7), Vector2(12,9), Vector2(6,3), Vector2(9,-7)]), lava, hot)
+	var lava = Color(1.0, 0.20, 0.018, 0.86 + flash_strength * 0.12)
+	var hot = Color(1.0, 0.70, 0.10, 0.96)
 
-	draw_circle(Vector2(1.0, 4.0), 2.4 + flash_strength, Color(hot, 0.82))
+	if barrier_hits >= 1:
+		_draw_lava_crack(PackedVector2Array([Vector2(-29,-9), Vector2(-23,-6), Vector2(-18,-8), Vector2(-14,-2), Vector2(-9,0)]), lava, hot)
+	if barrier_hits >= 2:
+		_draw_lava_crack(PackedVector2Array([Vector2(29,10), Vector2(23,6), Vector2(19,8), Vector2(14,2), Vector2(8,1)]), lava, hot)
+	if barrier_hits >= 3:
+		_draw_lava_crack(PackedVector2Array([Vector2(-9,0), Vector2(-4,4), Vector2(1,1), Vector2(5,6), Vector2(10,10)]), lava, hot)
+		draw_line(Vector2(-4,4), Vector2(-8,9), Color(hot, 0.72), 0.7, true)
+	if barrier_hits >= 4:
+		_draw_lava_crack(PackedVector2Array([Vector2(8,1), Vector2(3,-3), Vector2(-2,-1), Vector2(-7,-7), Vector2(-12,-11)]), lava, hot)
+		draw_line(Vector2(3,-3), Vector2(7,-9), Color(hot, 0.78), 0.8, true)
+		draw_circle(Vector2(1.0, 0.0), 2.0 + flash_strength, Color(hot, 0.72))
 
 func _draw_lava_crack(points_array: PackedVector2Array, lava: Color, hot: Color):
-	draw_polyline(points_array, Color(lava, 0.26), 3.2, true)
-	draw_polyline(points_array, lava, 1.5, true)
-	draw_polyline(points_array, Color(hot, 0.80), 0.55, true)
+	draw_polyline(points_array, Color(lava, 0.22), 3.0, true)
+	draw_polyline(points_array, lava, 1.35, true)
+	draw_polyline(points_array, Color(hot, 0.78), 0.48, true)
 
 func prepare_bonus_drop():
 	if powerful_bonus:
