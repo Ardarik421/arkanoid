@@ -5,6 +5,7 @@ static func draw_background(canvas: Node2D, progress: float, time: float):
 	_draw_space(canvas, progress)
 	_draw_distant_nebulae(canvas, progress, time)
 	_draw_celestial_objects(canvas, progress, time)
+	_draw_space_details(canvas, progress, time)
 	_draw_star_layers(canvas, progress, time)
 	_draw_distant_galaxy(canvas, progress, time)
 	_draw_dust(canvas, progress, time)
@@ -41,6 +42,38 @@ static func _draw_celestial_objects(canvas: Node2D, progress: float, time: float
 		canvas.draw_circle(center,43.0,Color(0.025,0.020,0.048,alpha))
 		canvas.draw_arc(center,64.0,-0.42,2.72,70,Color(0.34,0.26,0.48,alpha*0.58),2.2,true)
 		canvas.draw_arc(center,65.0,2.72,5.86,70,Color(0.16,0.22,0.34,alpha*0.36),1.4,true)
+
+static func _draw_space_details(canvas: Node2D, progress: float, time: float):
+	var cluster_alpha = 0.032+progress*0.025
+	for i in range(18):
+		var angle = float(i)*2.399
+		var radius = 6.0+float((i*13)%46)
+		var p = Vector2(720.0,845.0)+Vector2(cos(angle),sin(angle))*radius
+		canvas.draw_circle(p,0.7+float(i%3)*0.25,Color(0.64,0.72,0.92,cluster_alpha))
+
+	if progress > 0.12:
+		var appear = clamp((progress-0.12)/0.28,0.0,1.0)
+		var tail = 34.0+progress*18.0
+		var comet = Vector2(845.0-time*2.4,335.0+time*0.8)
+		comet.x = fmod(comet.x+1040.0,1040.0)-40.0
+		canvas.draw_circle(comet,1.7,Color(0.88,0.94,1.0,0.14*appear))
+		canvas.draw_line(comet,comet+Vector2(tail,-tail*0.28),Color(0.48,0.68,0.96,0.045*appear),1.0,true)
+
+	if progress > 0.34:
+		var appear = clamp((progress-0.34)/0.30,0.0,1.0)
+		for i in range(7):
+			var p = Vector2(780.0+float(i)*25.0,930.0+sin(time*0.03+i)*6.0-float((i*17)%45))
+			var size = 2.2+float(i%3)*1.3
+			canvas.draw_circle(p,size,Color(0.16,0.17,0.22,0.055*appear))
+			canvas.draw_circle(p+Vector2(-size*0.25,-size*0.25),size*0.45,Color(0.34,0.34,0.40,0.022*appear))
+
+	if progress > 0.66:
+		var appear = clamp((progress-0.66)/0.34,0.0,1.0)
+		var a = Vector2(640.0,170.0)
+		var pulse = 0.85+0.15*sin(time*0.42)
+		canvas.draw_circle(a,2.2,Color(0.72,0.88,1.0,0.17*appear*pulse))
+		canvas.draw_circle(a+Vector2(15,7),1.5,Color(1.0,0.70,0.54,0.12*appear))
+		canvas.draw_line(a+Vector2(-10,0),a+Vector2(28,10),Color(0.50,0.58,0.80,0.022*appear),0.8,true)
 
 static func _draw_star_layers(canvas: Node2D, progress: float, time: float):
 	var far_count = 88+int(progress*62.0)
