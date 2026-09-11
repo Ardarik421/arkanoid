@@ -37,16 +37,15 @@ func _build_environment():
 		PackedVector2Array([Vector2(960,770),Vector2(960,565),Vector2(925,548),Vector2(895,582),Vector2(881,640),Vector2(905,706)])
 	]
 	ember_points = [Vector2(104,742),Vector2(151,826),Vector2(222,929),Vector2(303,1015),Vector2(683,934),Vector2(748,828),Vector2(849,716),Vector2(902,594),Vector2(70,633),Vector2(880,894),Vector2(394,1032),Vector2(559,1008)]
-	small_cracks = [
-		PackedVector2Array([Vector2(18,584),Vector2(48,610),Vector2(39,649),Vector2(67,678)]),
-		PackedVector2Array([Vector2(944,530),Vector2(918,563),Vector2(927,602),Vector2(899,633)])
-	]
+	small_cracks = [PackedVector2Array([Vector2(18,584),Vector2(48,610),Vector2(39,649),Vector2(67,678)]),PackedVector2Array([Vector2(944,530),Vector2(918,563),Vector2(927,602),Vector2(899,633)])]
 
 func _draw():
 	if displayed_level <= 10:
 		_draw_core()
-	else:
+	elif displayed_level <= 20:
 		_draw_surface()
+	else:
+		_draw_biosphere()
 	_draw_vignette()
 
 func _draw_core():
@@ -72,6 +71,81 @@ func _draw_surface():
 	_draw_surface_crystals(progress)
 	_draw_surface_fragments(progress)
 	_draw_surface_dust(progress)
+
+func _draw_biosphere():
+	var chapter_level = clamp(displayed_level, 21, 30)
+	var progress = float(chapter_level - 21) / 9.0
+	_draw_biosphere_sky(progress)
+	_draw_biosphere_moon(progress)
+	_draw_biosphere_haze(progress)
+	_draw_biosphere_horizon(progress)
+	_draw_biosphere_growth(progress)
+	_draw_biosphere_spores(progress)
+
+func _draw_biosphere_sky(progress: float):
+	var top = Color(0.008,0.035,0.050).lerp(Color(0.012,0.060,0.075),progress)
+	var bottom = Color(0.025,0.105,0.095).lerp(Color(0.035,0.145,0.105),progress)
+	for y in range(0,1080,18):
+		var t = float(y)/1080.0
+		draw_rect(Rect2(0,y,960,18),top.lerp(bottom,pow(t,0.85)))
+	for i in range(26):
+		var x = float((i*149+37)%930)+15.0
+		var y = 80.0+float((i*97)%430)
+		var alpha = 0.08+0.08*(0.5+0.5*sin(animation_time*0.55+i))
+		draw_circle(Vector2(x,y),1.0+float(i%2)*0.5,Color(0.55,0.88,0.82,alpha))
+
+func _draw_biosphere_moon(progress: float):
+	var center = Vector2(770,225)
+	var radius = 68.0+progress*12.0
+	draw_circle(center,radius+24.0,Color(0.18,0.72,0.64,0.018))
+	draw_circle(center,radius,Color(0.035,0.105,0.11,0.72))
+	draw_circle(center+Vector2(-18,-12),radius*0.68,Color(0.08,0.19,0.16,0.24))
+	draw_arc(center,radius,-2.4,0.7,48,Color(0.38,0.78,0.70,0.25+progress*0.10),1.6,true)
+
+func _draw_biosphere_haze(progress: float):
+	var pulse = 0.85+0.15*sin(animation_time*0.18)
+	for i in range(6):
+		var y = 500.0+float(i)*24.0
+		draw_line(Vector2(0,y),Vector2(960,y-12),Color(0.16,0.62,0.48,(0.018+progress*0.025)*pulse),14.0,true)
+
+func _draw_biosphere_horizon(progress: float):
+	var far = PackedVector2Array([Vector2(0,650),Vector2(95,610),Vector2(180,625),Vector2(270,575),Vector2(355,610),Vector2(455,560),Vector2(550,605),Vector2(650,570),Vector2(745,615),Vector2(850,565),Vector2(960,600),Vector2(960,1080),Vector2(0,1080)])
+	draw_colored_polygon(far,Color(0.018,0.075+progress*0.018,0.068,0.96))
+	var ridge = PackedVector2Array([Vector2(0,650),Vector2(95,610),Vector2(180,625),Vector2(270,575),Vector2(355,610),Vector2(455,560),Vector2(550,605),Vector2(650,570),Vector2(745,615),Vector2(850,565),Vector2(960,600)])
+	draw_polyline(ridge,Color(0.18,0.50,0.39,0.22+progress*0.12),2.0,true)
+	for i in range(5):
+		var y = 675.0+float(i)*35.0
+		draw_line(Vector2(0,y),Vector2(960,y-20),Color(0.08,0.23,0.18,0.10),1.0,true)
+
+func _draw_biosphere_growth(progress: float):
+	var count = 7+int(progress*9.0)
+	for i in range(count):
+		var side = -1.0 if i%2==0 else 1.0
+		var base_x = 45.0+float((i*73)%145) if side<0 else 915.0-float((i*61)%145)
+		var base_y = 760.0+float((i*67)%300)
+		var h = 38.0+float(i%5)*14.0+progress*18.0
+		var sway = sin(animation_time*0.35+i)*3.0
+		var stem_top = Vector2(base_x+sway,base_y-h)
+		draw_line(Vector2(base_x,base_y),stem_top,Color(0.12,0.38,0.27,0.24+progress*0.10),2.0,true)
+		var leaf_size = 8.0+float(i%3)*3.0
+		var leaf = PackedVector2Array([stem_top+Vector2(0,-leaf_size),stem_top+Vector2(leaf_size*0.7,0),stem_top+Vector2(0,leaf_size*0.45),stem_top+Vector2(-leaf_size*0.7,0)])
+		draw_colored_polygon(leaf,Color(0.08,0.31,0.23,0.30+progress*0.12))
+		draw_polyline(PackedVector2Array([leaf[0],leaf[1],leaf[2],leaf[3],leaf[0]]),Color(0.28,0.65,0.48,0.18+progress*0.10),1.0,true)
+	for i in range(4+int(progress*4.0)):
+		var p = Vector2(95.0+float((i*211)%760),930.0+float((i*43)%120))
+		var r = 10.0+float(i%3)*5.0
+		draw_circle(p,r,Color(0.06,0.26,0.20,0.18+progress*0.08))
+		draw_circle(p,r*0.45,Color(0.22,0.62,0.42,0.08+progress*0.05))
+
+func _draw_biosphere_spores(progress: float):
+	var count = 16+int(progress*24.0)
+	for i in range(count):
+		var x = 25.0+float((i*127+53)%910)
+		var base_y = 610.0+float((i*73)%450)
+		var rise = fmod(animation_time*(4.0+float(i%4)*1.4)+float(i)*31.0,150.0)
+		var drift = sin(animation_time*0.28+i*1.4)*(7.0+progress*4.0)
+		var alpha = 0.055+progress*0.065
+		draw_circle(Vector2(x+drift,base_y-rise),1.0+float(i%3)*0.45,Color(0.38,0.82,0.57,alpha))
 
 func _draw_surface_sky(progress: float):
 	var top = Color(0.012,0.027,0.042).lerp(Color(0.020,0.085,0.13), progress)
@@ -130,16 +204,7 @@ func _draw_surface_cliffs(progress: float):
 func _draw_surface_veins(progress: float):
 	var visible = 2 + int(progress*6.0)
 	var pulse = 0.72 + 0.28*sin(animation_time*0.65)
-	var veins = [
-		PackedVector2Array([Vector2(40,1045),Vector2(66,990),Vector2(58,930),Vector2(88,875)]),
-		PackedVector2Array([Vector2(150,1070),Vector2(135,1018),Vector2(160,962),Vector2(145,905)]),
-		PackedVector2Array([Vector2(918,1040),Vector2(892,986),Vector2(902,932),Vector2(875,880)]),
-		PackedVector2Array([Vector2(805,1060),Vector2(824,1010),Vector2(810,955),Vector2(835,902)]),
-		PackedVector2Array([Vector2(290,1065),Vector2(315,1030),Vector2(306,990)]),
-		PackedVector2Array([Vector2(670,1068),Vector2(645,1032),Vector2(655,990)]),
-		PackedVector2Array([Vector2(105,800),Vector2(125,770),Vector2(118,735)]),
-		PackedVector2Array([Vector2(855,810),Vector2(840,775),Vector2(848,740)])
-	]
+	var veins = [PackedVector2Array([Vector2(40,1045),Vector2(66,990),Vector2(58,930),Vector2(88,875)]),PackedVector2Array([Vector2(150,1070),Vector2(135,1018),Vector2(160,962),Vector2(145,905)]),PackedVector2Array([Vector2(918,1040),Vector2(892,986),Vector2(902,932),Vector2(875,880)]),PackedVector2Array([Vector2(805,1060),Vector2(824,1010),Vector2(810,955),Vector2(835,902)]),PackedVector2Array([Vector2(290,1065),Vector2(315,1030),Vector2(306,990)]),PackedVector2Array([Vector2(670,1068),Vector2(645,1032),Vector2(655,990)]),PackedVector2Array([Vector2(105,800),Vector2(125,770),Vector2(118,735)]),PackedVector2Array([Vector2(855,810),Vector2(840,775),Vector2(848,740)])]
 	for i in range(min(visible,veins.size())):
 		draw_polyline(veins[i],Color(0.10,0.45,0.48,0.18+progress*0.15),4.0,true)
 		draw_polyline(veins[i],Color(0.36,0.92,0.90,(0.18+progress*0.28)*pulse),1.2,true)
@@ -169,14 +234,13 @@ func _draw_surface_fragments(progress: float):
 		draw_polyline(PackedVector2Array([shard[0],shard[1],shard[2],shard[3],shard[0]]),Color(0.20,0.48,0.50,0.16+progress*0.08),1.0,true)
 
 func _draw_surface_dust(progress: float):
-	var count = 14 + int(progress*20.0)
+	var count = 14+int(progress*20.0)
 	for i in range(count):
 		var x = float((i*113+47)%900)+30.0
 		var base_y = 540.0+float((i*71)%500)
 		var rise = fmod(animation_time*(3.0+float(i%4))+i*29.0,110.0)
 		var drift = sin(animation_time*0.35+i*1.7)*(5.0+progress*4.0)
-		var alpha = 0.07+progress*0.10
-		draw_circle(Vector2(x+drift,base_y-rise),1.0+float(i%3)*0.45,Color(0.40,0.86,0.82,alpha))
+		draw_circle(Vector2(x+drift,base_y-rise),1.0+float(i%3)*0.45,Color(0.40,0.86,0.82,0.07+progress*0.10))
 
 func _draw_cavern_depth(progress: float):
 	var top_color = Color(0.010,0.012,0.016).lerp(Color(0.026,0.015,0.014),progress)
