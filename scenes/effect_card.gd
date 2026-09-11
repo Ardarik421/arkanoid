@@ -8,6 +8,22 @@ var accent: Color = Color.WHITE
 
 func _ready():
 	setup(effect_kind)
+	_setup_lower_hud()
+
+func _setup_lower_hud():
+	var effects_ui = get_parent()
+	if effects_ui is HBoxContainer:
+		effects_ui.offset_left = 205.0
+		effects_ui.offset_top = 1010.0
+		effects_ui.offset_right = 755.0
+		effects_ui.offset_bottom = 1056.0
+		effects_ui.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var main = effects_ui.get_parent()
+	if main != null:
+		var lives_label = main.get_node_or_null("LivesLabel")
+		if lives_label != null:
+			lives_label.visible = false
 
 func setup(kind: String):
 	effect_kind = kind
