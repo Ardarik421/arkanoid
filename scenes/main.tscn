@@ -157,8 +157,7 @@ corner_radius_bottom_left = 7
 script = ExtResource("1_sugp2")
 brick_scene = ExtResource("3_sugp2")
 bonus_scene = ExtResource("5_tbgi4")
-test_start_level = 50
-use_test_level = false
+test_start_level = 60
 test_pattern = 7
 
 [node name="ChapterBackground" type="Node2D" parent="." unique_id=922490815]
