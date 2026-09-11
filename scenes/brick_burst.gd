@@ -5,26 +5,58 @@ var lifetime: float = 0.48
 var particles: Array[Dictionary] = []
 var flash_color: Color = Color(0.35, 0.78, 1.0)
 var flash_radius: float = 14.0
+var burst_variant: int = 0
 
 func setup(effect_color: Color):
 	flash_color = effect_color
-	var directions = [
-		Vector2(-1.0, -0.45), Vector2(-0.72, 0.15), Vector2(-0.45, 0.72),
-		Vector2(0.0, -0.9), Vector2(0.28, 0.78), Vector2(0.62, -0.55),
-		Vector2(0.88, 0.18), Vector2(1.0, 0.62), Vector2(-0.95, 0.58)
-	]
+	burst_variant = randi_range(0, 2)
 
-	for i in range(directions.size()):
-		var direction = directions[i].normalized()
+	for i in range(9):
+		var direction = _get_direction(i, burst_variant).normalized()
 		particles.append({
 			"offset": Vector2(randf_range(-7.0, 7.0), randf_range(-4.0, 4.0)),
-			"velocity": direction * randf_range(75.0, 165.0),
+			"velocity": direction * _get_speed(burst_variant),
 			"size": randf_range(2.2, 5.0),
 			"rotation": randf_range(0.0, TAU),
 			"spin": randf_range(-8.0, 8.0)
 		})
 
 	queue_redraw()
+
+func _get_direction(index: int, variant: int) -> Vector2:
+	match variant:
+		0:
+			var directions = [
+				Vector2(-1.0, -0.45), Vector2(-0.72, 0.15), Vector2(-0.45, 0.72),
+				Vector2(0.0, -0.9), Vector2(0.28, 0.78), Vector2(0.62, -0.55),
+				Vector2(0.88, 0.18), Vector2(1.0, 0.62), Vector2(-0.95, 0.58)
+			]
+			return directions[index]
+
+		1:
+			var x_values = [-1.0, -0.78, -0.55, -0.28, 0.0, 0.28, 0.55, 0.78, 1.0]
+			var x = float(x_values[index])
+			return Vector2(x, randf_range(-1.25, -0.55))
+
+		2:
+			var side = -1.0 if index < 4 else 1.0
+			if index == 4:
+				return Vector2(randf_range(-0.18, 0.18), -1.0)
+			var spread_index = index if index < 4 else index - 5
+			var y_values = [-0.82, -0.28, 0.22, 0.72]
+			return Vector2(side * randf_range(0.82, 1.18), float(y_values[spread_index]))
+
+	return Vector2.UP
+
+func _get_speed(variant: int) -> float:
+	match variant:
+		0:
+			return randf_range(75.0, 165.0)
+		1:
+			return randf_range(95.0, 180.0)
+		2:
+			return randf_range(90.0, 175.0)
+	return 120.0
 
 func _process(delta):
 	age += delta
