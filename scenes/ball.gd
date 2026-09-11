@@ -4,7 +4,7 @@ extends CharacterBody2D
 @export var radius: float = 12.0
 @export var max_bounce_angle: float = 50.0
 @export var aim_turn_speed: float = 75.0
-@export var aim_line_length: float = 165.0
+@export var aim_line_length: float = 560.0
 
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
@@ -75,12 +75,20 @@ func _draw():
 	if is_attached:
 		var aim_angle = deg_to_rad(launch_aim_angle)
 		var aim_direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized()
-		var aim_start = aim_direction * (radius + 7.0)
-		var aim_end = aim_direction * aim_line_length
-		var aim_alpha = 0.46 + 0.10 * sin(visual_time * 4.0)
-		draw_line(aim_start, aim_end, Color(0.10, 0.64, 1.0, 0.16), 4.0, true)
-		draw_line(aim_start, aim_end, Color(0.72, 0.95, 1.0, aim_alpha), 1.1, true)
-		draw_circle(aim_end, 2.2, Color(0.78, 0.97, 1.0, aim_alpha))
+		var aim_start_distance = radius + 8.0
+		var dash_length = 13.0
+		var gap_length = 17.0
+		var aim_alpha = 0.22 + 0.04 * sin(visual_time * 4.0)
+		var distance = aim_start_distance
+
+		while distance < aim_line_length:
+			var segment_end = min(distance + dash_length, aim_line_length)
+			var fade = 1.0 - 0.55 * (distance / aim_line_length)
+			var dash_start = aim_direction * distance
+			var dash_end = aim_direction * segment_end
+			draw_line(dash_start, dash_end, Color(0.12, 0.66, 1.0, 0.055 * fade), 4.0, true)
+			draw_line(dash_start, dash_end, Color(0.72, 0.95, 1.0, aim_alpha * fade), 1.0, true)
+			distance += dash_length + gap_length
 
 	draw_circle(Vector2.ZERO, radius + 9.0, Color(accent, 0.045 * pulse))
 	draw_circle(Vector2.ZERO, radius + 5.0, Color(accent, 0.10 * pulse))
