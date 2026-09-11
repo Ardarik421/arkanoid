@@ -5,32 +5,42 @@ signal exploded(brick_position: Vector2)
 
 @export var width: float = 70.0
 @export var height: float = 30.0
-
 @export var health: int = 1
 @export var max_health: int = 1
 @export var points: int = 100
 @export var indestructible: bool = false
+
 var guaranteed_bonus: bool = false
 var powerful_bonus: bool = false
+var is_destroyed: bool = false
 
 const MIN_BONUS_BRICKS_PER_LEVEL: int = 2
 const MAX_BONUS_BRICKS_PER_LEVEL: int = 4
 const POWERFUL_BRICK_CHANCE: float = 0.50
 const BONUS_ASSIGNMENT_META: StringName = &"bonus_assignment_scheduled"
-
-var is_destroyed: bool = false
-
 const BARRIER_HITS_TO_DESTROY: int = 5
 
+const GLASS_PALETTE: Array[Color] = [
+	Color(0.18, 0.72, 1.0),
+	Color(0.34, 0.42, 1.0),
+	Color(0.72, 0.28, 1.0),
+	Color(1.0, 0.24, 0.68),
+	Color(1.0, 0.48, 0.18),
+	Color(0.96, 0.72, 0.18),
+	Color(0.24, 0.88, 0.58),
+	Color(0.12, 0.82, 0.86)
+]
+
+var glass_color: Color
 var barrier_hits: int = 0
 var barrier_blink_timer: float = 0.0
 var barrier_flash: bool = false
 
 func _ready():
+	glass_color = GLASS_PALETTE.pick_random()
 	queue_redraw()
 
 	var bricks_parent = get_parent()
-
 	if not bricks_parent.has_meta(BONUS_ASSIGNMENT_META):
 		bricks_parent.set_meta(BONUS_ASSIGNMENT_META, true)
 		call_deferred("_assign_bonus_bricks")
@@ -40,17 +50,14 @@ func _process(delta):
 		return
 
 	barrier_blink_timer -= delta
-
 	if barrier_blink_timer > 0.0:
 		return
 
 	barrier_flash = not barrier_flash
-
 	if barrier_flash:
 		barrier_blink_timer = 0.08
 	else:
 		barrier_blink_timer = get_barrier_blink_interval()
-
 	queue_redraw()
 
 func get_barrier_blink_interval() -> float:
@@ -63,46 +70,34 @@ func get_barrier_blink_interval() -> float:
 			return 0.35
 		4:
 			return 0.18
-
 	return 0.18
 
 func _assign_bonus_bricks():
 	var bricks_parent = get_parent()
-
 	if not is_instance_valid(bricks_parent):
 		return
 
 	var candidates: Array = []
-
 	for brick in bricks_parent.get_children():
 		if not is_instance_valid(brick):
 			continue
-
 		if brick.indestructible:
 			continue
-
 		brick.guaranteed_bonus = false
 		brick.powerful_bonus = false
 		candidates.append(brick)
 
 	candidates.shuffle()
-
-	var bonus_count = min(
-		randi_range(MIN_BONUS_BRICKS_PER_LEVEL, MAX_BONUS_BRICKS_PER_LEVEL),
-		candidates.size()
-	)
-
+	var bonus_count = min(randi_range(MIN_BONUS_BRICKS_PER_LEVEL, MAX_BONUS_BRICKS_PER_LEVEL), candidates.size())
 	for index in range(bonus_count):
 		candidates[index].guaranteed_bonus = true
 
 	var main = bricks_parent.get_parent()
 	var pressure_tier: int = 0
-
 	if main.has_method("get_pressure_tier"):
 		pressure_tier = main.get_pressure_tier()
 
 	var powerful_count: int = 0
-
 	if pressure_tier >= 2:
 		powerful_count = min(2, bonus_count)
 	elif pressure_tier == 1:
@@ -115,245 +110,137 @@ func _assign_bonus_bricks():
 
 	for brick in candidates:
 		brick.queue_redraw()
-
 	bricks_parent.remove_meta(BONUS_ASSIGNMENT_META)
 
 func _draw():
-	var half_width = width / 2.0
-	var half_height = height / 2.0
-	var outer_rect = Rect2(Vector2(-half_width, -half_height), Vector2(width, height))
-	var inner_rect = outer_rect.grow(-2.0)
+	var rect = Rect2(Vector2(-width * 0.5, -height * 0.5), Vector2(width, height))
 
 	if indestructible:
-		_draw_barrier(outer_rect, inner_rect)
+		_draw_obsidian_barrier(rect)
 		return
 
-	if powerful_bonus:
-		_draw_powerful_brick(outer_rect, inner_rect)
-	elif guaranteed_bonus:
-		_draw_guaranteed_brick(outer_rect, inner_rect)
-	elif max_health >= 3:
-		_draw_heavy_brick(outer_rect, inner_rect)
+	var density := 1
+	if max_health >= 3:
+		density = 3
 	elif max_health == 2:
-		_draw_reinforced_brick(outer_rect, inner_rect)
-	else:
-		_draw_light_brick(outer_rect, inner_rect)
+		density = 2
+
+	_draw_glass_brick(rect, density)
+
+	if guaranteed_bonus:
+		_draw_bonus_marker(powerful_bonus)
 
 	var damage = max_health - health
 	if damage >= 1:
-		_draw_crack_set_one(Color(0.38, 0.76, 1.0))
+		_draw_crack_set_one(glass_color)
 	if damage >= 2:
-		_draw_crack_set_two(Color(0.46, 0.84, 1.0))
+		_draw_crack_set_two(glass_color)
 
-func _draw_light_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
-	draw_rect(outer_rect, Color(0.015, 0.025, 0.045))
-	draw_rect(inner_rect, Color(0.10, 0.13, 0.18))
-	draw_rect(inner_rect.grow(-1.0), Color(0.32, 0.40, 0.50), false, 1.0)
+func _rounded_box(rect: Rect2, fill: Color, border: Color, border_width: float, radius: int):
+	var box = StyleBoxFlat.new()
+	box.bg_color = fill
+	box.border_color = border
+	box.set_border_width_all(int(border_width))
+	box.corner_radius_top_left = radius
+	box.corner_radius_top_right = radius
+	box.corner_radius_bottom_left = radius
+	box.corner_radius_bottom_right = radius
+	draw_style_box(box, rect)
 
-	var stone = PackedVector2Array([
-		Vector2(-hw + 6.0, -hh + 5.0),
-		Vector2(hw - 10.0, -hh + 5.0),
-		Vector2(hw - 5.0, 0.0),
-		Vector2(hw - 10.0, hh - 5.0),
-		Vector2(-hw + 7.0, hh - 5.0),
-		Vector2(-hw + 4.0, 1.0)
-	])
-	draw_colored_polygon(stone, Color(0.18, 0.22, 0.28))
-	draw_polyline(PackedVector2Array([stone[0], stone[1], stone[2], stone[3], stone[4], stone[5], stone[0]]), Color(0.42, 0.48, 0.56), 1.0, true)
-	draw_line(Vector2(-hw + 8.0, -4.0), Vector2(-8.0, -2.0), Color(0.24, 0.29, 0.36), 1.0, true)
-	draw_line(Vector2(6.0, 4.0), Vector2(hw - 10.0, 2.0), Color(0.24, 0.29, 0.36), 1.0, true)
-	draw_rect(Rect2(Vector2(-14.0, hh - 5.0), Vector2(28.0, 2.0)), Color(0.30, 0.70, 1.0, 0.9))
+func _draw_glass_brick(rect: Rect2, density: int):
+	var fill_alpha = 0.075
+	var edge_alpha = 0.72
+	var inner_alpha = 0.10
 
-func _draw_reinforced_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
-	draw_rect(outer_rect, Color(0.01, 0.02, 0.035))
-	draw_rect(inner_rect, Color(0.055, 0.075, 0.11))
-	draw_rect(inner_rect.grow(-1.0), Color(0.42, 0.50, 0.58), false, 1.2)
+	if density == 2:
+		fill_alpha = 0.20
+		edge_alpha = 0.86
+		inner_alpha = 0.18
+	elif density >= 3:
+		fill_alpha = 0.42
+		edge_alpha = 0.96
+		inner_alpha = 0.30
 
-	var center_plate = PackedVector2Array([
-		Vector2(-22.0, -hh + 5.0),
-		Vector2(22.0, -hh + 5.0),
-		Vector2(27.0, 0.0),
-		Vector2(22.0, hh - 5.0),
-		Vector2(-22.0, hh - 5.0),
-		Vector2(-27.0, 0.0)
-	])
-	draw_colored_polygon(center_plate, Color(0.16, 0.20, 0.26))
-	draw_polyline(PackedVector2Array([center_plate[0], center_plate[1], center_plate[2], center_plate[3], center_plate[4], center_plate[5], center_plate[0]]), Color(0.30, 0.38, 0.47), 1.0, true)
+	var dark_base = Color(glass_color.r * 0.22, glass_color.g * 0.22, glass_color.b * 0.27, fill_alpha)
+	if density >= 3:
+		dark_base = Color(glass_color.r * 0.10, glass_color.g * 0.10, glass_color.b * 0.14, fill_alpha + 0.18)
 
-	for side in [-1.0, 1.0]:
-		var x = side * (hw - 8.0)
-		var plate = PackedVector2Array([
-			Vector2(x - 4.0 * side, -hh + 4.0),
-			Vector2(x + 3.0 * side, -hh + 4.0),
-			Vector2(x + 7.0 * side, 0.0),
-			Vector2(x + 3.0 * side, hh - 4.0),
-			Vector2(x - 4.0 * side, hh - 4.0),
-			Vector2(x - 7.0 * side, 0.0)
-		])
-		draw_colored_polygon(plate, Color(0.19, 0.24, 0.30))
-		draw_polyline(PackedVector2Array([plate[0], plate[1], plate[2], plate[3], plate[4], plate[5], plate[0]]), Color(0.58, 0.65, 0.72), 1.0, true)
+	_rounded_box(rect.grow(2.5), Color(0, 0, 0, 0), Color(glass_color, 0.08 + 0.035 * density), 2.0, 8)
+	_rounded_box(rect, dark_base, Color(glass_color, edge_alpha), 1.0 + density * 0.35, 7)
+	_rounded_box(rect.grow(-2.0), Color(glass_color, inner_alpha * 0.34), Color(1.0, 1.0, 1.0, 0.16 + density * 0.035), 1.0, 5)
 
-	draw_rect(Rect2(Vector2(-15.0, -hh + 4.0), Vector2(30.0, 2.5)), Color(0.40, 0.78, 1.0))
-	draw_rect(Rect2(Vector2(-11.0, hh - 5.0), Vector2(22.0, 2.0)), Color(0.18, 0.50, 0.82))
-	draw_circle(Vector2(-27.0, 0.0), 1.4, Color(0.44, 0.80, 1.0))
-	draw_circle(Vector2(27.0, 0.0), 1.4, Color(0.44, 0.80, 1.0))
+	var hw = width * 0.5
+	var hh = height * 0.5
+	draw_line(Vector2(-hw + 8.0, -hh + 3.5), Vector2(hw - 8.0, -hh + 3.5), Color(0.92, 0.98, 1.0, 0.34 + density * 0.08), 1.0, true)
+	draw_line(Vector2(-hw + 10.0, hh - 4.0), Vector2(hw - 10.0, hh - 4.0), Color(glass_color, 0.18 + density * 0.08), 1.0, true)
 
-func _draw_heavy_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
-	draw_rect(outer_rect, Color(0.008, 0.016, 0.03))
-	draw_rect(inner_rect, Color(0.035, 0.055, 0.09))
-	draw_rect(inner_rect.grow(-1.0), Color(0.25, 0.55, 0.78), false, 1.2)
+	if density >= 2:
+		draw_line(Vector2(-hw + 11.0, -4.0), Vector2(-5.0, 5.0), Color(glass_color, 0.12), 1.0, true)
+		draw_line(Vector2(8.0, -5.0), Vector2(hw - 13.0, 3.0), Color(1.0, 1.0, 1.0, 0.08), 1.0, true)
 
-	for side in [-1.0, 1.0]:
-		var armor = PackedVector2Array([
-			Vector2(side * 4.0, -hh + 4.0),
-			Vector2(side * (hw - 5.0), -hh + 4.0),
-			Vector2(side * (hw - 10.0), -3.0),
-			Vector2(side * 11.0, 0.0),
-			Vector2(side * (hw - 10.0), 3.0),
-			Vector2(side * (hw - 5.0), hh - 4.0),
-			Vector2(side * 4.0, hh - 4.0),
-			Vector2(side * 9.0, 0.0)
-		])
-		draw_colored_polygon(armor, Color(0.08, 0.13, 0.20))
-		draw_polyline(PackedVector2Array([armor[0], armor[1], armor[2], armor[3], armor[4], armor[5], armor[6], armor[7], armor[0]]), Color(0.26, 0.56, 0.78), 1.0, true)
+	if density >= 3:
+		_rounded_box(rect.grow(-6.0), Color(0.005, 0.008, 0.018, 0.30), Color(glass_color, 0.18), 1.0, 3)
+		draw_circle(Vector2.ZERO, 2.0, Color(glass_color, 0.32))
 
-	var crystal = PackedVector2Array([
-		Vector2(0.0, -11.0),
-		Vector2(9.0, -3.0),
-		Vector2(7.0, 6.0),
-		Vector2(0.0, 11.0),
-		Vector2(-7.0, 6.0),
-		Vector2(-9.0, -3.0)
-	])
-	draw_colored_polygon(crystal, Color(0.06, 0.37, 0.66))
-	draw_polyline(PackedVector2Array([crystal[0], crystal[1], crystal[2], crystal[3], crystal[4], crystal[5], crystal[0]]), Color(0.45, 0.90, 1.0), 1.6, true)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0.0, -8.0),
-		Vector2(5.0, -2.0),
-		Vector2(0.0, 7.0),
-		Vector2(-5.0, -2.0)
-	]), Color(0.20, 0.70, 1.0, 0.55))
-	draw_line(Vector2(0.0, -7.0), Vector2(0.0, 8.0), Color(0.80, 0.97, 1.0), 1.0, true)
-	draw_line(Vector2(-4.0, -2.0), Vector2(4.0, -2.0), Color(0.68, 0.94, 1.0), 1.0, true)
-	draw_circle(Vector2.ZERO, 2.0, Color(0.82, 0.98, 1.0))
-
-func _draw_guaranteed_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
-	draw_rect(outer_rect, Color(0.12, 0.065, 0.005))
-	draw_rect(inner_rect, Color(0.32, 0.17, 0.025))
-	draw_rect(inner_rect.grow(-1.0), Color(1.0, 0.70, 0.10), false, 1.5)
-	draw_rect(Rect2(Vector2(-hw + 5.0, -hh + 4.0), Vector2(width - 10.0, 3.0)), Color(1.0, 0.76, 0.14))
-	draw_rect(Rect2(Vector2(-14.0, hh - 6.0), Vector2(28.0, 3.0)), Color(1.0, 0.60, 0.04))
-	draw_line(Vector2(-24.0, -6.0), Vector2(-10.0, 5.0), Color(0.70, 0.36, 0.03), 1.0, true)
-	draw_line(Vector2(18.0, -7.0), Vector2(6.0, 6.0), Color(0.70, 0.36, 0.03), 1.0, true)
-	draw_circle(Vector2.ZERO, 3.0, Color(1.0, 0.90, 0.52))
-
-func _draw_powerful_brick(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
-	draw_rect(outer_rect, Color(0.11, 0.006, 0.004))
-	draw_rect(inner_rect, Color(0.28, 0.025, 0.018))
-	draw_rect(inner_rect.grow(-1.0), Color(1.0, 0.22, 0.08), false, 1.5)
-
-	for side in [-1.0, 1.0]:
-		var plate = PackedVector2Array([
-			Vector2(side * 6.0, -hh + 4.0),
-			Vector2(side * (hw - 5.0), -hh + 4.0),
-			Vector2(side * (hw - 9.0), -2.0),
-			Vector2(side * 12.0, 0.0),
-			Vector2(side * (hw - 9.0), 2.0),
-			Vector2(side * (hw - 5.0), hh - 4.0),
-			Vector2(side * 6.0, hh - 4.0),
-			Vector2(side * 10.0, 0.0)
-		])
-		draw_colored_polygon(plate, Color(0.34, 0.035, 0.02))
-		draw_polyline(PackedVector2Array([plate[0], plate[1], plate[2], plate[3], plate[4], plate[5], plate[6], plate[7], plate[0]]), Color(0.95, 0.20, 0.06), 1.0, true)
-
+func _draw_bonus_marker(powerful: bool):
+	var marker = Color(1.0, 0.22, 0.07) if powerful else Color(1.0, 0.72, 0.12)
 	var core = PackedVector2Array([
-		Vector2(0.0, -10.0),
-		Vector2(8.0, 0.0),
-		Vector2(0.0, 10.0),
-		Vector2(-8.0, 0.0)
+		Vector2(0.0, -7.0),
+		Vector2(6.0, 0.0),
+		Vector2(0.0, 7.0),
+		Vector2(-6.0, 0.0)
 	])
-	draw_colored_polygon(core, Color(0.75, 0.05, 0.02))
-	draw_polyline(PackedVector2Array([core[0], core[1], core[2], core[3], core[0]]), Color(1.0, 0.48, 0.14), 1.7, true)
-	draw_line(Vector2(0.0, -8.0), Vector2(0.0, 8.0), Color(1.0, 0.86, 0.55), 1.0, true)
-	draw_line(Vector2(-5.0, 0.0), Vector2(5.0, 0.0), Color(1.0, 0.52, 0.16), 1.0, true)
-	draw_circle(Vector2.ZERO, 2.2, Color(1.0, 0.94, 0.74))
+	draw_colored_polygon(core, Color(marker, 0.24))
+	draw_polyline(PackedVector2Array([core[0], core[1], core[2], core[3], core[0]]), Color(marker, 0.96), 1.4, true)
+	draw_circle(Vector2.ZERO, 1.8, Color(1.0, 0.94, 0.72) if not powerful else Color(1.0, 0.72, 0.42))
 
 func _draw_crack_set_one(energy_color: Color):
-	var crack_color = Color(0.67, 0.86, 1.0, 0.96)
+	var crack_color = Color(0.90, 0.96, 1.0, 0.78)
 	draw_polyline(PackedVector2Array([
-		Vector2(-6.0, -14.0),
-		Vector2(-3.0, -7.0),
-		Vector2(-7.0, -2.0),
-		Vector2(-2.0, 3.0),
-		Vector2(-5.0, 10.0),
-		Vector2(-2.0, 14.0)
-	]), crack_color, 1.25, true)
-	draw_line(Vector2(-3.0, -7.0), Vector2(5.0, -10.0), crack_color, 1.0, true)
-	draw_line(Vector2(-7.0, -2.0), Vector2(-14.0, 2.0), crack_color, 1.0, true)
-	draw_circle(Vector2(-2.0, 3.0), 1.5, Color(energy_color, 0.80))
+		Vector2(-6.0, -14.0), Vector2(-3.0, -7.0), Vector2(-7.0, -2.0),
+		Vector2(-2.0, 3.0), Vector2(-5.0, 10.0), Vector2(-2.0, 14.0)
+	]), crack_color, 1.0, true)
+	draw_line(Vector2(-3.0, -7.0), Vector2(5.0, -10.0), crack_color, 0.8, true)
+	draw_line(Vector2(-7.0, -2.0), Vector2(-14.0, 2.0), crack_color, 0.8, true)
+	draw_circle(Vector2(-2.0, 3.0), 1.2, Color(energy_color, 0.65))
 
 func _draw_crack_set_two(energy_color: Color):
-	var crack_color = Color(0.76, 0.91, 1.0, 0.98)
+	var crack_color = Color(0.94, 0.98, 1.0, 0.88)
 	draw_polyline(PackedVector2Array([
-		Vector2(18.0, -14.0),
-		Vector2(13.0, -7.0),
-		Vector2(17.0, -1.0),
-		Vector2(10.0, 5.0),
-		Vector2(14.0, 14.0)
-	]), crack_color, 1.25, true)
-	draw_line(Vector2(13.0, -7.0), Vector2(5.0, -4.0), crack_color, 1.0, true)
-	draw_line(Vector2(17.0, -1.0), Vector2(25.0, 3.0), crack_color, 1.0, true)
-	draw_line(Vector2(10.0, 5.0), Vector2(3.0, 10.0), crack_color, 1.0, true)
-	draw_circle(Vector2(10.0, 5.0), 1.5, Color(energy_color, 0.90))
+		Vector2(18.0, -14.0), Vector2(13.0, -7.0), Vector2(17.0, -1.0),
+		Vector2(10.0, 5.0), Vector2(14.0, 14.0)
+	]), crack_color, 1.0, true)
+	draw_line(Vector2(13.0, -7.0), Vector2(5.0, -4.0), crack_color, 0.8, true)
+	draw_line(Vector2(17.0, -1.0), Vector2(25.0, 3.0), crack_color, 0.8, true)
+	draw_line(Vector2(10.0, 5.0), Vector2(3.0, 10.0), crack_color, 0.8, true)
+	draw_circle(Vector2(10.0, 5.0), 1.2, Color(energy_color, 0.72))
 
-func _draw_barrier(outer_rect: Rect2, inner_rect: Rect2):
-	var hw = width / 2.0
-	var hh = height / 2.0
+func _draw_obsidian_barrier(rect: Rect2):
 	var flash_strength = 1.0 if barrier_flash else 0.0
-	var body_color = Color(0.025, 0.045, 0.07).lerp(Color(0.16, 0.36, 0.54), flash_strength * 0.55)
+	var edge = Color(0.34, 0.10, 0.055).lerp(Color(1.0, 0.42, 0.10), flash_strength)
+	_rounded_box(rect.grow(2.0), Color(0, 0, 0, 0), Color(1.0, 0.20, 0.04, 0.10 + flash_strength * 0.18), 2.0, 8)
+	_rounded_box(rect, Color(0.012, 0.009, 0.014, 0.98), edge, 1.4, 7)
+	_rounded_box(rect.grow(-3.0), Color(0.025, 0.018, 0.026, 0.98), Color(0.18, 0.08, 0.06, 0.80), 1.0, 5)
 
-	draw_rect(outer_rect, Color(0.008, 0.015, 0.028))
-	draw_rect(inner_rect, body_color)
-	draw_rect(inner_rect.grow(-1.0), Color(0.30, 0.54, 0.72), false, 1.3)
+	var lava = Color(1.0, 0.24, 0.025, 0.88 + flash_strength * 0.12)
+	var hot = Color(1.0, 0.72, 0.12, 0.94)
+	var crack_sets = min(4, barrier_hits + 1)
 
-	for side in [-1.0, 1.0]:
-		var frame = PackedVector2Array([
-			Vector2(side * 7.0, -hh + 4.0),
-			Vector2(side * (hw - 5.0), -hh + 4.0),
-			Vector2(side * (hw - 10.0), -2.0),
-			Vector2(side * 12.0, 0.0),
-			Vector2(side * (hw - 10.0), 2.0),
-			Vector2(side * (hw - 5.0), hh - 4.0),
-			Vector2(side * 7.0, hh - 4.0),
-			Vector2(side * 11.0, 0.0)
-		])
-		draw_colored_polygon(frame, Color(0.08, 0.13, 0.20))
-		draw_polyline(PackedVector2Array([frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7], frame[0]]), Color(0.30, 0.52, 0.70), 1.0, true)
+	if crack_sets >= 1:
+		_draw_lava_crack(PackedVector2Array([Vector2(-31,-8), Vector2(-20,-5), Vector2(-14,1), Vector2(-5,-2), Vector2(1,4)]), lava, hot)
+	if crack_sets >= 2:
+		_draw_lava_crack(PackedVector2Array([Vector2(31,-9), Vector2(21,-5), Vector2(16,2), Vector2(8,5), Vector2(1,4)]), lava, hot)
+	if crack_sets >= 3:
+		_draw_lava_crack(PackedVector2Array([Vector2(-24,12), Vector2(-17,6), Vector2(-8,8), Vector2(1,4), Vector2(6,-4)]), lava, hot)
+	if crack_sets >= 4:
+		_draw_lava_crack(PackedVector2Array([Vector2(27,12), Vector2(19,7), Vector2(12,9), Vector2(6,3), Vector2(9,-7)]), lava, hot)
 
-	draw_circle(Vector2.ZERO, 7.0, Color(0.02, 0.07, 0.12))
-	draw_circle(Vector2.ZERO, 5.0, Color(0.08, 0.25, 0.40))
-	draw_circle(Vector2.ZERO, 3.0, Color(0.52, 0.90, 1.0) if barrier_flash else Color(0.20, 0.58, 0.82))
-	draw_line(Vector2(-hw + 8.0, -hh + 3.0), Vector2(-15.0, -hh + 3.0), Color(0.32, 0.72, 1.0), 1.5, true)
-	draw_line(Vector2(15.0, -hh + 3.0), Vector2(hw - 8.0, -hh + 3.0), Color(0.32, 0.72, 1.0), 1.5, true)
-	draw_line(Vector2(-hw + 8.0, hh - 3.0), Vector2(-15.0, hh - 3.0), Color(0.18, 0.46, 0.72), 1.0, true)
-	draw_line(Vector2(15.0, hh - 3.0), Vector2(hw - 8.0, hh - 3.0), Color(0.18, 0.46, 0.72), 1.0, true)
+	draw_circle(Vector2(1.0, 4.0), 2.4 + flash_strength, Color(hot, 0.82))
 
-	if barrier_hits >= 1:
-		_draw_crack_set_one(Color(0.32, 0.70, 1.0))
-	if barrier_hits >= 3:
-		_draw_crack_set_two(Color(0.32, 0.70, 1.0))
-	if barrier_hits >= 4:
-		draw_rect(Rect2(Vector2(-hw - 2.0, -hh - 2.0), Vector2(width + 4.0, height + 4.0)), Color(0.35, 0.75, 1.0, 0.30), false, 2.0)
+func _draw_lava_crack(points_array: PackedVector2Array, lava: Color, hot: Color):
+	draw_polyline(points_array, Color(lava, 0.26), 3.2, true)
+	draw_polyline(points_array, lava, 1.5, true)
+	draw_polyline(points_array, Color(hot, 0.80), 0.55, true)
 
 func prepare_bonus_drop():
 	if powerful_bonus:
@@ -373,7 +260,6 @@ func hit(explosive_hit: bool = false):
 			return
 
 		barrier_hits += 1
-
 		if barrier_hits >= BARRIER_HITS_TO_DESTROY:
 			destroy_barrier()
 			return
@@ -384,15 +270,12 @@ func hit(explosive_hit: bool = false):
 		return
 
 	health -= 1
-
 	if health <= 0:
 		is_destroyed = true
 		prepare_bonus_drop()
 		destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
-
 		if explosive_hit:
 			exploded.emit(global_position)
-
 		queue_free()
 	else:
 		queue_redraw()
@@ -400,7 +283,6 @@ func hit(explosive_hit: bool = false):
 func destroy(explosive_hit: bool = false):
 	if is_destroyed:
 		return
-
 	if indestructible:
 		destroy_barrier(explosive_hit)
 		return
@@ -408,27 +290,21 @@ func destroy(explosive_hit: bool = false):
 	is_destroyed = true
 	prepare_bonus_drop()
 	destroyed.emit(points, global_position, guaranteed_bonus, powerful_bonus)
-
 	if explosive_hit:
 		exploded.emit(global_position)
-
 	queue_free()
 
 func destroy_barrier(trigger_explosion: bool = false):
 	if is_destroyed:
 		return
-
 	is_destroyed = true
-
 	if trigger_explosion:
 		exploded.emit(global_position)
-
 	queue_free()
 
 func hit_by_explosion():
 	if is_destroyed:
 		return
-
 	if indestructible:
 		destroy_barrier()
 	else:
