@@ -2,36 +2,22 @@ extends Node2D
 
 const BURST_SCRIPT = preload("res://scenes/brick_burst.gd")
 
-var previous_health: int = -1
-var previous_barrier_hits: int = -1
 var flash_time: float = 0.0
 
 func _ready():
-	var brick = get_parent()
-	previous_health = int(brick.get("health"))
-	previous_barrier_hits = int(brick.get("barrier_hits"))
+	set_process(false)
+	queue_redraw()
+
+func trigger_hit_flash():
+	flash_time = 0.11
+	set_process(true)
 	queue_redraw()
 
 func _process(delta):
-	var brick = get_parent()
-
-	if brick == null:
-		return
-
-	var current_health = int(brick.get("health"))
-	var current_barrier_hits = int(brick.get("barrier_hits"))
-	var was_hit = current_health < previous_health or current_barrier_hits > previous_barrier_hits
-
-	if was_hit:
-		flash_time = 0.11
-		queue_redraw()
-
-	previous_health = current_health
-	previous_barrier_hits = current_barrier_hits
-
-	if flash_time > 0.0:
-		flash_time = max(0.0, flash_time - delta)
-		queue_redraw()
+	flash_time = max(0.0, flash_time - delta)
+	queue_redraw()
+	if flash_time <= 0.0:
+		set_process(false)
 
 func _rounded_outline(rect: Rect2, color: Color, width: int, radius: int):
 	var box = StyleBoxFlat.new()
