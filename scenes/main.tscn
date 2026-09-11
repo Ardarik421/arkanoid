@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://bauva4yg63gt8" path="res://scenes/pause_menu.gd" id="6_tefeu"]
 [ext_resource type="Script" uid="uid://d1hhkv3rlljld" path="res://scenes/chapter_background.gd" id="7_background"]
 [ext_resource type="Script" uid="uid://dv2lgbgv5kujp" path="res://scenes/effect_card.gd" id="8_effect_card"]
+[ext_resource type="Script" path="res://scenes/shield_visual.gd" id="9_shield_visual"]
+[ext_resource type="Script" path="res://scenes/magnet_visual.gd" id="10_magnet_visual"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
 size = Vector2(40, 1080)
@@ -191,6 +193,11 @@ speed = 700.0
 [node name="Paddle" parent="." unique_id=1838408433 instance=ExtResource("2_0wfyh")]
 position = Vector2(480, 980)
 
+[node name="MagnetVisual" type="Node2D" parent="."]
+z_index = 3
+visible = false
+script = ExtResource("10_magnet_visual")
+
 [node name="Bricks" type="Node2D" parent="." unique_id=1180379604]
 
 [node name="DeathZone" type="Area2D" parent="." unique_id=724698786]
@@ -283,6 +290,10 @@ vertical_alignment = 1
 [node name="Shield" type="StaticBody2D" parent="." unique_id=1753832067]
 process_mode = 4
 position = Vector2(480, 1040)
+
+[node name="ShieldVisual" type="Node2D" parent="Shield"]
+z_index = 3
+script = ExtResource("9_shield_visual")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Shield" unique_id=1149921399]
 shape = SubResource("RectangleShape2D_mxp4v")
