@@ -4,6 +4,7 @@ extends RefCounted
 static func draw_background(canvas: Node2D, progress: float, time: float):
 	_draw_space(canvas, progress)
 	_draw_distant_nebulae(canvas, progress, time)
+	_draw_celestial_objects(canvas, progress, time)
 	_draw_star_layers(canvas, progress, time)
 	_draw_distant_galaxy(canvas, progress, time)
 	_draw_dust(canvas, progress, time)
@@ -15,6 +16,31 @@ static func _draw_space(canvas: Node2D, progress: float):
 	for y in range(0,1080,18):
 		var t = float(y)/1080.0
 		canvas.draw_rect(Rect2(0,y,960,18),top.lerp(bottom,t))
+
+static func _draw_celestial_objects(canvas: Node2D, progress: float, time: float):
+	var planet_a = Vector2(115.0+sin(time*0.009)*2.0,820.0+cos(time*0.008)*2.0)
+	var planet_a_alpha = 0.12*(1.0-clamp((progress-0.42)/0.30,0.0,1.0))
+	if planet_a_alpha > 0.001:
+		canvas.draw_circle(planet_a,54.0,Color(0.020,0.032,0.065,planet_a_alpha))
+		canvas.draw_circle(planet_a+Vector2(-15,-12),36.0,Color(0.10,0.16,0.25,planet_a_alpha*0.55))
+		canvas.draw_arc(planet_a,55.0,-1.38,1.34,48,Color(0.30,0.42,0.62,planet_a_alpha*0.52),1.5,true)
+
+	if progress > 0.22 and progress < 0.78:
+		var appear = clamp((progress-0.22)/0.16,0.0,1.0)
+		var fade = 1.0-clamp((progress-0.64)/0.14,0.0,1.0)
+		var alpha = appear*fade*0.12
+		var moon = Vector2(865.0+sin(time*0.010)*2.5,690.0+cos(time*0.008)*1.5)
+		canvas.draw_circle(moon,31.0,Color(0.055,0.070,0.095,alpha))
+		canvas.draw_circle(moon+Vector2(-9,-7),21.0,Color(0.20,0.23,0.29,alpha*0.44))
+		canvas.draw_arc(moon,31.0,-1.42,1.30,42,Color(0.46,0.50,0.60,alpha*0.44),1.1,true)
+
+	if progress > 0.52:
+		var appear = clamp((progress-0.52)/0.48,0.0,1.0)
+		var center = Vector2(105.0+sin(time*0.006)*3.0,235.0)
+		var alpha = 0.08*appear
+		canvas.draw_circle(center,43.0,Color(0.025,0.020,0.048,alpha))
+		canvas.draw_arc(center,64.0,-0.42,2.72,70,Color(0.34,0.26,0.48,alpha*0.58),2.2,true)
+		canvas.draw_arc(center,65.0,2.72,5.86,70,Color(0.16,0.22,0.34,alpha*0.36),1.4,true)
 
 static func _draw_star_layers(canvas: Node2D, progress: float, time: float):
 	var far_count = 88+int(progress*62.0)
