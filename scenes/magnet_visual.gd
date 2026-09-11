@@ -4,7 +4,10 @@ var animation_time: float = 0.0
 
 func _process(delta):
 	animation_time += delta
-	queue_redraw()
+	var main = get_parent()
+	visible = main != null and bool(main.get("magnet_active"))
+	if visible:
+		queue_redraw()
 
 func _draw():
 	var paddle = get_parent().get_node_or_null("Paddle")
