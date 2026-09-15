@@ -116,6 +116,9 @@ var active_balls: Array[CharacterBody2D] = []
 
 const BALL_SCENE = preload("res://scenes/ball.tscn")
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
+const LEVEL_AMBIENT: AudioStream = preload("res://audio/music/ambient_01.wav")
+
+var ambient_player: AudioStreamPlayer
 
 var shield_active: bool = false
 var magnet_active: bool = false
@@ -172,6 +175,7 @@ var pattern_sizes: Dictionary = {}
 # =========================
 
 func _ready():
+	_setup_ambient()
 	
 	set_shield_enabled(false)
 	active_balls.append($Ball)
@@ -190,6 +194,18 @@ func _ready():
 	update_lives_label()
 	update_score_label()
 	update_level_label()
+
+func _setup_ambient():
+	ambient_player = AudioStreamPlayer.new()
+	ambient_player.stream = LEVEL_AMBIENT
+	ambient_player.volume_db = -13.0
+	ambient_player.finished.connect(_on_ambient_finished)
+	add_child(ambient_player)
+	ambient_player.play()
+
+func _on_ambient_finished():
+	if is_instance_valid(ambient_player):
+		ambient_player.play()
 
 func _process(_delta):
 		
