@@ -150,6 +150,9 @@ func _physics_process(delta):
 		var collider = collision.get_collider()
 
 		if collider.name == "Paddle":
+			if collider.has_method("play_hit_feedback"):
+				collider.play_hit_feedback()
+
 			if magnet_active:
 				attach_to_paddle()
 			else:
