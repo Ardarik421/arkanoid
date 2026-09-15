@@ -8,9 +8,11 @@ extends CharacterBody2D
 
 const BRICK_HIT_SOUND: AudioStream = preload("res://audio/sfx/brick_hit.wav")
 const PADDLE_HIT_SOUND: AudioStream = preload("res://audio/sfx/paddle_hit.wav")
+const WALL_HIT_SOUND: AudioStream = preload("res://audio/sfx/wall_hit.wav")
 
 var brick_hit_player: AudioStreamPlayer
 var paddle_hit_player: AudioStreamPlayer
+var wall_hit_player: AudioStreamPlayer
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
 var is_piercing: bool = false
@@ -42,6 +44,11 @@ func _setup_audio():
 	paddle_hit_player.stream = PADDLE_HIT_SOUND
 	paddle_hit_player.volume_db = -3.0
 	add_child(paddle_hit_player)
+	
+	wall_hit_player = AudioStreamPlayer.new()
+	wall_hit_player.stream = WALL_HIT_SOUND
+	wall_hit_player.volume_db = -7.0
+	add_child(wall_hit_player)
 
 func _play_brick_hit_sound():
 	if is_instance_valid(brick_hit_player):
@@ -50,6 +57,10 @@ func _play_brick_hit_sound():
 func _play_paddle_hit_sound():
 	if is_instance_valid(paddle_hit_player):
 		paddle_hit_player.play()
+
+func _play_wall_hit_sound():
+	if is_instance_valid(wall_hit_player):
+		wall_hit_player.play()
 
 func _draw():
 	var pulse = 0.88 + 0.12 * sin(visual_time * 5.0)
@@ -195,6 +206,7 @@ func _physics_process(delta):
 				collider.hit(is_explosive)
 
 		else:
+			_play_wall_hit_sound()
 			direction = direction.bounce(collision.get_normal())
 
 	_update_trail(false)
