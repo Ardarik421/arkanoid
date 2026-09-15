@@ -6,17 +6,24 @@ var particles: Array[Dictionary] = []
 var flash_color: Color = Color(0.35, 0.78, 1.0)
 var flash_radius: float = 14.0
 var burst_variant: int = 0
+var heavy_burst: bool = false
 
 func setup(effect_color: Color):
 	flash_color = effect_color
+	heavy_burst = effect_color.r > 0.9 and effect_color.g < 0.4 and effect_color.b < 0.15
+	if heavy_burst:
+		lifetime = 0.62
+		flash_radius = 22.0
 	burst_variant = randi_range(0, 2)
 
-	for i in range(9):
-		var direction = _get_direction(i, burst_variant).normalized()
+	var particle_count = 12 if heavy_burst else 9
+	for i in range(particle_count):
+		var direction = _get_direction(i % 9, burst_variant).normalized()
+		var speed_scale = randf_range(1.05, 1.30) if heavy_burst else 1.0
 		particles.append({
 			"offset": Vector2(randf_range(-7.0, 7.0), randf_range(-4.0, 4.0)),
-			"velocity": direction * _get_speed(burst_variant),
-			"size": randf_range(2.2, 5.0),
+			"velocity": direction * _get_speed(burst_variant) * speed_scale,
+			"size": randf_range(3.4, 6.4) if heavy_burst else randf_range(2.2, 5.0),
 			"rotation": randf_range(0.0, TAU),
 			"spin": randf_range(-8.0, 8.0)
 		})
@@ -84,10 +91,19 @@ func _draw():
 	var flash_fade = max(0.0, 1.0 - t * 4.0)
 
 	if flash_fade > 0.0:
-		for i in range(4):
-			var radius = flash_radius + float(i) * 8.0 + age * 90.0
-			draw_circle(Vector2.ZERO, radius, Color(flash_color, flash_fade * (0.12 - float(i) * 0.02)))
-		draw_circle(Vector2.ZERO, 8.0 + age * 38.0, Color(1.0, 0.95, 0.82, flash_fade * 0.72))
+		var ring_count = 5 if heavy_burst else 4
+		for i in range(ring_count):
+			var radius = flash_radius + float(i) * (10.0 if heavy_burst else 8.0) + age * (125.0 if heavy_burst else 90.0)
+			var ring_alpha = (0.16 - float(i) * 0.022) if heavy_burst else (0.12 - float(i) * 0.02)
+			draw_circle(Vector2.ZERO, radius, Color(flash_color, flash_fade * ring_alpha))
+		draw_circle(Vector2.ZERO, (12.0 if heavy_burst else 8.0) + age * (52.0 if heavy_burst else 38.0), Color(1.0, 0.95, 0.82, flash_fade * (0.92 if heavy_burst else 0.72)))
+
+	if heavy_burst:
+		var shock_fade = max(0.0, 1.0 - t * 2.8)
+		if shock_fade > 0.0:
+			var shock_radius = 25.0 + age * 210.0
+			draw_arc(Vector2.ZERO, shock_radius, 0.0, TAU, 48, Color(1.0, 0.34, 0.055, shock_fade * 0.72), 2.4, true)
+			draw_arc(Vector2.ZERO, shock_radius + 5.0, 0.0, TAU, 48, Color(1.0, 0.76, 0.18, shock_fade * 0.24), 1.2, true)
 
 	for i in range(particles.size()):
 		var particle = particles[i]
@@ -107,5 +123,5 @@ func _draw():
 
 		if i % 2 == 0:
 			var velocity: Vector2 = particle["velocity"]
-			var trail = offset - velocity.normalized() * (9.0 + size * 2.0)
-			draw_line(offset, trail, Color(flash_color, fade * 0.48), 1.2, true)
+			var trail = offset - velocity.normalized() * (13.0 + size * 2.4 if heavy_burst else 9.0 + size * 2.0)
+			draw_line(offset, trail, Color(flash_color, fade * (0.62 if heavy_burst else 0.48)), 1.4 if heavy_burst else 1.2, true)
