@@ -163,8 +163,8 @@ test_start_level = 25
 use_test_level = false
 test_pattern = 7
 use_test_bonuses = true
-test_piercing = true
-test_explosive = true
+test_shield = true
+test_hyper = true
 
 [node name="ChapterBackground" type="Node2D" parent="." unique_id=922490815]
 z_index = -100

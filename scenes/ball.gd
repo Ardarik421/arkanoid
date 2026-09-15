@@ -194,6 +194,7 @@ func _physics_process(delta):
 	
 	if shield_active and direction.y > 0.0:
 		if global_position.y + radius >= shield_y:
+			_play_paddle_hit_sound()
 			global_position.y = shield_y - radius
 			direction.y = -abs(direction.y)
 	
