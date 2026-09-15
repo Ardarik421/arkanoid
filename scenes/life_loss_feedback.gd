@@ -18,46 +18,17 @@ func _draw():
 	var pulse = sin(t * PI)
 	var fade = pow(1.0 - t, 1.5)
 	var viewport_size = get_viewport().get_visible_rect().size
-	var edge = 92.0
-	var corner = 210.0
+	var inset = 22.0
+	var left = inset
+	var top = inset
+	var right = viewport_size.x - inset
+	var bottom = viewport_size.y - inset
+	var alarm = 0.62 + 0.38 * sin(age * 34.0)
 
-	var red = Color(1.0, 0.055, 0.025, 0.10 * pulse)
-	var hot = Color(1.0, 0.22, 0.055, 0.18 * fade)
+	var outer = Color(1.0, 0.045, 0.018, pulse * 0.16)
+	var inner = Color(1.0, 0.24, 0.055, fade * (0.34 + alarm * 0.22))
+	var hot = Color(1.0, 0.62, 0.18, fade * 0.18)
 
-	draw_colored_polygon(PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(corner, 0.0),
-		Vector2(edge, edge),
-		Vector2(0.0, corner)
-	]), red)
-
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(viewport_size.x, 0.0),
-		Vector2(viewport_size.x - corner, 0.0),
-		Vector2(viewport_size.x - edge, edge),
-		Vector2(viewport_size.x, corner)
-	]), red)
-
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0.0, viewport_size.y),
-		Vector2(corner, viewport_size.y),
-		Vector2(edge, viewport_size.y - edge),
-		Vector2(0.0, viewport_size.y - corner)
-	]), red)
-
-	draw_colored_polygon(PackedVector2Array([
-		viewport_size,
-		Vector2(viewport_size.x - corner, viewport_size.y),
-		Vector2(viewport_size.x - edge, viewport_size.y - edge),
-		Vector2(viewport_size.x, viewport_size.y - corner)
-	]), red)
-
-	var line_alpha = 0.34 * fade
-	draw_line(Vector2(0.0, 0.0), Vector2(105.0, 0.0), Color(hot, line_alpha), 3.0, true)
-	draw_line(Vector2(0.0, 0.0), Vector2(0.0, 105.0), Color(hot, line_alpha), 3.0, true)
-	draw_line(Vector2(viewport_size.x, 0.0), Vector2(viewport_size.x - 105.0, 0.0), Color(hot, line_alpha), 3.0, true)
-	draw_line(Vector2(viewport_size.x, 0.0), Vector2(viewport_size.x, 105.0), Color(hot, line_alpha), 3.0, true)
-	draw_line(Vector2(0.0, viewport_size.y), Vector2(105.0, viewport_size.y), Color(hot, line_alpha), 3.0, true)
-	draw_line(Vector2(0.0, viewport_size.y), Vector2(0.0, viewport_size.y - 105.0), Color(hot, line_alpha), 3.0, true)
-	draw_line(viewport_size, Vector2(viewport_size.x - 105.0, viewport_size.y), Color(hot, line_alpha), 3.0, true)
-	draw_line(viewport_size, Vector2(viewport_size.x, viewport_size.y - 105.0), Color(hot, line_alpha), 3.0, true)
+	draw_rect(Rect2(Vector2(left, top), Vector2(right - left, bottom - top)), outer, false, 10.0)
+	draw_rect(Rect2(Vector2(left + 5.0, top + 5.0), Vector2(right - left - 10.0, bottom - top - 10.0)), inner, false, 3.0)
+	draw_rect(Rect2(Vector2(left + 9.0, top + 9.0), Vector2(right - left - 18.0, bottom - top - 18.0)), hot, false, 1.0)
