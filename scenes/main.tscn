@@ -162,6 +162,8 @@ bonus_scene = ExtResource("5_tbgi4")
 test_start_level = 25
 use_test_level = false
 test_pattern = 7
+use_test_bonuses = true
+test_piercing = true
 
 [node name="ChapterBackground" type="Node2D" parent="." unique_id=922490815]
 z_index = -100

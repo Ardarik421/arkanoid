@@ -6,6 +6,9 @@ extends CharacterBody2D
 @export var aim_turn_speed: float = 75.0
 @export var aim_line_length: float = 560.0
 
+const BRICK_HIT_SOUND: AudioStream = preload("res://audio/sfx/brick_hit.wav")
+
+var brick_hit_player: AudioStreamPlayer
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
 var is_piercing: bool = false
@@ -22,9 +25,20 @@ var trail_max_points: int = 10
 var trail_min_distance: float = 10.0
 
 func _ready():
+	_setup_audio()
 	set_collision_mask_value(1, true)
 	trail_points.append(global_position)
 	queue_redraw()
+
+func _setup_audio():
+	brick_hit_player = AudioStreamPlayer.new()
+	brick_hit_player.stream = BRICK_HIT_SOUND
+	brick_hit_player.volume_db = -4.0
+	add_child(brick_hit_player)
+
+func _play_brick_hit_sound():
+	if is_instance_valid(brick_hit_player):
+		brick_hit_player.play()
 
 func _draw():
 	var pulse = 0.88 + 0.12 * sin(visual_time * 5.0)
@@ -159,6 +173,8 @@ func _physics_process(delta):
 				bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
+			_play_brick_hit_sound()
+
 			if is_piercing:
 				collider.destroy(is_explosive)
 			else:
