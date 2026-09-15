@@ -1,11 +1,15 @@
 extends Node2D
 
 const BURST_SCRIPT = preload("res://scenes/brick_burst.gd")
+const EXPLOSION_FLASH_SCRIPT = preload("res://scenes/explosion_flash.gd")
 
 var flash_time: float = 0.0
 
 func _ready():
 	set_process(false)
+	var brick = get_parent()
+	if brick != null and brick.has_signal("exploded"):
+		brick.exploded.connect(_on_brick_exploded)
 	queue_redraw()
 
 func trigger_hit_flash():
@@ -65,6 +69,16 @@ func _draw():
 		_rounded_outline(flash_rect, Color(color, strength * 0.33), 3, 10)
 		_rounded_fill(Rect2(Vector2(-hw + 2.0, -hh + 2.0), Vector2(width_value - 4.0, height_value - 4.0)), Color(color, strength * 0.11), 5)
 		draw_circle(Vector2.ZERO, 4.0 + (1.0 - strength) * 8.0, Color(color, strength * 0.24))
+
+func _on_brick_exploded(explosion_position: Vector2):
+	var scene = get_tree().current_scene
+	if scene == null:
+		return
+
+	var flash = Node2D.new()
+	flash.set_script(EXPLOSION_FLASH_SCRIPT)
+	flash.global_position = explosion_position
+	scene.add_child.call_deferred(flash)
 
 func _exit_tree():
 	var brick = get_parent()
