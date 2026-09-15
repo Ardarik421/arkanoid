@@ -9,6 +9,7 @@ extends CanvasLayer
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
 
 var pause_panel: Panel
+var level_label: Label
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -27,27 +28,40 @@ func _setup_pause_style():
 	pause_overlay.move_child(pause_panel, 0)
 	pause_panel.set_anchors_preset(Control.PRESET_CENTER)
 	pause_panel.offset_left = -220.0
-	pause_panel.offset_top = -185.0
+	pause_panel.offset_top = -205.0
 	pause_panel.offset_right = 220.0
-	pause_panel.offset_bottom = 185.0
+	pause_panel.offset_bottom = 205.0
 	pause_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pause_panel.add_theme_stylebox_override("panel", _make_panel_style())
 
 	pause_menu.set_anchors_preset(Control.PRESET_CENTER)
 	pause_menu.offset_left = -175.0
-	pause_menu.offset_top = -120.0
+	pause_menu.offset_top = -145.0
 	pause_menu.offset_right = 175.0
-	pause_menu.offset_bottom = 120.0
+	pause_menu.offset_bottom = 145.0
 	pause_menu.custom_minimum_size = Vector2(350.0, 0.0)
 	pause_menu.add_theme_constant_override("separation", 18)
 
-	pause_title.custom_minimum_size = Vector2(0.0, 82.0)
+	pause_title.custom_minimum_size = Vector2(0.0, 72.0)
 	pause_title.add_theme_font_size_override("font_size", 44)
 	pause_title.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0, 1.0))
 	pause_title.add_theme_color_override("font_outline_color", Color(0.02, 0.16, 0.24, 1.0))
 	pause_title.add_theme_constant_override("outline_size", 6)
 	pause_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pause_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	level_label = Label.new()
+	level_label.name = "PauseLevel"
+	level_label.custom_minimum_size = Vector2(0.0, 38.0)
+	level_label.add_theme_font_size_override("font_size", 20)
+	level_label.add_theme_color_override("font_color", Color(0.48, 0.78, 0.94, 0.92))
+	level_label.add_theme_color_override("font_outline_color", Color(0.01, 0.08, 0.12, 1.0))
+	level_label.add_theme_constant_override("outline_size", 3)
+	level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pause_menu.add_child(level_label)
+	pause_menu.move_child(level_label, pause_title.get_index() + 1)
 
 	_style_button(continue_button)
 	_style_button(main_menu_button)
@@ -112,6 +126,9 @@ func resume_game():
 	hide_pause_menu()
 
 func show_pause_menu():
+	var main = get_parent()
+	if level_label != null and main != null:
+		level_label.text = "УРОВЕНЬ %d" % int(main.current_level)
 	visible = true
 	continue_button.grab_focus()
 

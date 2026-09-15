@@ -371,6 +371,15 @@ func stop_all_balls():
 			ball.is_attached = true
 
 func lose_life():
+	if $Paddle.has_method("play_life_loss_feedback"):
+		$Paddle.play_life_loss_feedback()
+
+	var feedback_script = load("res://scenes/life_loss_feedback.gd")
+	if feedback_script != null:
+		var feedback = Node2D.new()
+		feedback.set_script(feedback_script)
+		add_child(feedback)
+
 	lives -= 1
 	balls_lost_this_level += 1
 	update_lives_label()

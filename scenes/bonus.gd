@@ -170,10 +170,9 @@ func _draw_bonus_icon(accent: Color):
 			draw_line(Vector2(-4, 0), Vector2(4, 0), bright, 1.6, true)
 
 		BonusType.HYPER_BALL:
-			var star = PackedVector2Array([Vector2(0, -9), Vector2(2.5, -2.5), Vector2(8, 0), Vector2(2.5, 2.5), Vector2(0, 9), Vector2(-2.5, 2.5), Vector2(-8, 0), Vector2(-2.5, -2.5)])
-			draw_colored_polygon(star, Color(accent, 0.72))
-			draw_polyline(PackedVector2Array([star[0], star[1], star[2], star[3], star[4], star[5], star[6], star[7], star[0]]), bright, 1.1, true)
-			draw_circle(Vector2.ZERO, 2.2, bright)
+			for x in [-7.0, -1.0, 5.0]:
+				draw_polyline(PackedVector2Array([Vector2(x - 3, -6), Vector2(x + 2, 0), Vector2(x - 3, 6)]), glow, 2.2, true)
+			draw_line(Vector2(-10, 0), Vector2(9, 0), Color(bright, 0.82), 1.0, true)
 
 		BonusType.FAST_BALL:
 			for x in [-5.0, 1.0]:
@@ -223,7 +222,23 @@ func _process(delta):
 	if global_position.y > 1100:
 		queue_free()
 
+func _spawn_collect_feedback(body):
+	var flash_script = load("res://scenes/bonus_collect_flash.gd")
+	if flash_script == null:
+		return
+
+	var flash = Node2D.new()
+	flash.set_script(flash_script)
+	body.get_parent().add_child(flash)
+	flash.global_position = Vector2(global_position.x, body.global_position.y - 10.0)
+	if flash.has_method("setup"):
+		flash.setup(_get_bonus_color())
+
+	if body.has_method("play_bonus_feedback"):
+		body.play_bonus_feedback(_get_bonus_color())
+
 func _on_body_entered(body):
 	if body.name == "Paddle":
+		_spawn_collect_feedback(body)
 		collected.emit(bonus_type)
 		queue_free()

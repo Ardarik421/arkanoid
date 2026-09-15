@@ -2,12 +2,46 @@ extends Label
 
 @export var effect_kind: String = "piercing"
 
+const HUD_PRESENTER = preload("res://scenes/hud_presenter.gd")
+
 var time_left: float = 0.0
 var max_time: float = 1.0
 var accent: Color = Color.WHITE
 
 func _ready():
 	setup(effect_kind)
+	_setup_lower_hud()
+	_setup_top_hud()
+
+func _setup_lower_hud():
+	var effects_ui = get_parent()
+	if effects_ui is HBoxContainer:
+		effects_ui.offset_left = 205.0
+		effects_ui.offset_top = 1015.0
+		effects_ui.offset_right = 755.0
+		effects_ui.offset_bottom = 1061.0
+		effects_ui.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var main = effects_ui.get_parent()
+	if main != null:
+		var lives_label = main.get_node_or_null("LivesLabel")
+		if lives_label != null:
+			lives_label.visible = false
+
+func _setup_top_hud():
+	if effect_kind != "piercing":
+		return
+
+	var main = get_parent().get_parent()
+	if main == null:
+		return
+
+	if main.get_node_or_null("HUDPresenter") != null:
+		return
+
+	var presenter = HUD_PRESENTER.new()
+	presenter.name = "HUDPresenter"
+	main.add_child.call_deferred(presenter)
 
 func setup(kind: String):
 	effect_kind = kind
