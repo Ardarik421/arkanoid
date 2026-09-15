@@ -9,10 +9,13 @@ extends CharacterBody2D
 const BRICK_HIT_SOUND: AudioStream = preload("res://audio/sfx/brick_hit.wav")
 const PADDLE_HIT_SOUND: AudioStream = preload("res://audio/sfx/paddle_hit.wav")
 const WALL_HIT_SOUND: AudioStream = preload("res://audio/sfx/wall_hit.wav")
+const PIERCING_SOUND: AudioStream = preload("res://audio/sfx/piercing.wav")
 
 var brick_hit_player: AudioStreamPlayer
 var paddle_hit_player: AudioStreamPlayer
 var wall_hit_player: AudioStreamPlayer
+var piercing_player: AudioStreamPlayer
+var piercing_sound_cooldown: float = 0.0
 var direction := Vector2(0.7, -1.0).normalized()
 var is_attached: bool = true
 var is_piercing: bool = false
@@ -49,6 +52,11 @@ func _setup_audio():
 	wall_hit_player.stream = WALL_HIT_SOUND
 	wall_hit_player.volume_db = -7.0
 	add_child(wall_hit_player)
+	
+	piercing_player = AudioStreamPlayer.new()
+	piercing_player.stream = PIERCING_SOUND
+	piercing_player.volume_db = -6.0
+	add_child(piercing_player)
 
 func _play_brick_hit_sound():
 	if is_instance_valid(brick_hit_player):
@@ -61,6 +69,14 @@ func _play_paddle_hit_sound():
 func _play_wall_hit_sound():
 	if is_instance_valid(wall_hit_player):
 		wall_hit_player.play()
+
+func _play_piercing_sound():
+	if piercing_sound_cooldown > 0.0:
+		return
+
+	if is_instance_valid(piercing_player):
+		piercing_player.play()
+		piercing_sound_cooldown = 0.08
 
 func _draw():
 	var pulse = 0.88 + 0.12 * sin(visual_time * 5.0)
@@ -159,6 +175,7 @@ func _draw():
 			draw_line(p1, p2, Color(accent, 0.68), 1.4, true)
 
 func _physics_process(delta):
+	piercing_sound_cooldown = max(piercing_sound_cooldown - delta, 0.0)
 	visual_time += delta
 
 	if is_attached:
@@ -197,11 +214,11 @@ func _physics_process(delta):
 				bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
-			_play_brick_hit_sound()
-
 			if is_piercing:
+				_play_piercing_sound()
 				collider.destroy(is_explosive)
 			else:
+				_play_brick_hit_sound()
 				direction = direction.bounce(collision.get_normal())
 				collider.hit(is_explosive)
 

@@ -117,7 +117,9 @@ var active_balls: Array[CharacterBody2D] = []
 const BALL_SCENE = preload("res://scenes/ball.tscn")
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
 const LEVEL_AMBIENT: AudioStream = preload("res://audio/music/ambient_01.wav")
+const EXPLOSIVE_SOUND: AudioStream = preload("res://audio/sfx/explosive.wav")
 
+var explosive_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer
 
 var shield_active: bool = false
@@ -176,6 +178,7 @@ var pattern_sizes: Dictionary = {}
 
 func _ready():
 	_setup_ambient()
+	_setup_explosive_audio()
 	
 	set_shield_enabled(false)
 	active_balls.append($Ball)
@@ -206,6 +209,16 @@ func _setup_ambient():
 func _on_ambient_finished():
 	if is_instance_valid(ambient_player):
 		ambient_player.play()
+
+func _setup_explosive_audio():
+	explosive_player = AudioStreamPlayer.new()
+	explosive_player.stream = EXPLOSIVE_SOUND
+	explosive_player.volume_db = -3.0
+	add_child(explosive_player)
+
+func _play_explosive_sound():
+	if is_instance_valid(explosive_player):
+		explosive_player.play()
 
 func _process(_delta):
 		
@@ -596,6 +609,8 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 		show_victory()
 
 func _on_brick_exploded(explosion_position: Vector2):
+	_play_explosive_sound()
+	
 	var max_x_distance = brick_width + gap_x + 1.0
 	var max_y_distance = brick_height + gap_y + 1.0
 
