@@ -13,6 +13,8 @@ var use_mouse_control: bool = false
 var fixed_y: float
 var animation_time: float = 0.0
 var hit_feedback: float = 0.0
+var bonus_feedback: float = 0.0
+var bonus_feedback_color: Color = Color(0.30, 0.82, 1.0)
 
 func _ready():
 	fixed_y = global_position.y
@@ -21,6 +23,7 @@ func _ready():
 func _process(delta):
 	animation_time += delta
 	hit_feedback = move_toward(hit_feedback, 0.0, delta * 8.0)
+	bonus_feedback = move_toward(bonus_feedback, 0.0, delta * 4.8)
 	queue_redraw()
 
 func _rounded_box(rect: Rect2, fill: Color, border: Color, border_width: float, radius: int):
@@ -42,6 +45,7 @@ func _draw():
 	var pulse = 0.86 + 0.14 * sin(animation_time * 2.0)
 	var flow = fmod(animation_time * 34.0, max(1.0, visual_width - 42.0))
 	var impact = hit_feedback * hit_feedback
+	var bonus_glow = bonus_feedback * bonus_feedback
 
 	_rounded_box(Rect2(Vector2(-hw - 4.0, -hh - 4.0), Vector2(visual_width + 8.0, visual_height + 8.0)), Color(0, 0, 0, 0), Color(0.08, 0.62, 1.0, 0.055 * pulse + 0.12 * impact), 2.0, 13)
 	_rounded_box(Rect2(Vector2(-hw, -hh), Vector2(visual_width, visual_height)), Color(0.006, 0.018, 0.034, 0.82), Color(0.18, 0.76, 1.0, 0.92), 2.0, 11)
@@ -79,6 +83,12 @@ func _draw():
 		var wave_alpha = 0.46 * impact
 		draw_line(Vector2(-wave_half_width, -hh - 1.0), Vector2(wave_half_width, -hh - 1.0), Color(0.76, 0.97, 1.0, wave_alpha), 2.2, true)
 		draw_line(Vector2(-wave_half_width, -hh - 4.0), Vector2(wave_half_width, -hh - 4.0), Color(0.12, 0.68, 1.0, wave_alpha * 0.32), 4.5, true)
+
+	if bonus_glow > 0.01:
+		var bonus_width = lerp(hw * 0.20, hw * 0.92, 1.0 - bonus_feedback)
+		draw_line(Vector2(-bonus_width, -hh - 2.0), Vector2(bonus_width, -hh - 2.0), Color(bonus_feedback_color, 0.72 * bonus_glow), 3.0, true)
+		draw_line(Vector2(-bonus_width, 0.0), Vector2(bonus_width, 0.0), Color(bonus_feedback_color, 0.28 * bonus_glow), 6.0, true)
+		draw_circle(Vector2.ZERO, 7.0 + 8.0 * (1.0 - bonus_feedback), Color(bonus_feedback_color, 0.20 * bonus_glow))
 
 	var cap_width = 13.0
 	for side in [-1.0, 1.0]:
@@ -164,4 +174,9 @@ func set_width(new_width: float):
 
 func play_hit_feedback():
 	hit_feedback = 1.0
+	queue_redraw()
+
+func play_bonus_feedback(effect_color: Color):
+	bonus_feedback_color = effect_color
+	bonus_feedback = 1.0
 	queue_redraw()
