@@ -1,10 +1,10 @@
-extends CanvasLayer
+extends Node2D
 
 var age: float = 0.0
 var lifetime: float = 0.52
 
 func _ready():
-	layer = 90
+	z_index = 90
 
 func _process(delta):
 	age += delta
