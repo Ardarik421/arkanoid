@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://cuf060hyq23tq"
-path="res://.godot/imported/ambient_01.wav-96aca242133fb7a15066778177689d28.sample"
+uid="uid://1ojrj12c8ifc"
+path="res://.godot/imported/paddle_hit.wav-4ed30acac8cdfa3a2a3a7b3614235ed8.sample"
 
 [deps]
 
-source_file="res://audio/music/ambient_01.wav"
-dest_files=["res://.godot/imported/ambient_01.wav-96aca242133fb7a15066778177689d28.sample"]
+source_file="res://audio/sfx/paddle_hit.wav"
+dest_files=["res://.godot/imported/paddle_hit.wav-4ed30acac8cdfa3a2a3a7b3614235ed8.sample"]
 
 [params]
 
