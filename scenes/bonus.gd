@@ -222,7 +222,23 @@ func _process(delta):
 	if global_position.y > 1100:
 		queue_free()
 
+func _spawn_collect_feedback(body):
+	var flash_script = load("res://scenes/bonus_collect_flash.gd")
+	if flash_script == null:
+		return
+
+	var flash = Node2D.new()
+	flash.set_script(flash_script)
+	body.get_parent().add_child(flash)
+	flash.global_position = Vector2(global_position.x, body.global_position.y - 10.0)
+	if flash.has_method("setup"):
+		flash.setup(_get_bonus_color())
+
+	if body.has_method("play_bonus_feedback"):
+		body.play_bonus_feedback(_get_bonus_color())
+
 func _on_body_entered(body):
 	if body.name == "Paddle":
+		_spawn_collect_feedback(body)
 		collected.emit(bonus_type)
 		queue_free()
