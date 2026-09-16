@@ -23,39 +23,34 @@ mouse_filter = 2
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 205.0
-offset_top = 150.0
-offset_right = 755.0
-offset_bottom = 930.0
+offset_left = 190.0
+offset_top = 105.0
+offset_right = 770.0
+offset_bottom = 975.0
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 20
 
 [node name="Title" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 90)
-theme_override_colors/font_color = Color(0.88, 0.97, 1, 1)
-theme_override_font_sizes/font_size = 38
+custom_minimum_size = Vector2(0, 92)
 text = "НАСТРОЙКИ"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MusicToggle" type="CheckButton" parent="Panel/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 58)
-theme_override_font_sizes/font_size = 22
+custom_minimum_size = Vector2(0, 56)
 text = "МУЗЫКА"
 
 [node name="SoundsToggle" type="CheckButton" parent="Panel/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 58)
-theme_override_font_sizes/font_size = 22
+custom_minimum_size = Vector2(0, 56)
 text = "ЗВУКИ"
 
 [node name="MouseLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "ЧУВСТВИТЕЛЬНОСТЬ МЫШИ"
 
 [node name="MouseRow" type="HBoxContainer" parent="Panel/VBox"]
@@ -73,13 +68,12 @@ value = 1.0
 [node name="MouseValue" type="Label" parent="Panel/VBox/MouseRow"]
 custom_minimum_size = Vector2(72, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "100%"
 horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="KeyboardLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "СКОРОСТЬ КЛАВИАТУРЫ"
 
 [node name="KeyboardRow" type="HBoxContainer" parent="Panel/VBox"]
@@ -97,13 +91,12 @@ value = 1.0
 [node name="KeyboardValue" type="Label" parent="Panel/VBox/KeyboardRow"]
 custom_minimum_size = Vector2(72, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "100%"
 horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="GamepadLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "ЧУВСТВИТЕЛЬНОСТЬ ГЕЙМПАДА"
 
 [node name="GamepadRow" type="HBoxContainer" parent="Panel/VBox"]
@@ -121,21 +114,20 @@ value = 1.0
 [node name="GamepadValue" type="Label" parent="Panel/VBox/GamepadRow"]
 custom_minimum_size = Vector2(72, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "100%"
 horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Hint" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.68, 0.76, 1)
-theme_override_font_sizes/font_size = 16
+custom_minimum_size = Vector2(0, 58)
 text = "Диапазон: 50–200%\nНастройки сохраняются автоматически"
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BackButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
-theme_override_font_sizes/font_size = 22
 text = "НАЗАД"
 
 [connection signal="toggled" from="Panel/VBox/MusicToggle" to="." method="_on_music_toggled"]
