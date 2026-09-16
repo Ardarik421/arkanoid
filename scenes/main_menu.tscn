@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://scenes/settings_button.gd" id="2_settings"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -43,6 +44,13 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 70)
 theme_override_font_sizes/font_size = 28
 text = "ВЫБОР УРОВНЯ"
+
+[node name="SettingsButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 22
+text = "НАСТРОЙКИ"
+script = ExtResource("2_settings")
 
 [node name="ExitButton" type="Button" parent="Menu"]
 layout_mode = 2
