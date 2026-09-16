@@ -5,6 +5,7 @@ extends CharacterBody2D
 @export var max_bounce_angle: float = 50.0
 @export var aim_turn_speed: float = 75.0
 @export var aim_line_length: float = 560.0
+@export var min_vertical_direction: float = 0.22
 
 const BRICK_HIT_SOUND: AudioStream = preload("res://audio/sfx/brick_hit.wav")
 const PADDLE_HIT_SOUND: AudioStream = preload("res://audio/sfx/paddle_hit.wav")
@@ -197,6 +198,7 @@ func _physics_process(delta):
 			_play_paddle_hit_sound()
 			global_position.y = shield_y - radius
 			direction.y = -abs(direction.y)
+			_prevent_horizontal_lock()
 	
 	var collision = move_and_collide(direction * speed * delta)
 
@@ -221,13 +223,26 @@ func _physics_process(delta):
 			else:
 				_play_brick_hit_sound()
 				direction = direction.bounce(collision.get_normal())
+				_prevent_horizontal_lock()
 				collider.hit(is_explosive)
 
 		else:
 			_play_wall_hit_sound()
 			direction = direction.bounce(collision.get_normal())
+			_prevent_horizontal_lock()
 
 	_update_trail(false)
+
+func _prevent_horizontal_lock():
+	if abs(direction.y) >= min_vertical_direction:
+		return
+
+	var vertical_sign = sign(direction.y)
+	if vertical_sign == 0.0:
+		vertical_sign = -1.0
+
+	direction.y = min_vertical_direction * vertical_sign
+	direction = direction.normalized()
 
 func _update_trail(reset_trail: bool):
 	if reset_trail:
@@ -255,6 +270,7 @@ func bounce_from_paddle(paddle):
 		sin(angle),
 		-cos(angle)
 	).normalized()
+	_prevent_horizontal_lock()
 	is_attached = false
 
 func attach_to_paddle():
@@ -276,3 +292,4 @@ func launch():
 		sin(aim_angle),
 		-cos(aim_angle)
 	).normalized()
+	_prevent_horizontal_lock()
