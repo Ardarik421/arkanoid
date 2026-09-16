@@ -15,6 +15,7 @@ func _ready():
 	_ensure_audio_bus("SFX")
 	load_settings()
 	apply_audio_settings()
+	get_tree().node_added.connect(_on_node_added)
 
 func _process(delta):
 	_scan_timer -= delta
@@ -37,16 +38,23 @@ func apply_audio_settings():
 	if sfx_bus != -1:
 		AudioServer.set_bus_mute(sfx_bus, not sounds_enabled)
 
+func _on_node_added(node: Node):
+	if node is AudioStreamPlayer or node is AudioStreamPlayer2D:
+		_route_single_audio_player(node)
+
+func _route_single_audio_player(player: Node):
+	var stream = player.stream
+	if stream == null:
+		return
+	var path = stream.resource_path
+	if path.begins_with("res://audio/music/"):
+		player.bus = "Music"
+	elif path.begins_with("res://audio/sfx/"):
+		player.bus = "SFX"
+
 func _route_audio_players(node: Node):
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D:
-		var stream = node.stream
-		if stream != null:
-			var path = stream.resource_path
-			if path.begins_with("res://audio/music/"):
-				node.bus = "Music"
-			elif path.begins_with("res://audio/sfx/"):
-				node.bus = "SFX"
-
+		_route_single_audio_player(node)
 	for child in node.get_children():
 		_route_audio_players(child)
 
@@ -60,9 +68,10 @@ func _apply_paddle_settings():
 	if not paddle.has_meta("base_mouse_speed"):
 		paddle.set_meta("base_mouse_speed", paddle.mouse_speed)
 
-	var keyboard_input = abs(Input.get_axis("move_left", "move_right"))
-	var gamepad_input = abs(Input.get_joy_axis(0, JOY_AXIS_LEFT_X)) if Input.get_connected_joypads().size() > 0 else 0.0
-	var input_multiplier = gamepad_sensitivity if gamepad_input > keyboard_input else keyboard_sensitivity
+	var gamepad_input = 0.0
+	if Input.get_connected_joypads().size() > 0:
+		gamepad_input = abs(Input.get_joy_axis(Input.get_connected_joypads()[0], JOY_AXIS_LEFT_X))
+	var input_multiplier = gamepad_sensitivity if gamepad_input > 0.05 else keyboard_sensitivity
 
 	paddle.speed = float(paddle.get_meta("base_keyboard_speed")) * input_multiplier
 	paddle.mouse_speed = float(paddle.get_meta("base_mouse_speed")) * mouse_sensitivity
