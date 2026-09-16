@@ -2,8 +2,10 @@ extends Control
 
 const GAME_SCENE: String = "res://scenes/main.tscn"
 const LEVEL_SELECT_SCENE: String = "res://scenes/level_select.tscn"
+const MENU_MUSIC: AudioStream = preload("res://audio/music/menu_theme.wav")
 
 var animation_time: float = 0.0
+var menu_music_player: AudioStreamPlayer
 
 func _ready():
 	$Menu/ContinueButton.disabled = SaveManager.highest_unlocked_level <= 1
@@ -12,8 +14,21 @@ func _ready():
 	_setup_title()
 	_setup_buttons()
 	_setup_confirmation_dialog()
+	_setup_music()
 	$Menu/NewGameButton.grab_focus()
 	queue_redraw()
+
+func _setup_music():
+	menu_music_player = AudioStreamPlayer.new()
+	menu_music_player.stream = MENU_MUSIC
+	menu_music_player.volume_db = -5.0
+	menu_music_player.finished.connect(_on_menu_music_finished)
+	add_child(menu_music_player)
+	menu_music_player.play()
+
+func _on_menu_music_finished():
+	if is_instance_valid(menu_music_player):
+		menu_music_player.play()
 
 func _process(delta):
 	animation_time += delta
