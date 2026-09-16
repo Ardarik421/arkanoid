@@ -4,6 +4,8 @@ class_name Bonus
 
 signal collected(bonus_type: BonusType)
 
+const PICKUP_SOUND: AudioStream = preload("res://audio/sfx/bonus_pickup.wav")
+
 enum BonusType {
 	EXPAND_PADDLE,
 	SHRINK_PADDLE,
@@ -24,7 +26,6 @@ enum DropPool {
 }
 
 @export var bonus_type: BonusType = BonusType.EXPAND_PADDLE
-
 @export var fall_speed: float = 250.0
 @export var size: float = 28.0
 
@@ -60,41 +61,31 @@ func _ready():
 					BonusType.EXPAND_PADDLE,
 					BonusType.EXPAND_PADDLE,
 					BonusType.EXPAND_PADDLE,
-
 					BonusType.SHRINK_PADDLE,
 					BonusType.SHRINK_PADDLE,
 					BonusType.SHRINK_PADDLE,
-
 					BonusType.HYPER_BALL,
 					BonusType.HYPER_BALL,
 					BonusType.HYPER_BALL,
-
 					BonusType.FAST_BALL,
 					BonusType.FAST_BALL,
 					BonusType.FAST_BALL,
-
 					BonusType.SHIELD,
 					BonusType.SHIELD,
 					BonusType.SHIELD,
-
 					BonusType.MAGNET,
 					BonusType.MAGNET,
 					BonusType.MAGNET,
-
 					BonusType.EXTRA_LIFE,
 					BonusType.EXTRA_LIFE,
-
 					BonusType.SPLIT_BALLS,
 					BonusType.SPLIT_BALLS,
-
 					BonusType.PIERCING_BALL,
 					BonusType.EXPLOSIVE_BALL
 				]
-
 				bonus_type = bonus_pool.pick_random()
 
 	next_drop_pool = DropPool.ANY
-
 	queue_redraw()
 	body_entered.connect(_on_body_entered)
 
@@ -108,7 +99,6 @@ func _draw():
 
 	draw_circle(Vector2.ZERO, half + 5.0 + pulse * 1.5, Color(accent, 0.045 + pulse * 0.025))
 	draw_circle(Vector2.ZERO, half + 2.5, Color(accent, 0.06))
-
 	draw_rect(outer, Color(0.008, 0.015, 0.027))
 	draw_rect(middle, Color(0.045, 0.065, 0.09))
 	draw_rect(inner, Color(0.08, 0.105, 0.14))
@@ -142,7 +132,6 @@ func _get_bonus_color() -> Color:
 			return Color(0.20, 0.58, 1.0)
 		BonusType.MAGNET:
 			return Color(0.92, 0.24, 0.96)
-
 	return Color.WHITE
 
 func _draw_bonus_icon(accent: Color):
@@ -237,8 +226,18 @@ func _spawn_collect_feedback(body):
 	if body.has_method("play_bonus_feedback"):
 		body.play_bonus_feedback(_get_bonus_color())
 
+func _play_pickup_sound():
+	var player = AudioStreamPlayer.new()
+	player.stream = PICKUP_SOUND
+	player.volume_db = -4.0
+	player.bus = "SFX"
+	get_parent().add_child(player)
+	player.finished.connect(player.queue_free)
+	player.play()
+
 func _on_body_entered(body):
 	if body.name == "Paddle":
 		_spawn_collect_feedback(body)
+		_play_pickup_sound()
 		collected.emit(bonus_type)
 		queue_free()
