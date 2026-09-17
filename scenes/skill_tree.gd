@@ -50,7 +50,9 @@ func _setup_style():
 		for child in content.get_children():
 			if child is Button:
 				child.custom_minimum_size = Vector2(0, 58)
-				child.add_theme_font_size_override("font_size", 16)
+				child.add_theme_font_size_override("font_size", 15)
+		var duration_button: Button = content.get_node("Duration")
+		duration_button.custom_minimum_size = Vector2(0, 76)
 	$Margin/VBox/BackButton.add_theme_font_size_override("font_size", 19)
 	_style_back_button($Margin/VBox/BackButton)
 
@@ -60,10 +62,10 @@ func _make_card_style() -> StyleBoxFlat:
 	style.border_color = Color(0.20, 0.58, 0.78, 0.30)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(14)
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 14.0
-	style.content_margin_bottom = 16.0
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 12.0
+	style.content_margin_bottom = 12.0
 	style.shadow_color = Color(0, 0, 0, 0.48)
 	style.shadow_size = 9
 	return style
@@ -74,8 +76,8 @@ func _make_button_style(border: Color, background: Color, width: int) -> StyleBo
 	style.border_color = border
 	style.set_border_width_all(width)
 	style.set_corner_radius_all(10)
-	style.content_margin_left = 12.0
-	style.content_margin_right = 12.0
+	style.content_margin_left = 8.0
+	style.content_margin_right = 8.0
 	style.shadow_color = Color(0, 0, 0, 0.38)
 	style.shadow_size = 5
 	return style
@@ -119,7 +121,7 @@ func _set_gameplay_button(button: Button, rank: int, max_rank: int, description:
 	var complete := rank >= max_rank
 	var affordable := SaveManager.can_afford_skill()
 	button.disabled = complete or not affordable
-	button.text = description + ("    ✓" if complete else "    %d/%d     •  5 SP" % [rank, max_rank])
+	button.text = description + ("    ✓" if complete else "    %d/%d  •  5 SP" % [rank, max_rank])
 	_apply_node_style(button, complete, affordable and not complete)
 
 func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
@@ -130,11 +132,11 @@ func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
 	var available := prerequisite_met and SaveManager.can_afford_skill() and not complete
 	button.disabled = not available
 	if complete:
-		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   +%.1f сек   ✓" % [stars, rank * 0.5]
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n+%.1f сек   ✓" % [stars, rank * 0.5]
 	elif prerequisite_met:
-		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   +%.1f → +%.1f сек   • 5 SP" % [stars, rank * 0.5, (rank + 1) * 0.5]
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n+%.1f → +%.1f сек   •   5 SP" % [stars, rank * 0.5, (rank + 1) * 0.5]
 	else:
-		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   ЗАБЛОКИРОВАНО" % stars
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\nЗАБЛОКИРОВАНО" % stars
 	_apply_node_style(button, complete, available)
 
 func _explosive_text() -> String:
