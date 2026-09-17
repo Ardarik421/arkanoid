@@ -451,6 +451,10 @@ func return_to_main_menu():
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 func start_next_level():
+	if current_level >= 100:
+		return_to_main_menu()
+		return
+
 	current_level += 1
 	score_at_level_start = score
 	update_level_label()
@@ -509,11 +513,18 @@ func show_victory():
 	var bonus = get_level_bonus()
 
 	score += bonus
-	SaveManager.unlock_level(current_level + 1)
+
+	if not use_test_level:
+		SaveManager.unlock_level(current_level + 1)
+
 	update_score_label()
 	clear_bonuses()
 
-	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+	if current_level >= 100:
+		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — главное меню"
+	else:
+		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+
 	$WinLabel.visible = true
 
 	stop_all_balls()
