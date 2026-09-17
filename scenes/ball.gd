@@ -217,14 +217,18 @@ func _physics_process(delta):
 				bounce_from_paddle(collider)
 
 		elif collider.has_method("hit"):
-			if is_piercing:
+			var can_pierce := is_piercing and (not collider.indestructible or SaveManager.has_piercing_wall_break())
+			if can_pierce:
 				_play_piercing_sound()
-				collider.destroy(is_explosive)
+				collider.destroy(_can_explosive_instant_destroy(collider))
 			else:
 				_play_brick_hit_sound()
 				direction = direction.bounce(collision.get_normal())
 				_prevent_horizontal_lock()
-				collider.hit(is_explosive)
+				if _can_explosive_instant_destroy(collider):
+					collider.destroy(true)
+				else:
+					collider.hit(false)
 
 		else:
 			_play_wall_hit_sound()
@@ -232,6 +236,19 @@ func _physics_process(delta):
 			_prevent_horizontal_lock()
 
 	_update_trail(false)
+
+func _can_explosive_instant_destroy(collider) -> bool:
+	if not is_explosive:
+		return false
+
+	var explosive_power := SaveManager.get_explosive_power()
+	if collider.indestructible:
+		return explosive_power >= 3
+	if collider.max_health >= 3:
+		return explosive_power >= 2
+	if collider.max_health == 2:
+		return explosive_power >= 1
+	return true
 
 func _prevent_horizontal_lock():
 	if abs(direction.y) >= min_vertical_direction:
