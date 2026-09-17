@@ -17,9 +17,9 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 72.0
+offset_left = 34.0
 offset_top = 38.0
-offset_right = -72.0
+offset_right = -34.0
 offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -46,12 +46,12 @@ horizontal_alignment = 1
 [node name="Branches" type="GridContainer" parent="Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 22
+theme_override_constants/h_separation = 18
 theme_override_constants/v_separation = 18
 columns = 2
 
 [node name="Piercing" type="PanelContainer" parent="Margin/VBox/Branches"]
-custom_minimum_size = Vector2(390, 0)
+custom_minimum_size = Vector2(0, 205)
 layout_mode = 2
 size_flags_horizontal = 3
 [node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Piercing"]
@@ -60,7 +60,7 @@ theme_override_constants/separation = 8
 [node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
 [node name="Icon" type="Control" parent="Margin/VBox/Branches/Piercing/Content/Header"]
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 script = ExtResource("2")
 icon_type = "piercing"
@@ -72,10 +72,10 @@ layout_mode = 2
 text = "ТЁМНЫЕ СТЕНЫ ×5"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
-text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
 
 [node name="Explosive" type="PanelContainer" parent="Margin/VBox/Branches"]
-custom_minimum_size = Vector2(390, 0)
+custom_minimum_size = Vector2(0, 205)
 layout_mode = 2
 size_flags_horizontal = 3
 [node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Explosive"]
@@ -84,7 +84,7 @@ theme_override_constants/separation = 8
 [node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
 [node name="Icon" type="Control" parent="Margin/VBox/Branches/Explosive/Content/Header"]
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 script = ExtResource("2")
 icon_type = "explosive"
@@ -96,10 +96,10 @@ layout_mode = 2
 text = "I  МГНОВЕННО ×2"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
-text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
 
 [node name="Shield" type="PanelContainer" parent="Margin/VBox/Branches"]
-custom_minimum_size = Vector2(390, 0)
+custom_minimum_size = Vector2(0, 205)
 layout_mode = 2
 size_flags_horizontal = 3
 [node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Shield"]
@@ -108,7 +108,7 @@ theme_override_constants/separation = 8
 [node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
 [node name="Icon" type="Control" parent="Margin/VBox/Branches/Shield/Content/Header"]
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 script = ExtResource("2")
 icon_type = "shield"
@@ -117,13 +117,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 [node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
-text = "RETURN BOOST ×2"
+text = "ВОЗВРАТ ОТ ЩИТА ×2"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
-text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
 
 [node name="Magnet" type="PanelContainer" parent="Margin/VBox/Branches"]
-custom_minimum_size = Vector2(390, 0)
+custom_minimum_size = Vector2(0, 205)
 layout_mode = 2
 size_flags_horizontal = 3
 [node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Magnet"]
@@ -132,7 +132,7 @@ theme_override_constants/separation = 8
 [node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
 [node name="Icon" type="Control" parent="Margin/VBox/Branches/Magnet/Content/Header"]
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 script = ExtResource("2")
 icon_type = "magnet"
@@ -144,7 +144,7 @@ layout_mode = 2
 text = "I  КОРОТКИЙ ПРИЦЕЛ"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
-text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
 
 [node name="BackButton" type="Button" parent="Margin/VBox"]
 layout_mode = 2
