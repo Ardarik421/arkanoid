@@ -12,6 +12,7 @@ const PADDLE_HIT_SOUND: AudioStream = preload("res://audio/sfx/paddle_hit.wav")
 const WALL_HIT_SOUND: AudioStream = preload("res://audio/sfx/wall_hit.wav")
 const PIERCING_SOUND: AudioStream = preload("res://audio/sfx/piercing.wav")
 const SHIELD_RETURN_SPEED_MULTIPLIER: float = 2.0
+const MAGNET_SHORT_AIM_LENGTH: float = 280.0
 
 var brick_hit_player: AudioStreamPlayer
 var paddle_hit_player: AudioStreamPlayer
@@ -24,6 +25,7 @@ var is_piercing: bool = false
 var is_explosive: bool = false
 var shield_active: bool = false
 var magnet_active: bool = false
+var magnet_captured: bool = false
 var shield_return_boost_active: bool = false
 var shield_y: float = 1040.0
 var attached_offset_x: float = 0.0
@@ -94,11 +96,19 @@ func _draw():
 			if is_piercing: draw_line(local_a, local_b, Color(trail_core, alpha * 0.88), max(0.8, width * 0.46), true)
 			elif is_explosive: draw_line(local_a, local_b, Color(trail_core, alpha * 0.34), max(0.6, width * 0.28), true)
 	if is_attached:
-		var aim_angle = deg_to_rad(launch_aim_angle); var aim_direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized(); var aim_start_distance = radius + 8.0
-		var dash_length = 13.0; var gap_length = 17.0; var aim_alpha = 0.22 + 0.04 * sin(visual_time * 4.0); var distance = aim_start_distance
-		while distance < aim_line_length:
-			var segment_end = min(distance + dash_length, aim_line_length); var fade = 1.0 - 0.55 * (distance / aim_line_length); var dash_start = aim_direction * distance; var dash_end = aim_direction * segment_end
-			draw_line(dash_start, dash_end, Color(0.12, 0.66, 1.0, 0.055 * fade), 4.0, true); draw_line(dash_start, dash_end, Color(0.72, 0.95, 1.0, aim_alpha * fade), 1.0, true); distance += dash_length + gap_length
+		var current_aim_length := aim_line_length
+		if magnet_captured:
+			var magnet_aim_level := SaveManager.get_magnet_aim_level()
+			if magnet_aim_level <= 0:
+				current_aim_length = 0.0
+			elif magnet_aim_level == 1:
+				current_aim_length = MAGNET_SHORT_AIM_LENGTH
+		if current_aim_length > 0.0:
+			var aim_angle = deg_to_rad(launch_aim_angle); var aim_direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized(); var aim_start_distance = radius + 8.0
+			var dash_length = 13.0; var gap_length = 17.0; var aim_alpha = 0.22 + 0.04 * sin(visual_time * 4.0); var distance = aim_start_distance
+			while distance < current_aim_length:
+				var segment_end = min(distance + dash_length, current_aim_length); var fade = 1.0 - 0.55 * (distance / current_aim_length); var dash_start = aim_direction * distance; var dash_end = aim_direction * segment_end
+				draw_line(dash_start, dash_end, Color(0.12, 0.66, 1.0, 0.055 * fade), 4.0, true); draw_line(dash_start, dash_end, Color(0.72, 0.95, 1.0, aim_alpha * fade), 1.0, true); distance += dash_length + gap_length
 	draw_circle(Vector2.ZERO, radius + 9.0, Color(accent, 0.045 * pulse)); draw_circle(Vector2.ZERO, radius + 5.0, Color(accent, 0.10 * pulse)); draw_circle(Vector2.ZERO, radius + 2.0, Color(shell, 0.18))
 	draw_circle(Vector2.ZERO, radius, Color(0.008, 0.025, 0.045, 0.96)); draw_circle(Vector2.ZERO, radius - 1.2, Color(shell, 0.34)); draw_circle(Vector2(1.2, 1.6), radius - 3.0, Color(0.015, 0.10, 0.16, 0.58))
 	draw_circle(Vector2.ZERO, radius * 0.53, Color(energy, 0.22 * pulse)); draw_circle(Vector2.ZERO, radius * 0.35, Color(energy, 0.62)); draw_circle(Vector2.ZERO, radius * 0.19, core)
@@ -130,7 +140,7 @@ func _physics_process(delta):
 		if collider.name == "Paddle":
 			_play_paddle_hit_sound()
 			if collider.has_method("play_hit_feedback"): collider.play_hit_feedback()
-			if magnet_active: attach_to_paddle()
+			if magnet_active: attach_to_paddle(true)
 			else: bounce_from_paddle(collider)
 		elif collider.has_method("hit"):
 			shield_return_boost_active = false
@@ -168,13 +178,13 @@ func _update_trail(reset_trail: bool):
 
 func bounce_from_paddle(paddle):
 	var offset = global_position.x - paddle.global_position.x; var half_width = paddle.width / 2.0; var normalized_offset = clamp(offset / half_width, -1.0, 1.0); var angle = deg_to_rad(normalized_offset * max_bounce_angle)
-	direction = Vector2(sin(angle), -cos(angle)).normalized(); _prevent_horizontal_lock(); is_attached = false
+	direction = Vector2(sin(angle), -cos(angle)).normalized(); _prevent_horizontal_lock(); is_attached = false; magnet_captured = false
 
-func attach_to_paddle():
-	is_attached = true; shield_return_boost_active = false
+func attach_to_paddle(from_magnet: bool = false):
+	is_attached = true; magnet_captured = from_magnet; shield_return_boost_active = false
 	var paddle = get_parent().get_node("Paddle")
-	attached_offset_x = global_position.x - paddle.global_position.x; global_position.y = paddle.global_position.y - 40; _update_trail(true)
+	attached_offset_x = global_position.x - paddle.global_position.x; global_position.y = paddle.global_position.y - 40; _update_trail(true); queue_redraw()
 
 func launch():
-	is_attached = false; shield_return_boost_active = false; trail_points.clear(); trail_points.append(global_position)
-	var aim_angle = deg_to_rad(launch_aim_angle); direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized(); _prevent_horizontal_lock()
+	is_attached = false; magnet_captured = false; shield_return_boost_active = false; trail_points.clear(); trail_points.append(global_position)
+	var aim_angle = deg_to_rad(launch_aim_angle); direction = Vector2(sin(aim_angle), -cos(aim_angle)).normalized(); _prevent_horizontal_lock(); queue_redraw()
