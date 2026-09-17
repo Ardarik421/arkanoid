@@ -327,6 +327,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.is_explosive = source_ball.is_explosive
 	new_ball.shield_active = shield_active
 	new_ball.magnet_active = magnet_active
+	new_ball.shield_return_boost_active = source_ball.shield_return_boost_active
 	new_ball.is_attached = false
 
 	for ball in active_balls:
