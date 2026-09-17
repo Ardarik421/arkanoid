@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/skill_tree.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/skill_bonus_icon.gd" id="2"]
 
 [node name="SkillTree" type="Control"]
 layout_mode = 3
@@ -26,19 +27,16 @@ grow_vertical = 2
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
 theme_override_constants/separation = 12
-
 [node name="Title" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 text = "SKILL TREE"
 horizontal_alignment = 1
-
 [node name="Header" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
 alignment = 1
 [node name="SPLabel" type="Label" parent="Margin/VBox/Header"]
 layout_mode = 2
 text = "SP: 0"
-
 [node name="StatusLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 26)
@@ -52,77 +50,113 @@ theme_override_constants/h_separation = 22
 theme_override_constants/v_separation = 18
 columns = 2
 
-[node name="Piercing" type="VBoxContainer" parent="Margin/VBox/Branches"]
+[node name="Piercing" type="PanelContainer" parent="Margin/VBox/Branches"]
 custom_minimum_size = Vector2(390, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-[node name="Title" type="Label" parent="Margin/VBox/Branches/Piercing"]
+[node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Piercing"]
 layout_mode = 2
-text = "PIERCING"
-horizontal_alignment = 1
-[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Piercing"]
+theme_override_constants/separation = 8
+[node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Piercing/Content"]
+layout_mode = 2
+[node name="Icon" type="Control" parent="Margin/VBox/Branches/Piercing/Content/Header"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+script = ExtResource("2")
+icon_type = "piercing"
+[node name="Spacer" type="Control" parent="Margin/VBox/Branches/Piercing/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
 text = "ТЁМНЫЕ СТЕНЫ ×5"
-[node name="Duration" type="Button" parent="Margin/VBox/Branches/Piercing"]
+[node name="Duration" type="Button" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
-text = "DURATION ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
 
-[node name="Explosive" type="VBoxContainer" parent="Margin/VBox/Branches"]
+[node name="Explosive" type="PanelContainer" parent="Margin/VBox/Branches"]
 custom_minimum_size = Vector2(390, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-[node name="Title" type="Label" parent="Margin/VBox/Branches/Explosive"]
+[node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Explosive"]
 layout_mode = 2
-text = "EXPLOSIVE"
-horizontal_alignment = 1
-[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Explosive"]
+theme_override_constants/separation = 8
+[node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Explosive/Content"]
+layout_mode = 2
+[node name="Icon" type="Control" parent="Margin/VBox/Branches/Explosive/Content/Header"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+script = ExtResource("2")
+icon_type = "explosive"
+[node name="Spacer" type="Control" parent="Margin/VBox/Branches/Explosive/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
 text = "I  МГНОВЕННО ×2"
-[node name="Duration" type="Button" parent="Margin/VBox/Branches/Explosive"]
+[node name="Duration" type="Button" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
-text = "DURATION ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
 
-[node name="Shield" type="VBoxContainer" parent="Margin/VBox/Branches"]
+[node name="Shield" type="PanelContainer" parent="Margin/VBox/Branches"]
 custom_minimum_size = Vector2(390, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-[node name="Title" type="Label" parent="Margin/VBox/Branches/Shield"]
+[node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Shield"]
 layout_mode = 2
-text = "SHIELD"
-horizontal_alignment = 1
-[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Shield"]
+theme_override_constants/separation = 8
+[node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Shield/Content"]
+layout_mode = 2
+[node name="Icon" type="Control" parent="Margin/VBox/Branches/Shield/Content/Header"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+script = ExtResource("2")
+icon_type = "shield"
+[node name="Spacer" type="Control" parent="Margin/VBox/Branches/Shield/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
 text = "RETURN BOOST ×2"
-[node name="Duration" type="Button" parent="Margin/VBox/Branches/Shield"]
+[node name="Duration" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
-text = "DURATION ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
 
-[node name="Magnet" type="VBoxContainer" parent="Margin/VBox/Branches"]
+[node name="Magnet" type="PanelContainer" parent="Margin/VBox/Branches"]
 custom_minimum_size = Vector2(390, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-[node name="Title" type="Label" parent="Margin/VBox/Branches/Magnet"]
+[node name="Content" type="VBoxContainer" parent="Margin/VBox/Branches/Magnet"]
 layout_mode = 2
-text = "MAGNET"
-horizontal_alignment = 1
-[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Magnet"]
+theme_override_constants/separation = 8
+[node name="Header" type="HBoxContainer" parent="Margin/VBox/Branches/Magnet/Content"]
+layout_mode = 2
+[node name="Icon" type="Control" parent="Margin/VBox/Branches/Magnet/Content/Header"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+script = ExtResource("2")
+icon_type = "magnet"
+[node name="Spacer" type="Control" parent="Margin/VBox/Branches/Magnet/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
 text = "I  КОРОТКИЙ ПРИЦЕЛ"
-[node name="Duration" type="Button" parent="Margin/VBox/Branches/Magnet"]
+[node name="Duration" type="Button" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
-text = "DURATION ☆☆☆☆☆"
+text = "ПРОДОЛЖИТЕЛЬНОСТЬ ☆☆☆☆☆"
 
 [node name="BackButton" type="Button" parent="Margin/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 54)
 text = "НАЗАД"
 
-[connection signal="pressed" from="Margin/VBox/Branches/Piercing/Gameplay" to="." method="_on_piercing_gameplay_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Piercing/Duration" to="." method="_on_piercing_duration_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Explosive/Gameplay" to="." method="_on_explosive_gameplay_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Explosive/Duration" to="." method="_on_explosive_duration_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Shield/Gameplay" to="." method="_on_shield_gameplay_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Shield/Duration" to="." method="_on_shield_duration_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Magnet/Gameplay" to="." method="_on_magnet_gameplay_pressed"]
-[connection signal="pressed" from="Margin/VBox/Branches/Magnet/Duration" to="." method="_on_magnet_duration_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Piercing/Content/Gameplay" to="." method="_on_piercing_gameplay_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Piercing/Content/Duration" to="." method="_on_piercing_duration_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Explosive/Content/Gameplay" to="." method="_on_explosive_gameplay_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Explosive/Content/Duration" to="." method="_on_explosive_duration_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Shield/Content/Gameplay" to="." method="_on_shield_gameplay_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Shield/Content/Duration" to="." method="_on_shield_duration_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Magnet/Content/Gameplay" to="." method="_on_magnet_gameplay_pressed"]
+[connection signal="pressed" from="Margin/VBox/Branches/Magnet/Content/Duration" to="." method="_on_magnet_duration_pressed"]
 [connection signal="pressed" from="Margin/VBox/BackButton" to="." method="_on_back_pressed"]
