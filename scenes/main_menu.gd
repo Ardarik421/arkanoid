@@ -1,6 +1,7 @@
 extends Control
 
 const GAME_SCENE: String = "res://scenes/main.tscn"
+const SKILL_TREE_SCENE: String = "res://scenes/skill_tree.tscn"
 const LEVEL_SELECT_SCENE: String = "res://scenes/level_select.tscn"
 const MENU_MUSIC: AudioStream = preload("res://audio/music/menu_theme.wav")
 
@@ -175,6 +176,7 @@ func _setup_buttons():
 		$Menu/NewGameButton,
 		$Menu/ContinueButton,
 		$Menu/LevelSelectButton,
+		$Menu/SkillTreeButton,
 		$Menu/ExitButton
 	]:
 		_style_button(button)
@@ -233,6 +235,9 @@ func _on_continue_pressed():
 
 func _on_level_select_pressed():
 	get_tree().change_scene_to_file(LEVEL_SELECT_SCENE)
+
+func _on_skill_tree_pressed():
+	get_tree().change_scene_to_file(SKILL_TREE_SCENE)
 
 func _on_exit_pressed():
 	get_tree().quit()

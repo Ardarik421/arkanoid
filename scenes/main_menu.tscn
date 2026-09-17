@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://ccm6qhcbu8hbl"]
 
-[ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_menu"]
-[ext_resource type="Script" path="res://scenes/settings_button.gd" id="2_settings"]
+[ext_resource type="Script" uid="uid://6bwg3lkbdhgw" path="res://scenes/main_menu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://ec0rlqcqlujy" path="res://scenes/settings_button.gd" id="2_settings"]
 
-[node name="MainMenu" type="Control"]
+[node name="MainMenu" type="Control" unique_id=869006874]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
 
-[node name="Menu" type="VBoxContainer" parent="."]
+[node name="Menu" type="VBoxContainer" parent="." unique_id=2108249694]
 layout_mode = 0
 offset_left = 280.0
 offset_top = 260.0
@@ -21,50 +21,51 @@ offset_bottom = 820.0
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="Title" type="Label" parent="Menu"]
+[node name="Title" type="Label" parent="Menu" unique_id=1896189584]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "ARKANOID"
 horizontal_alignment = 1
 
-[node name="NewGameButton" type="Button" parent="Menu"]
-layout_mode = 2
+[node name="NewGameButton" type="Button" parent="Menu" unique_id=1993884140]
 custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "НОВАЯ ИГРА"
 
-[node name="ContinueButton" type="Button" parent="Menu"]
-layout_mode = 2
+[node name="ContinueButton" type="Button" parent="Menu" unique_id=483247059]
 custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "ПРОДОЛЖИТЬ"
 
-[node name="LevelSelectButton" type="Button" parent="Menu"]
-layout_mode = 2
+[node name="LevelSelectButton" type="Button" parent="Menu" unique_id=209105793]
 custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "ВЫБОР УРОВНЯ"
 
-[node name="SettingsButton" type="Button" parent="Menu"]
-layout_mode = 2
+[node name="SettingsButton" type="Button" parent="Menu" unique_id=1081764988]
 custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "НАСТРОЙКИ"
 script = ExtResource("2_settings")
 
-[node name="ExitButton" type="Button" parent="Menu"]
-layout_mode = 2
+[node name="ExitButton" type="Button" parent="Menu" unique_id=134378334]
 custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "ВЫХОД"
 
-[node name="NewGameConfirmation" type="ConfirmationDialog" parent="."]
+[node name="NewGameConfirmation" type="ConfirmationDialog" parent="." unique_id=1265121688]
 title = "НОВАЯ ИГРА"
 initial_position = 2
 size = Vector2i(520, 220)
 ok_button_text = "ДА"
+dialog_text = "Начать новую игру?
+Текущий прогресс будет удалён."
 cancel_button_text = "НЕТ"
-dialog_text = "Начать новую игру?\nТекущий прогресс будет удалён."
 
 [connection signal="pressed" from="Menu/NewGameButton" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
