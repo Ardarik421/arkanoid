@@ -9,7 +9,7 @@ var animation_time: float = 0.0
 func _ready():
 	_setup_style()
 	_refresh()
-	$Margin/VBox/Branches/Piercing/Gameplay.grab_focus()
+	$Margin/VBox/Branches/Piercing/Content/Gameplay.grab_focus()
 	queue_redraw()
 
 func _process(delta):
@@ -44,16 +44,29 @@ func _setup_style():
 	status_label.add_theme_font_size_override("font_size", 16)
 	status_label.add_theme_color_override("font_color", Color(0.50, 0.72, 0.82))
 	for branch in $Margin/VBox/Branches.get_children():
-		branch.add_theme_constant_override("separation", 8)
-		var title: Label = branch.get_node("Title")
-		title.add_theme_font_size_override("font_size", 21)
-		title.add_theme_color_override("font_color", Color(0.72, 0.90, 0.98))
-		for child in branch.get_children():
+		branch.add_theme_stylebox_override("panel", _make_card_style())
+		var content: VBoxContainer = branch.get_node("Content")
+		content.add_theme_constant_override("separation", 8)
+		for child in content.get_children():
 			if child is Button:
 				child.custom_minimum_size = Vector2(0, 58)
 				child.add_theme_font_size_override("font_size", 16)
 	$Margin/VBox/BackButton.add_theme_font_size_override("font_size", 19)
 	_style_back_button($Margin/VBox/BackButton)
+
+func _make_card_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.006, 0.020, 0.032, 0.88)
+	style.border_color = Color(0.20, 0.58, 0.78, 0.30)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(14)
+	style.content_margin_left = 16.0
+	style.content_margin_right = 16.0
+	style.content_margin_top = 14.0
+	style.content_margin_bottom = 16.0
+	style.shadow_color = Color(0, 0, 0, 0.48)
+	style.shadow_size = 9
+	return style
 
 func _make_button_style(border: Color, background: Color, width: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -88,25 +101,25 @@ func _style_back_button(button: Button):
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.38, 0.84, 1.0, 0.88), Color(0.020, 0.075, 0.105, 0.90), 2))
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.46, 0.88, 1.0, 0.96), Color(0.018, 0.062, 0.090, 0.92), 2))
 
+func _node(branch: String, node_name: String) -> Button:
+	return get_node("Margin/VBox/Branches/%s/Content/%s" % [branch, node_name]) as Button
+
 func _refresh():
 	sp_label.text = "%d SP     •     УЛУЧШЕНИЕ: %d SP" % [SaveManager.skill_points, SaveManager.SKILL_COST]
-	_set_gameplay_button($Margin/VBox/Branches/Piercing/Gameplay, SaveManager.piercing_gameplay, 1, "ТЁМНЫЕ СТЕНЫ ×5")
-	_set_duration_button($Margin/VBox/Branches/Piercing/Duration, SaveManager.piercing_duration, SaveManager.piercing_gameplay >= 1)
-	_set_gameplay_button($Margin/VBox/Branches/Explosive/Gameplay, SaveManager.explosive_gameplay, 3, _explosive_text())
-	_set_duration_button($Margin/VBox/Branches/Explosive/Duration, SaveManager.explosive_duration, SaveManager.explosive_gameplay >= 3)
-	_set_gameplay_button($Margin/VBox/Branches/Shield/Gameplay, SaveManager.shield_gameplay, 1, "RETURN BOOST ×2")
-	_set_duration_button($Margin/VBox/Branches/Shield/Duration, SaveManager.shield_duration, SaveManager.shield_gameplay >= 1)
-	_set_gameplay_button($Margin/VBox/Branches/Magnet/Gameplay, SaveManager.magnet_gameplay, 2, _magnet_text())
-	_set_duration_button($Margin/VBox/Branches/Magnet/Duration, SaveManager.magnet_duration, SaveManager.magnet_gameplay >= 2)
+	_set_gameplay_button(_node("Piercing", "Gameplay"), SaveManager.piercing_gameplay, 1, "ТЁМНЫЕ СТЕНЫ ×5")
+	_set_duration_button(_node("Piercing", "Duration"), SaveManager.piercing_duration, SaveManager.piercing_gameplay >= 1)
+	_set_gameplay_button(_node("Explosive", "Gameplay"), SaveManager.explosive_gameplay, 3, _explosive_text())
+	_set_duration_button(_node("Explosive", "Duration"), SaveManager.explosive_duration, SaveManager.explosive_gameplay >= 3)
+	_set_gameplay_button(_node("Shield", "Gameplay"), SaveManager.shield_gameplay, 1, "ВОЗВРАТ ОТ ЩИТА ×2")
+	_set_duration_button(_node("Shield", "Duration"), SaveManager.shield_duration, SaveManager.shield_gameplay >= 1)
+	_set_gameplay_button(_node("Magnet", "Gameplay"), SaveManager.magnet_gameplay, 2, _magnet_text())
+	_set_duration_button(_node("Magnet", "Duration"), SaveManager.magnet_duration, SaveManager.magnet_gameplay >= 2)
 
 func _set_gameplay_button(button: Button, rank: int, max_rank: int, description: String):
 	var complete := rank >= max_rank
 	var affordable := SaveManager.can_afford_skill()
 	button.disabled = complete or not affordable
-	if complete:
-		button.text = description + "    ✓"
-	else:
-		button.text = description + "    %d/%d     •  5 SP" % [rank, max_rank]
+	button.text = description + ("    ✓" if complete else "    %d/%d     •  5 SP" % [rank, max_rank])
 	_apply_node_style(button, complete, affordable and not complete)
 
 func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
@@ -117,11 +130,11 @@ func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
 	var available := prerequisite_met and SaveManager.can_afford_skill() and not complete
 	button.disabled = not available
 	if complete:
-		button.text = "DURATION   %s     +%.1f сек   ✓" % [stars, rank * 0.5]
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   +%.1f сек   ✓" % [stars, rank * 0.5]
 	elif prerequisite_met:
-		button.text = "DURATION   %s     +%.1f → +%.1f сек   • 5 SP" % [stars, rank * 0.5, (rank + 1) * 0.5]
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   +%.1f → +%.1f сек   • 5 SP" % [stars, rank * 0.5, (rank + 1) * 0.5]
 	else:
-		button.text = "DURATION   %s     ЗАБЛОКИРОВАНО" % stars
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s   ЗАБЛОКИРОВАНО" % stars
 	_apply_node_style(button, complete, available)
 
 func _explosive_text() -> String:
@@ -136,19 +149,17 @@ func _magnet_text() -> String:
 	return "II  ДАЛЬНИЙ ПРИЦЕЛ"
 
 func _purchase(callable: Callable, success_text: String):
-	if callable.call():
-		status_label.text = success_text
-	else:
-		status_label.text = "Улучшение сейчас недоступно."
+	if callable.call(): status_label.text = success_text
+	else: status_label.text = "Улучшение сейчас недоступно."
 	_refresh()
 
 func _on_piercing_gameplay_pressed(): _purchase(SaveManager.purchase_piercing_gameplay, "PIERCING улучшен.")
-func _on_piercing_duration_pressed(): _purchase(SaveManager.purchase_piercing_duration, "PIERCING: длительность увеличена.")
+func _on_piercing_duration_pressed(): _purchase(SaveManager.purchase_piercing_duration, "PIERCING: продолжительность увеличена.")
 func _on_explosive_gameplay_pressed(): _purchase(SaveManager.purchase_explosive_gameplay, "EXPLOSIVE улучшен.")
-func _on_explosive_duration_pressed(): _purchase(SaveManager.purchase_explosive_duration, "EXPLOSIVE: длительность увеличена.")
+func _on_explosive_duration_pressed(): _purchase(SaveManager.purchase_explosive_duration, "EXPLOSIVE: продолжительность увеличена.")
 func _on_shield_gameplay_pressed(): _purchase(SaveManager.purchase_shield_gameplay, "SHIELD улучшен.")
-func _on_shield_duration_pressed(): _purchase(SaveManager.purchase_shield_duration, "SHIELD: длительность увеличена.")
+func _on_shield_duration_pressed(): _purchase(SaveManager.purchase_shield_duration, "SHIELD: продолжительность увеличена.")
 func _on_magnet_gameplay_pressed(): _purchase(SaveManager.purchase_magnet_gameplay, "MAGNET улучшен.")
-func _on_magnet_duration_pressed(): _purchase(SaveManager.purchase_magnet_duration, "MAGNET: длительность увеличена.")
+func _on_magnet_duration_pressed(): _purchase(SaveManager.purchase_magnet_duration, "MAGNET: продолжительность увеличена.")
 func _on_back_pressed(): _back_to_menu()
 func _back_to_menu(): get_tree().change_scene_to_file(MAIN_MENU_SCENE)
