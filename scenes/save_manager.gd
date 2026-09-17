@@ -3,6 +3,7 @@ extends Node
 const SAVE_PATH: String = "user://progress.save"
 const SKILL_COST: int = 5
 const MAX_DURATION_RANK: int = 5
+const MAX_LEVEL: int = 100
 
 var highest_unlocked_level: int = 1
 var highest_completed_level: int = 0
@@ -24,7 +25,6 @@ func _ready():
 
 func save_progress():
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-
 	if file == null:
 		return
 
@@ -41,36 +41,31 @@ func save_progress():
 		"magnet_gameplay": magnet_gameplay,
 		"magnet_duration": magnet_duration
 	}
-
 	file.store_string(JSON.stringify(data))
 
 func load_progress():
 	_reset_progress_values()
-
 	if not FileAccess.file_exists(SAVE_PATH):
 		return
 
 	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
-
 	if file == null:
 		return
 
 	var data = JSON.parse_string(file.get_as_text())
-
 	if not data is Dictionary:
 		return
 
-	highest_unlocked_level = max(int(data.get("highest_unlocked_level", 1)), 1)
+	highest_unlocked_level = clampi(int(data.get("highest_unlocked_level", 1)), 1, MAX_LEVEL)
 
-	# Saves created before skill progression only contain highest_unlocked_level.
-	# Treat every level before it as completed and grant the SP that would have
-	# been earned by progressing normally.
+	# Legacy saves only stored highest_unlocked_level. Levels before it were
+	# necessarily completed, so grant the SP they would have earned.
 	var is_legacy_save := not data.has("highest_completed_level")
 	if is_legacy_save:
 		highest_completed_level = max(highest_unlocked_level - 1, 0)
 		skill_points = highest_completed_level
 	else:
-		highest_completed_level = max(int(data.get("highest_completed_level", 0)), 0)
+		highest_completed_level = clampi(int(data.get("highest_completed_level", 0)), 0, MAX_LEVEL)
 		skill_points = max(int(data.get("skill_points", 0)), 0)
 
 	piercing_gameplay = clampi(int(data.get("piercing_gameplay", 0)), 0, 1)
@@ -86,6 +81,7 @@ func load_progress():
 		save_progress()
 
 func complete_level(level: int) -> bool:
+	level = clampi(level, 1, MAX_LEVEL)
 	if level <= highest_completed_level:
 		return false
 
@@ -95,10 +91,15 @@ func complete_level(level: int) -> bool:
 	return true
 
 func unlock_level(level: int):
-	if level <= highest_unlocked_level:
+	# main.gd calls unlock_level(current_level + 1) on victory. Keep that API
+	# compatible while using the same event to record the completed level.
+	complete_level(level - 1)
+
+	var unlocked_level := clampi(level, 1, MAX_LEVEL)
+	if unlocked_level <= highest_unlocked_level:
 		return
 
-	highest_unlocked_level = level
+	highest_unlocked_level = unlocked_level
 	save_progress()
 
 func can_afford_skill() -> bool:
