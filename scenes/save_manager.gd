@@ -60,7 +60,7 @@ func load_progress():
 
 	# Legacy saves only stored highest_unlocked_level. Levels before it were
 	# necessarily completed, so grant the SP they would have earned.
-	var is_legacy_save := not data.has("highest_completed_level")
+	var is_legacy_save: bool = not data.has("highest_completed_level")
 	if is_legacy_save:
 		highest_completed_level = max(highest_unlocked_level - 1, 0)
 		skill_points = highest_completed_level

@@ -144,7 +144,7 @@ func _physics_process(delta):
 			else: bounce_from_paddle(collider)
 		elif collider.has_method("hit"):
 			shield_return_boost_active = false
-			var can_pierce := is_piercing and (not collider.indestructible or SaveManager.has_piercing_wall_break())
+			var can_pierce: bool = is_piercing and (not collider.indestructible or SaveManager.has_piercing_wall_break())
 			if can_pierce:
 				_play_piercing_sound(); collider.destroy(_can_explosive_instant_destroy(collider))
 			else:
