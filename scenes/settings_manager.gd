@@ -4,6 +4,8 @@ const SETTINGS_PATH := "user://settings.cfg"
 
 var music_enabled: bool = true
 var sounds_enabled: bool = true
+var tutorial_hints_enabled: bool = true
+var seen_bonus_hints: Dictionary = {}
 var keyboard_sensitivity: float = 1.0
 var mouse_sensitivity: float = 1.0
 var gamepad_sensitivity: float = 1.0
@@ -80,6 +82,8 @@ func save_settings():
 	var config = ConfigFile.new()
 	config.set_value("audio", "music_enabled", music_enabled)
 	config.set_value("audio", "sounds_enabled", sounds_enabled)
+	config.set_value("tutorial", "hints_enabled", tutorial_hints_enabled)
+	config.set_value("tutorial", "seen_bonus_hints", seen_bonus_hints)
 	config.set_value("controls", "keyboard_sensitivity", keyboard_sensitivity)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("controls", "gamepad_sensitivity", gamepad_sensitivity)
@@ -93,6 +97,15 @@ func load_settings():
 
 	music_enabled = bool(config.get_value("audio", "music_enabled", true))
 	sounds_enabled = bool(config.get_value("audio", "sounds_enabled", true))
+	tutorial_hints_enabled = bool(config.get_value("tutorial", "hints_enabled", true))
+	seen_bonus_hints = config.get_value("tutorial", "seen_bonus_hints", {}) as Dictionary
 	keyboard_sensitivity = float(config.get_value("controls", "keyboard_sensitivity", 1.0))
 	mouse_sensitivity = float(config.get_value("controls", "mouse_sensitivity", 1.0))
 	gamepad_sensitivity = float(config.get_value("controls", "gamepad_sensitivity", 1.0))
+
+func should_show_bonus_hint(bonus_type: int) -> bool:
+	return tutorial_hints_enabled and not seen_bonus_hints.has(str(bonus_type))
+
+func mark_bonus_hint_seen(bonus_type: int) -> void:
+	seen_bonus_hints[str(bonus_type)] = true
+	save_settings()
