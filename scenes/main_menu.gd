@@ -42,6 +42,8 @@ func _draw():
 	_draw_menu_nebula(viewport_size)
 	_draw_menu_stars(viewport_size, pulse)
 	_draw_menu_planet(viewport_size, pulse)
+	_draw_menu_moon(viewport_size, pulse)
+	_draw_menu_orbit_dust(viewport_size, pulse)
 	_draw_menu_sun(viewport_size, pulse)
 	var panel_rect := Rect2(Vector2(247.0, 318.0), Vector2(466.0, 555.0))
 	draw_style_box(_make_panel_style(), panel_rect)
@@ -82,6 +84,29 @@ func _draw_menu_planet(viewport_size: Vector2, pulse: float) -> void:
 	draw_arc(center,radius,-1.55,1.05,128,Color(1.0,0.88,0.46,0.82+pulse*0.08),4.0,true)
 	draw_arc(center,radius+10,-1.62,1.12,128,Color(1.0,0.68,0.18,0.28),10.0,true)
 
+func _draw_menu_moon(viewport_size: Vector2, pulse: float) -> void:
+	var center:=Vector2(viewport_size.x*0.78,viewport_size.y*0.73)
+	var radius:=46.0
+	for i in range(5,0,-1):
+		draw_circle(center,radius+float(i)*8,Color(1.0,0.70,0.20,0.004*float(i)))
+	draw_circle(center,radius,Color(0.045,0.052,0.058,0.96))
+	draw_circle(center+Vector2(-12,8),radius*0.72,Color(0.012,0.018,0.025,0.68))
+	for i in range(6):
+		var a:=float(i)*2.2
+		var p:=center+Vector2(cos(a),sin(a))*(10.0+float((i*11)%25))
+		draw_circle(p,2.5+float(i%2)*1.8,Color(0.16,0.14,0.10,0.38))
+	draw_arc(center,radius,-1.48,1.55,48,Color(1.0,0.82,0.42,0.48+pulse*0.10),1.7,true)
+
+func _draw_menu_orbit_dust(viewport_size: Vector2, pulse: float) -> void:
+	for i in range(28):
+		var t:=float(i)/27.0
+		var x:=viewport_size.x*0.12+t*viewport_size.x*0.88
+		var y:=viewport_size.y*0.78-t*viewport_size.y*0.36+sin(float(i)*1.8)*18.0
+		var r:=0.7+float(i%4)*0.42
+		draw_circle(Vector2(x,y),r,Color(1.0,0.72,0.28,0.07+pulse*0.035))
+		if i%7==0:
+			draw_line(Vector2(x-5,y),Vector2(x+5,y),Color(1.0,0.82,0.44,0.09),1.0,true)
+
 func _draw_menu_sun(viewport_size: Vector2, pulse: float) -> void:
 	var p:=Vector2(viewport_size.x*0.86,145.0)
 	for i in range(9,0,-1):
@@ -101,7 +126,7 @@ func _make_panel_style() -> StyleBoxFlat:
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(18)
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
-	style.shadow_size = 18
+	style.shadow_size = 22
 	return style
 
 func _setup_layout():
@@ -118,7 +143,10 @@ func _setup_title():
 	title.add_theme_font_size_override("font_size", 42)
 	title.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.24, 0.12, 0.02, 0.95))
-	title.add_theme_constant_override("outline_size", 6)
+	title.add_theme_constant_override("outline_size", 7)
+	title.add_theme_constant_override("shadow_offset_x", 2)
+	title.add_theme_constant_override("shadow_offset_y", 3)
+	title.add_theme_color_override("font_shadow_color", Color(0.95, 0.55, 0.12, 0.22))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
@@ -138,7 +166,7 @@ func _style_button(button: Button):
 	button.add_theme_color_override("font_color", Color(0.92, 0.86, 0.68, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.86, 1.0))
 	button.add_theme_color_override("font_focus_color", Color(1.0, 0.98, 0.86, 1.0))
-	button.add_theme_color_override("font_pressed_color", Color(0.72, 0.92, 1.0, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.86, 0.48, 1.0))
 	button.add_theme_color_override("font_disabled_color", Color(0.34, 0.42, 0.47, 0.68))
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.58, 0.38, 0.12, 0.42), Color(0.018, 0.028, 0.035, 0.78), 1))
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.72, 0.24, 0.90), Color(0.075, 0.055, 0.025, 0.92), 2))
