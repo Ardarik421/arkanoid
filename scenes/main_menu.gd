@@ -156,6 +156,7 @@ func _setup_buttons():
 		$Menu/ContinueButton,
 		$Menu/LevelSelectButton,
 		$Menu/SkillTreeButton,
+		$Menu/SettingsButton,
 		$Menu/ExitButton
 	]:
 		_style_button(button)
