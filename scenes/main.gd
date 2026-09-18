@@ -606,11 +606,12 @@ func show_victory():
 	update_score_label()
 	clear_bonuses()
 
-	var reward_text: String = "\n+1 ОЧКО УЛУЧШЕНИЯ" if first_completion and not use_test_level else ""
+	var reward_text: String = "\n★ +1" if first_completion and not use_test_level else ""
+	var score_reward_text: String = "\nСЧЁТ +" + str(bonus) if bonus > 0 else ""
 	if current_level >= 100:
-		$WinLabel.text = "ОСНОВНОЙ МАРШРУТ ПРОЙДЕН!" + reward_text + "\nБОНУСНЫЕ УРОВНИ — СКОРО"
+		$WinLabel.text = "ОСНОВНОЙ МАРШРУТ ПРОЙДЕН!" + reward_text + score_reward_text + "\nБОНУСНЫЕ УРОВНИ — СКОРО"
 	else:
-		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + "\n+" + str(bonus) + " за сохранённые шары"
+		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + score_reward_text
 	victory_fade.color = Color(0.05,0.025,0.0,0.0)
 	create_tween().tween_property(victory_fade,"color:a",0.55,0.55)
 
