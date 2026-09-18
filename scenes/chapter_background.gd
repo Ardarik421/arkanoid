@@ -10,6 +10,8 @@ const ShatteredWorldStaticLayer = preload("res://scenes/shattered_world_static_l
 const ShatteredWorldDynamicLayer = preload("res://scenes/shattered_world_dynamic_layer.gd")
 const BinaryWorldStaticLayer = preload("res://scenes/binary_world_static_layer.gd")
 const BinaryWorldDynamicLayer = preload("res://scenes/binary_world_dynamic_layer.gd")
+const StormGiantStaticLayer = preload("res://scenes/storm_giant_static_layer.gd")
+const StormGiantDynamicLayer = preload("res://scenes/storm_giant_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
@@ -23,6 +25,8 @@ var shattered_world_static_layer: Node2D
 var shattered_world_dynamic_layer: Node2D
 var binary_world_static_layer: Node2D
 var binary_world_dynamic_layer: Node2D
+var storm_giant_static_layer: Node2D
+var storm_giant_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -60,6 +64,12 @@ func _ready():
 	binary_world_dynamic_layer=Node2D.new()
 	binary_world_dynamic_layer.set_script(BinaryWorldDynamicLayer)
 	add_child(binary_world_dynamic_layer)
+	storm_giant_static_layer=Node2D.new()
+	storm_giant_static_layer.set_script(StormGiantStaticLayer)
+	add_child(storm_giant_static_layer)
+	storm_giant_dynamic_layer=Node2D.new()
+	storm_giant_dynamic_layer.set_script(StormGiantDynamicLayer)
+	add_child(storm_giant_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -82,6 +92,7 @@ func _sync_level():
 	_update_ice_giant_layers()
 	_update_shattered_world_layers()
 	_update_binary_world_layers()
+	_update_storm_giant_layers()
 	queue_redraw()
 
 func _update_planet_layers() -> void:
@@ -144,6 +155,18 @@ func _update_binary_world_layers() -> void:
 		binary_world_static_layer.call("set_progress", progress)
 		binary_world_dynamic_layer.call("set_progress", progress)
 
+func _update_storm_giant_layers() -> void:
+	if storm_giant_static_layer == null or storm_giant_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 51 and displayed_level <= 60
+	storm_giant_static_layer.visible = active
+	storm_giant_dynamic_layer.visible = active
+	storm_giant_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 51) / 9.0
+		storm_giant_static_layer.call("set_progress", progress)
+		storm_giant_dynamic_layer.call("set_progress", progress)
+
 func _build_environment():
 	rock_shapes = [
 		PackedVector2Array([Vector2(0,1080),Vector2(0,470),Vector2(42,445),Vector2(78,475),Vector2(104,535),Vector2(145,570),Vector2(126,635),Vector2(171,690),Vector2(145,756),Vector2(190,824),Vector2(168,900),Vector2(220,970),Vector2(205,1080)]),
@@ -168,8 +191,7 @@ func _draw():
 	elif displayed_level <= 50:
 		pass
 	elif displayed_level <= 60:
-		var progress = float(displayed_level - 51) / 9.0
-		DeepSpaceBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 70:
 		var progress = float(displayed_level - 61) / 9.0
 		NebulaBackground.draw_background(self, progress, animation_time)
