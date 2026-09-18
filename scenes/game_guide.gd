@@ -21,8 +21,8 @@ const BRICKS: Array[Dictionary] = [
 	{"hits":1,"title":"ОБЫЧНЫЙ КИРПИЧ","text":"Разрушается с одного удара"},
 	{"hits":2,"title":"КРЕПКИЙ КИРПИЧ","text":"Требует два удара"},
 	{"hits":3,"title":"ОЧЕНЬ КРЕПКИЙ КИРПИЧ","text":"Требует три удара"},
-	{"hits":1,"bonus":true,"title":"КИРПИЧ С БОНУСОМ","text":"Гарантированно содержит бонус"},
-	{"hits":1,"powerful":true,"title":"КИРПИЧ С ОСОБЫМ БОНУСОМ","text":"Гарантированно содержит мощный бонус"},
+	{"hits":1,"bonus":true,"title":"КИРПИЧ С БОНУСОМ","text":"Жёлтая галактика — гарантированный бонус • прочность бывает разной"},
+	{"hits":1,"powerful":true,"title":"КИРПИЧ С ОСОБЫМ БОНУСОМ","text":"Красная галактика — гарантированный мощный бонус • прочность бывает разной"},
 	{"hits":5,"dark":true,"title":"ТЁМНЫЙ КИРПИЧ","text":"Выдерживает пять ударов"}
 ]
 
@@ -67,10 +67,9 @@ func _build_brick_cards() -> void:
 		visual.set("guaranteed_bonus",bool(data.get("bonus",false)) or bool(data.get("powerful",false)))
 		visual.set("powerful_bonus",bool(data.get("powerful",false)))
 		_add_card($Margin/VBox/BrickGrid,visual,str(data["title"]),str(data["text"]))
-		if bool(data.get("bonus",false)) or bool(data.get("powerful",false)):
-			var badge:=BonusBadge.new()
-			badge.powerful=bool(data.get("powerful",false))
-			visual.add_child(badge)
+		var energy: Node = visual.get_node_or_null("BonusEnergy")
+		if energy != null and energy.has_method("set_active"):
+			energy.call("set_active",bool(data.get("bonus",false)) or bool(data.get("powerful",false)))
 
 func _add_card(grid: GridContainer, visual: Node2D, title_text: String, desc_text: String) -> void:
 	var card:=PanelContainer.new()
@@ -136,14 +135,3 @@ func _button_style(border:Color,bg:Color,width:int)->StyleBoxFlat:
 func _back() -> void:
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
-class BonusBadge extends Node2D:
-	var powerful: bool=false
-	func _draw()->void:
-		var c:=Color(1.0,0.82,0.22) if not powerful else Color(1.0,0.30,0.82)
-		var points:=PackedVector2Array()
-		for i in range(10):
-			var a:float=-PI/2.0+TAU*float(i)/10.0
-			var r:float=8.0 if i%2==0 else 3.8
-			points.append(Vector2(cos(a),sin(a))*r)
-		draw_colored_polygon(points,Color(c,0.92))
-		draw_polyline(PackedVector2Array(Array(points)+[points[0]]),Color.WHITE,1.0,true)
