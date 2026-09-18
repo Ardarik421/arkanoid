@@ -1377,10 +1377,6 @@ func generate_bricks():
 					if cell not in wall_cells:
 						breakable_cells.append(cell)
 
-			print(
-				"Использована запасная генерация. Разрушаемых кирпичей: ",
-				breakable_cells.size()
-			)
 
 	for row in range(rows):
 		for column in range(columns):
