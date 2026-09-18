@@ -118,6 +118,13 @@ func _setup_settings_panel():
 	music_toggle.toggled.connect(func(enabled): SettingsManager.music_enabled = enabled; SettingsManager.save_settings())
 	settings_box.add_child(music_toggle)
 
+	var hints_toggle = CheckButton.new()
+	hints_toggle.text = "ПОДСКАЗКИ БОНУСОВ"
+	hints_toggle.button_pressed = SettingsManager.tutorial_hints_enabled
+	_style_toggle(hints_toggle)
+	hints_toggle.toggled.connect(func(enabled): SettingsManager.tutorial_hints_enabled = enabled; SettingsManager.save_settings())
+	settings_box.add_child(hints_toggle)
+
 	var sounds_toggle = CheckButton.new()
 	sounds_toggle.text = "ЗВУКИ"
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
@@ -246,10 +253,12 @@ func _unhandled_input(event):
 	get_viewport().set_input_as_handled()
 
 func pause_game():
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = true
 	show_pause_menu()
 
 func resume_game():
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	get_tree().paused = false
 	hide_pause_menu()
 
@@ -282,5 +291,6 @@ func hide_settings():
 	settings_button.grab_focus()
 
 func return_to_main_menu():
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = false
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
