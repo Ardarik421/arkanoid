@@ -1,15 +1,22 @@
 extends RefCounted
 
-static func draw_background(canvas: CanvasItem, progress: float, time: float) -> void:
+static func draw_static(canvas: CanvasItem, progress: float) -> void:
 	progress = clampf(progress, 0.0, 1.0)
 	_draw_space(canvas, progress)
-	_draw_nebula(canvas, progress, time)
+	_draw_nebula(canvas, progress, 0.0)
+	_draw_moon(canvas, progress, 0.0)
+	_draw_asteroid_belt(canvas, progress, 0.0)
+	_draw_planet(canvas, progress, 0.0)
+
+static func draw_dynamic(canvas: CanvasItem, progress: float, time: float) -> void:
+	progress = clampf(progress, 0.0, 1.0)
 	_draw_stars(canvas, progress, time)
 	_draw_sun(canvas, progress, time)
-	_draw_moon(canvas, progress, time)
-	_draw_asteroid_belt(canvas, progress, time)
-	_draw_planet(canvas, progress, time)
 	_draw_dust(canvas, progress, time)
+
+static func draw_background(canvas: CanvasItem, progress: float, time: float) -> void:
+	draw_static(canvas, progress)
+	draw_dynamic(canvas, progress, time)
 
 static func _draw_space(c: CanvasItem, progress: float) -> void:
 	var top: Color = Color(0.002, 0.008, 0.022)
