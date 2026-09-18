@@ -6,6 +6,7 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 @onready var title: Label = $Panel/VBox/Title
 @onready var music_toggle: CheckButton = $Panel/VBox/MusicToggle
 @onready var sounds_toggle: CheckButton = $Panel/VBox/SoundsToggle
+@onready var hints_toggle: CheckButton = $Panel/VBox/HintsToggle
 @onready var mouse_label: Label = $Panel/VBox/MouseLabel
 @onready var mouse_slider: HSlider = $Panel/VBox/MouseRow/MouseSlider
 @onready var mouse_value: Label = $Panel/VBox/MouseRow/MouseValue
@@ -24,6 +25,7 @@ func _ready():
 	_setup_style()
 	music_toggle.button_pressed = SettingsManager.music_enabled
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
+	hints_toggle.button_pressed = SettingsManager.tutorial_hints_enabled
 	mouse_slider.value = SettingsManager.mouse_sensitivity
 	keyboard_slider.value = SettingsManager.keyboard_sensitivity
 	gamepad_slider.value = SettingsManager.gamepad_sensitivity
@@ -68,6 +70,7 @@ func _setup_style():
 
 	_style_toggle(music_toggle)
 	_style_toggle(sounds_toggle)
+	_style_toggle(hints_toggle)
 	_style_slider(mouse_slider)
 	_style_slider(keyboard_slider)
 	_style_slider(gamepad_slider)
@@ -152,6 +155,10 @@ func _on_music_toggled(enabled: bool):
 
 func _on_sounds_toggled(enabled: bool):
 	SettingsManager.sounds_enabled = enabled
+	SettingsManager.save_settings()
+
+func _on_hints_toggled(enabled: bool):
+	SettingsManager.tutorial_hints_enabled = enabled
 	SettingsManager.save_settings()
 
 func _on_mouse_changed(value: float):
