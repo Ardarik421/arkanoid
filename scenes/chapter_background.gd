@@ -1,5 +1,7 @@
 extends Node2D
 
+const PlanetSpaceBackground = preload("res://scenes/planet_space_background.gd")
+
 var displayed_level: int = -1
 var animation_time: float = 0.0
 var rock_shapes: Array[PackedVector2Array] = []
