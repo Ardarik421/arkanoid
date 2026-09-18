@@ -118,9 +118,14 @@ const BALL_SCENE = preload("res://scenes/ball.tscn")
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
 const LEVEL_AMBIENT: AudioStream = preload("res://audio/music/ambient_01.wav")
 const EXPLOSIVE_SOUND: AudioStream = preload("res://audio/sfx/explosive.wav")
+const CHAPTER_NAMES: Array[String] = ["ЗОЛОТАЯ ОРБИТА","КРАСНЫЙ МИР","ЛЕДЯНОЙ ГИГАНТ","РАСКОЛОТЫЙ МИР","ДВОЙНАЯ СИСТЕМА","ШТОРМОВОЙ ГИГАНТ","БЕЗМОЛВИЕ","ПРИЗМАТИЧЕСКАЯ РЕЛИКВИЯ","РАЗЛОМ ГРАВИТАЦИИ","ЧЁРНАЯ ДЫРА"]
+const BONUS_HINTS: Dictionary = {0:"РАСШИРЕНИЕ — увеличивает платформу",1:"УМЕНЬШЕНИЕ — уменьшает платформу",2:"ЖИЗНЬ — добавляет одну жизнь",3:"ГИПЕРСКОРОСТЬ — сильно ускоряет шар",4:"УСКОРЕНИЕ — ускоряет шар",5:"МУЛЬТИШАР — добавляет дополнительные шары",6:"ПРОБИВАНИЕ — позволяет шару пробивать кирпичи",7:"ВЗРЫВ — разрушает область вокруг кирпича",8:"ЩИТ — возвращает упавший шар в игру",9:"МАГНИТ — ловит шар на платформу перед запуском"}
 
 var explosive_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer
+var chapter_label: Label
+var hint_label: Label
+var victory_fade: ColorRect
 
 var shield_active: bool = false
 var magnet_active: bool = false
@@ -177,6 +182,8 @@ var pattern_sizes: Dictionary = {}
 # =========================
 
 func _ready():
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	_setup_progression_polish()
 	_setup_ambient()
 	_setup_explosive_audio()
 	
@@ -197,6 +204,62 @@ func _ready():
 	update_lives_label()
 	update_score_label()
 	update_level_label()
+	_show_chapter_intro_if_needed()
+
+func _setup_progression_polish() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 20
+	add_child(layer)
+	chapter_label = Label.new()
+	chapter_label.set_anchors_preset(Control.PRESET_CENTER)
+	chapter_label.position = Vector2(-360,-100)
+	chapter_label.size = Vector2(720,200)
+	chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chapter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	chapter_label.add_theme_font_size_override("font_size",38)
+	chapter_label.add_theme_color_override("font_color",Color(1.0,0.90,0.58))
+	chapter_label.visible = false
+	layer.add_child(chapter_label)
+	hint_label = Label.new()
+	hint_label.position = Vector2(150,875)
+	hint_label.size = Vector2(660,70)
+	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hint_label.add_theme_font_size_override("font_size",19)
+	hint_label.add_theme_color_override("font_color",Color(1.0,0.90,0.62))
+	hint_label.visible = false
+	layer.add_child(hint_label)
+	victory_fade = ColorRect.new()
+	victory_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	victory_fade.color = Color(0.01,0.005,0.0,0.0)
+	victory_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(victory_fade)
+
+func _show_chapter_intro_if_needed() -> void:
+	if (current_level - 1) % 10 != 0:
+		return
+	var chapter: int = clampi((current_level - 1) / 10,0,CHAPTER_NAMES.size()-1)
+	chapter_label.text = "ГЛАВА %d\n%s" % [chapter + 1,CHAPTER_NAMES[chapter]]
+	chapter_label.modulate.a = 0.0
+	chapter_label.visible = true
+	var tween := create_tween()
+	tween.tween_property(chapter_label,"modulate:a",1.0,0.35)
+	tween.tween_interval(1.15)
+	tween.tween_property(chapter_label,"modulate:a",0.0,0.55)
+	tween.tween_callback(func(): chapter_label.visible = false)
+
+func _show_bonus_hint(bonus_type: int) -> void:
+	if not SettingsManager.should_show_bonus_hint(bonus_type):
+		return
+	SettingsManager.mark_bonus_hint_seen(bonus_type)
+	hint_label.text = str(BONUS_HINTS.get(bonus_type,""))
+	hint_label.modulate.a = 0.0
+	hint_label.visible = true
+	var tween := create_tween()
+	tween.tween_property(hint_label,"modulate:a",1.0,0.2)
+	tween.tween_interval(1.7)
+	tween.tween_property(hint_label,"modulate:a",0.0,0.35)
+	tween.tween_callback(func(): hint_label.visible = false)
 
 func _setup_ambient():
 	ambient_player = AudioStreamPlayer.new()
@@ -449,6 +512,7 @@ func restart_level():
 	game_over = false
 
 func return_to_main_menu():
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 func start_next_level():
@@ -478,6 +542,7 @@ func start_next_level():
 	reset_ball()
 
 	game_won = false
+	_show_chapter_intro_if_needed()
 
 func reset_level_effects():
 	lives = 3
@@ -512,6 +577,7 @@ func show_game_over():
 
 func show_victory():
 	var bonus = get_level_bonus()
+	var first_completion: bool = current_level > SaveManager.highest_completed_level
 
 	score += bonus
 
@@ -521,10 +587,13 @@ func show_victory():
 	update_score_label()
 	clear_bonuses()
 
+	var reward_text: String = "\n+1 ОЧКО УЛУЧШЕНИЯ" if first_completion and not use_test_level else ""
 	if current_level >= 100:
-		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — главное меню"
+		$WinLabel.text = "ОСНОВНОЙ МАРШРУТ ПРОЙДЕН!" + reward_text + "\nБОНУСНЫЕ УРОВНИ — СКОРО\nSPACE — главное меню"
 	else:
-		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + "\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+	victory_fade.color = Color(0.05,0.025,0.0,0.0)
+	create_tween().tween_property(victory_fade,"color:a",0.24,0.75)
 
 	$WinLabel.visible = true
 
@@ -640,6 +709,7 @@ func _on_brick_exploded(explosion_position: Vector2):
 			brick.hit_by_explosion()
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
+	_show_bonus_hint(int(bonus_type))
 	match bonus_type:
 		Bonus.BonusType.EXPAND_PADDLE:
 			var new_width = $Paddle.width + PADDLE_WIDTH_STEP
