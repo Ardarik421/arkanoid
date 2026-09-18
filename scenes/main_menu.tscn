@@ -58,6 +58,12 @@ theme_override_font_sizes/font_size = 22
 text = "НАСТРОЙКИ"
 script = ExtResource("2_settings")
 
+[node name="GuideButton" type="Button" parent="Menu"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "?"
+
 [node name="ExitButton" type="Button" parent="Menu" unique_id=134378334]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
@@ -76,5 +82,6 @@ cancel_button_text = "НЕТ"
 [connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Menu/LevelSelectButton" to="." method="_on_level_select_pressed"]
 [connection signal="pressed" from="Menu/SkillTreeButton" to="." method="_on_skill_tree_pressed"]
+[connection signal="pressed" from="Menu/GuideButton" to="." method="_on_guide_pressed"]
 [connection signal="pressed" from="Menu/ExitButton" to="." method="_on_exit_pressed"]
 [connection signal="confirmed" from="NewGameConfirmation" to="." method="_on_new_game_confirmed"]
