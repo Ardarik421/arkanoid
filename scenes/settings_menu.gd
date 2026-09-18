@@ -41,30 +41,30 @@ func _draw():
 		var x = float((i * 173 + 47) % 960)
 		var y = float((i * 97 + 31) % 1080)
 		var twinkle = 0.5 + 0.5 * sin(animation_time * (0.5 + float(i % 4) * 0.09) + float(i) * 1.31)
-		draw_circle(Vector2(x, y), 0.7 + float(i % 3) * 0.25, Color(0.48, 0.82, 1.0, 0.08 + twinkle * 0.18))
+		draw_circle(Vector2(x, y), 0.7 + float(i % 3) * 0.25, Color(1.0, 0.82, 0.42, 0.08 + twinkle * 0.18))
 
 	for side in [-1.0, 1.0]:
 		var x = 164.0 if side < 0.0 else 796.0
-		draw_line(Vector2(x, 155.0), Vector2(x, 925.0), Color(0.22, 0.68, 0.94, 0.08 + pulse * 0.05), 1.0, true)
+		draw_line(Vector2(x, 155.0), Vector2(x, 925.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
 	$Panel/VBox.add_theme_constant_override("separation", 20)
 
 	title.add_theme_font_size_override("font_size", 42)
-	title.add_theme_color_override("font_color", Color(0.88, 0.97, 1.0, 1.0))
-	title.add_theme_color_override("font_outline_color", Color(0.02, 0.20, 0.31, 0.95))
+	title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74, 1.0))
+	title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 0.95))
 	title.add_theme_constant_override("outline_size", 6)
 
 	for label in [mouse_label, keyboard_label, gamepad_label]:
 		label.add_theme_font_size_override("font_size", 19)
-		label.add_theme_color_override("font_color", Color(0.68, 0.84, 0.92, 1.0))
+		label.add_theme_color_override("font_color", Color(0.90, 0.82, 0.64, 1.0))
 		label.add_theme_color_override("font_outline_color", Color(0.01, 0.07, 0.11, 1.0))
 		label.add_theme_constant_override("outline_size", 2)
 
 	for value_label in [mouse_value, keyboard_value, gamepad_value]:
 		value_label.add_theme_font_size_override("font_size", 18)
-		value_label.add_theme_color_override("font_color", Color(0.78, 0.93, 1.0, 1.0))
+		value_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.62, 1.0))
 
 	_style_toggle(music_toggle)
 	_style_toggle(sounds_toggle)
@@ -73,13 +73,13 @@ func _setup_style():
 	_style_slider(gamepad_slider)
 	_style_button(back_button)
 
-	hint.add_theme_color_override("font_color", Color(0.42, 0.70, 0.84, 0.92))
+	hint.add_theme_color_override("font_color", Color(0.78, 0.58, 0.28, 0.92))
 	hint.add_theme_font_size_override("font_size", 16)
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.008, 0.022, 0.036, 0.92)
-	style.border_color = Color(0.22, 0.62, 0.82, 0.32)
+	style.bg_color = Color(0.007, 0.012, 0.018, 0.94)
+	style.border_color = Color(0.90, 0.60, 0.16, 0.42)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(18)
 	style.content_margin_left = 28.0
@@ -93,17 +93,17 @@ func _make_panel_style() -> StyleBoxFlat:
 func _style_toggle(toggle: CheckButton):
 	toggle.custom_minimum_size = Vector2(0.0, 56.0)
 	toggle.add_theme_font_size_override("font_size", 21)
-	toggle.add_theme_color_override("font_color", Color(0.74, 0.89, 0.96, 1.0))
-	toggle.add_theme_color_override("font_hover_color", Color(0.94, 0.99, 1.0, 1.0))
-	toggle.add_theme_color_override("font_focus_color", Color(0.94, 0.99, 1.0, 1.0))
+	toggle.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+	toggle.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
+	toggle.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
 
 func _style_slider(slider: HSlider):
 	slider.custom_minimum_size = Vector2(0.0, 36.0)
-	slider.add_theme_icon_override("grabber", _make_grabber(Color(0.70, 0.94, 1.0, 1.0)))
-	slider.add_theme_icon_override("grabber_highlight", _make_grabber(Color(0.96, 1.0, 1.0, 1.0)))
-	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.025, 0.075, 0.105, 0.95), 4))
-	slider.add_theme_stylebox_override("grabber_area", _make_slider_style(Color(0.20, 0.70, 0.94, 0.88), 5))
-	slider.add_theme_stylebox_override("grabber_area_highlight", _make_slider_style(Color(0.34, 0.84, 1.0, 1.0), 6))
+	slider.add_theme_icon_override("grabber", _make_grabber(Color(1.0, 0.78, 0.30, 1.0)))
+	slider.add_theme_icon_override("grabber_highlight", _make_grabber(Color(1.0, 0.94, 0.66, 1.0)))
+	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.075, 0.052, 0.018, 0.95), 4))
+	slider.add_theme_stylebox_override("grabber_area", _make_slider_style(Color(0.94, 0.62, 0.16, 0.90), 5))
+	slider.add_theme_stylebox_override("grabber_area_highlight", _make_slider_style(Color(1.0, 0.78, 0.30, 1.0), 6))
 
 func _make_slider_style(color: Color, thickness: int) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -125,14 +125,14 @@ func _make_grabber(color: Color) -> GradientTexture2D:
 func _style_button(button: Button):
 	button.custom_minimum_size = Vector2(0.0, 62.0)
 	button.add_theme_font_size_override("font_size", 22)
-	button.add_theme_color_override("font_color", Color(0.72, 0.87, 0.94, 1.0))
-	button.add_theme_color_override("font_hover_color", Color(0.96, 0.995, 1.0, 1.0))
-	button.add_theme_color_override("font_focus_color", Color(0.96, 0.995, 1.0, 1.0))
-	button.add_theme_color_override("font_pressed_color", Color(0.72, 0.92, 1.0, 1.0))
-	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.50, 0.68, 0.38), Color(0.012, 0.035, 0.052, 0.72), 1))
-	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.38, 0.84, 1.0, 0.88), Color(0.020, 0.075, 0.105, 0.90), 2))
-	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.46, 0.88, 1.0, 0.96), Color(0.018, 0.062, 0.090, 0.92), 2))
-	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.70, 0.94, 1.0, 1.0), Color(0.012, 0.045, 0.070, 0.96), 2))
+	button.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
+	button.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.84, 0.42, 1.0))
+	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.58, 0.38, 0.12, 0.44), Color(0.014, 0.020, 0.022, 0.82), 1))
+	button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.70, 0.20, 0.92), Color(0.075, 0.050, 0.018, 0.94), 2))
+	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.78, 0.30, 0.98), Color(0.065, 0.044, 0.016, 0.96), 2))
+	button.add_theme_stylebox_override("pressed", _make_button_style(Color(1.0, 0.78, 0.30, 1.0), Color(0.012, 0.045, 0.070, 0.96), 2))
 
 func _make_button_style(border: Color, background: Color, border_width: int) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()

@@ -29,18 +29,12 @@ layout_mode = 2
 theme_override_constants/separation = 12
 [node name="Title" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-text = "SKILL TREE"
+text = "УЛУЧШИТЬ БОНУСЫ"
 horizontal_alignment = 1
-[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-alignment = 1
-[node name="SPLabel" type="Label" parent="Margin/VBox/Header"]
-layout_mode = 2
-text = "SP: 0"
 [node name="StatusLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 26)
-text = "Улучшения активируются после подбора соответствующего бонуса."
+custom_minimum_size = Vector2(0, 46)
+text = "Очки даются за первое прохождение уровня\nУлучшения активируются после подбора соответствующего бонуса"
 horizontal_alignment = 1
 
 [node name="Branches" type="GridContainer" parent="Margin/VBox"]
@@ -69,7 +63,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 [node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
-text = "ТЁМНЫЕ СТЕНЫ ×5"
+text = "ПРОБИВАЕТ ТЁМНЫЕ СТЕНЫ ×5"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Piercing/Content"]
 layout_mode = 2
 text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
@@ -93,7 +87,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 [node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
-text = "I  МГНОВЕННО ×2"
+text = "I  РАЗБИВАЕТ КРЕПКИЕ КИРПИЧИ ×2"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Explosive/Content"]
 layout_mode = 2
 text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
@@ -117,7 +111,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 [node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
-text = "ВОЗВРАТ ОТ ЩИТА ×2"
+text = "ПОСЛЕ ЩИТА ЛЕТИТ БЫСТРЕЕ ×2"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Shield/Content"]
 layout_mode = 2
 text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
@@ -141,10 +135,42 @@ layout_mode = 2
 size_flags_horizontal = 3
 [node name="Gameplay" type="Button" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
-text = "I  КОРОТКИЙ ПРИЦЕЛ"
+text = "I  ДОБАВЛЯЕТ КОРОТКИЙ ПРИЦЕЛ"
 [node name="Duration" type="Button" parent="Margin/VBox/Branches/Magnet/Content"]
 layout_mode = 2
 text = "ПРОДОЛЖИТЕЛЬНОСТЬ\n☆☆☆☆☆"
+
+[node name="PointsPanel" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 92)
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox/PointsPanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 64
+[node name="Available" type="VBoxContainer" parent="Margin/VBox/PointsPanel/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 0)
+[node name="Caption" type="Label" parent="Margin/VBox/PointsPanel/HBox/Available"]
+layout_mode = 2
+text = "ДОСТУПНО ОЧКОВ"
+horizontal_alignment = 1
+[node name="Value" type="Label" parent="Margin/VBox/PointsPanel/HBox/Available"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 1
+[node name="Separator" type="VSeparator" parent="Margin/VBox/PointsPanel/HBox"]
+layout_mode = 2
+[node name="Cost" type="VBoxContainer" parent="Margin/VBox/PointsPanel/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 0)
+[node name="Caption" type="Label" parent="Margin/VBox/PointsPanel/HBox/Cost"]
+layout_mode = 2
+text = "СТОИМОСТЬ УЛУЧШЕНИЯ"
+horizontal_alignment = 1
+[node name="Value" type="Label" parent="Margin/VBox/PointsPanel/HBox/Cost"]
+layout_mode = 2
+text = "5"
+horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="Margin/VBox"]
 layout_mode = 2

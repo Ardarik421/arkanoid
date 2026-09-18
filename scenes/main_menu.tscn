@@ -64,6 +64,22 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "ВЫХОД"
 
+[node name="GuideButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -150.0
+offset_right = -34.0
+offset_bottom = -34.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 54
+text = "?"
+
 [node name="NewGameConfirmation" type="ConfirmationDialog" parent="." unique_id=1265121688]
 title = "НОВАЯ ИГРА"
 initial_position = 2
@@ -76,5 +92,6 @@ cancel_button_text = "НЕТ"
 [connection signal="pressed" from="Menu/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Menu/LevelSelectButton" to="." method="_on_level_select_pressed"]
 [connection signal="pressed" from="Menu/SkillTreeButton" to="." method="_on_skill_tree_pressed"]
+[connection signal="pressed" from="GuideButton" to="." method="_on_guide_pressed"]
 [connection signal="pressed" from="Menu/ExitButton" to="." method="_on_exit_pressed"]
 [connection signal="confirmed" from="NewGameConfirmation" to="." method="_on_new_game_confirmed"]

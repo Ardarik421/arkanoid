@@ -24,7 +24,7 @@ func _ready():
 	main_menu_button.pressed.connect(return_to_main_menu)
 
 func _setup_pause_style():
-	pause_overlay.color = Color(0.005, 0.010, 0.016, 0.82)
+	pause_overlay.color = Color(0.004, 0.006, 0.010, 0.86)
 
 	pause_panel = Panel.new()
 	pause_panel.name = "PauseBackdrop"
@@ -48,8 +48,8 @@ func _setup_pause_style():
 
 	pause_title.custom_minimum_size = Vector2(0.0, 72.0)
 	pause_title.add_theme_font_size_override("font_size", 44)
-	pause_title.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0, 1.0))
-	pause_title.add_theme_color_override("font_outline_color", Color(0.02, 0.16, 0.24, 1.0))
+	pause_title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74, 1.0))
+	pause_title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 1.0))
 	pause_title.add_theme_constant_override("outline_size", 6)
 	pause_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pause_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -58,7 +58,7 @@ func _setup_pause_style():
 	level_label.name = "PauseLevel"
 	level_label.custom_minimum_size = Vector2(0.0, 38.0)
 	level_label.add_theme_font_size_override("font_size", 20)
-	level_label.add_theme_color_override("font_color", Color(0.48, 0.78, 0.94, 0.92))
+	level_label.add_theme_color_override("font_color", Color(0.94, 0.68, 0.26, 0.94))
 	level_label.add_theme_color_override("font_outline_color", Color(0.01, 0.08, 0.12, 1.0))
 	level_label.add_theme_constant_override("outline_size", 3)
 	level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -106,8 +106,8 @@ func _setup_settings_panel():
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 36)
-	title.add_theme_color_override("font_color", Color(0.88, 0.97, 1.0, 1.0))
-	title.add_theme_color_override("font_outline_color", Color(0.02, 0.20, 0.31, 0.95))
+	title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74, 1.0))
+	title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 0.95))
 	title.add_theme_constant_override("outline_size", 5)
 	settings_box.add_child(title)
 
@@ -133,7 +133,7 @@ func _setup_settings_panel():
 	hint.text = "Диапазон: 50–200%"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 15)
-	hint.add_theme_color_override("font_color", Color(0.42, 0.70, 0.84, 0.92))
+	hint.add_theme_color_override("font_color", Color(0.78, 0.58, 0.28, 0.92))
 	settings_box.add_child(hint)
 
 	var back = Button.new()
@@ -146,7 +146,7 @@ func _add_setting_slider(label_text: String, initial_value: float, callback: Cal
 	var label = Label.new()
 	label.text = label_text
 	label.add_theme_font_size_override("font_size", 18)
-	label.add_theme_color_override("font_color", Color(0.68, 0.84, 0.92, 1.0))
+	label.add_theme_color_override("font_color", Color(0.90, 0.82, 0.64, 1.0))
 	settings_box.add_child(label)
 
 	var row = HBoxContainer.new()
@@ -169,15 +169,15 @@ func _add_setting_slider(label_text: String, initial_value: float, callback: Cal
 	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value_label.add_theme_font_size_override("font_size", 17)
-	value_label.add_theme_color_override("font_color", Color(0.78, 0.93, 1.0, 1.0))
+	value_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.62, 1.0))
 	row.add_child(value_label)
 
 	slider.value_changed.connect(func(value): value_label.text = "%d%%" % roundi(value * 100.0); callback.call(value))
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.012, 0.026, 0.038, 0.97)
-	style.border_color = Color(0.26, 0.68, 0.92, 0.56)
+	style.bg_color = Color(0.007, 0.012, 0.018, 0.975)
+	style.border_color = Color(0.90, 0.60, 0.16, 0.62)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(14)
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
@@ -187,12 +187,12 @@ func _make_panel_style() -> StyleBoxFlat:
 func _style_toggle(toggle: CheckButton):
 	toggle.custom_minimum_size = Vector2(0.0, 48.0)
 	toggle.add_theme_font_size_override("font_size", 20)
-	toggle.add_theme_color_override("font_color", Color(0.74, 0.89, 0.96, 1.0))
+	toggle.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 
 func _style_slider(slider: HSlider):
-	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.025, 0.075, 0.105, 0.95), 4))
-	slider.add_theme_stylebox_override("grabber_area", _make_slider_style(Color(0.20, 0.70, 0.94, 0.88), 5))
-	slider.add_theme_stylebox_override("grabber_area_highlight", _make_slider_style(Color(0.34, 0.84, 1.0, 1.0), 6))
+	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.075, 0.052, 0.018, 0.95), 4))
+	slider.add_theme_stylebox_override("grabber_area", _make_slider_style(Color(0.94, 0.62, 0.16, 0.90), 5))
+	slider.add_theme_stylebox_override("grabber_area_highlight", _make_slider_style(Color(1.0, 0.78, 0.30, 1.0), 6))
 
 func _make_slider_style(color: Color, thickness: int) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -205,14 +205,14 @@ func _make_slider_style(color: Color, thickness: int) -> StyleBoxFlat:
 func _style_button(button: Button):
 	button.custom_minimum_size = Vector2(0.0, 64.0)
 	button.add_theme_font_size_override("font_size", 24)
-	button.add_theme_color_override("font_color", Color(0.78, 0.90, 0.96, 1.0))
-	button.add_theme_color_override("font_hover_color", Color(0.96, 0.99, 1.0, 1.0))
-	button.add_theme_color_override("font_focus_color", Color(0.96, 0.99, 1.0, 1.0))
-	button.add_theme_color_override("font_pressed_color", Color(0.72, 0.90, 1.0, 1.0))
-	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.20, 0.58, 0.78, 0.48), Color(0.016, 0.034, 0.048, 0.96), 2))
-	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.30, 0.76, 1.0, 0.92), Color(0.022, 0.060, 0.084, 0.99), 2))
-	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.38, 0.82, 1.0, 1.0), Color(0.020, 0.052, 0.074, 0.99), 3))
-	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.22, 0.66, 0.92, 1.0), Color(0.012, 0.030, 0.046, 1.0), 2))
+	button.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
+	button.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.84, 0.42, 1.0))
+	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.62, 0.40, 0.10, 0.54), Color(0.014, 0.018, 0.020, 0.96), 2))
+	button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.70, 0.20, 0.94), Color(0.075, 0.050, 0.018, 0.99), 2))
+	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.78, 0.30, 1.0), Color(0.065, 0.044, 0.016, 0.99), 3))
+	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.92, 0.58, 0.12, 1.0), Color(0.040, 0.028, 0.012, 1.0), 2))
 
 func _make_button_style(border: Color, background: Color, border_width: int) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()

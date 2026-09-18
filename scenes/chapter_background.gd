@@ -1,7 +1,44 @@
 extends Node2D
 
+const PlanetStaticLayer = preload("res://scenes/planet_static_layer.gd")
+const PlanetDynamicLayer = preload("res://scenes/planet_dynamic_layer.gd")
+const RedPlanetStaticLayer = preload("res://scenes/red_planet_static_layer.gd")
+const RedPlanetDynamicLayer = preload("res://scenes/red_planet_dynamic_layer.gd")
+const IceGiantStaticLayer = preload("res://scenes/ice_giant_static_layer.gd")
+const IceGiantDynamicLayer = preload("res://scenes/ice_giant_dynamic_layer.gd")
+const ShatteredWorldStaticLayer = preload("res://scenes/shattered_world_static_layer.gd")
+const ShatteredWorldDynamicLayer = preload("res://scenes/shattered_world_dynamic_layer.gd")
+const BinaryWorldStaticLayer = preload("res://scenes/binary_world_static_layer.gd")
+const BinaryWorldDynamicLayer = preload("res://scenes/binary_world_dynamic_layer.gd")
+const StormGiantStaticLayer = preload("res://scenes/storm_giant_static_layer.gd")
+const StormGiantDynamicLayer = preload("res://scenes/storm_giant_dynamic_layer.gd")
+const VoidRiftStaticLayer = preload("res://scenes/void_rift_static_layer.gd")
+const VoidRiftDynamicLayer = preload("res://scenes/void_rift_dynamic_layer.gd")
+const PrismRelicStaticLayer = preload("res://scenes/prism_relic_static_layer.gd")
+const PrismRelicDynamicLayer = preload("res://scenes/prism_relic_dynamic_layer.gd")
+const GravityFractureStaticLayer = preload("res://scenes/gravity_fracture_static_layer.gd")
+const GravityFractureDynamicLayer = preload("res://scenes/gravity_fracture_dynamic_layer.gd")
+
 var displayed_level: int = -1
 var animation_time: float = 0.0
+var planet_static_layer: Node2D
+var planet_dynamic_layer: Node2D
+var red_planet_static_layer: Node2D
+var red_planet_dynamic_layer: Node2D
+var ice_giant_static_layer: Node2D
+var ice_giant_dynamic_layer: Node2D
+var shattered_world_static_layer: Node2D
+var shattered_world_dynamic_layer: Node2D
+var binary_world_static_layer: Node2D
+var binary_world_dynamic_layer: Node2D
+var storm_giant_static_layer: Node2D
+var storm_giant_dynamic_layer: Node2D
+var void_rift_static_layer: Node2D
+var void_rift_dynamic_layer: Node2D
+var prism_relic_static_layer: Node2D
+var prism_relic_dynamic_layer: Node2D
+var gravity_fracture_static_layer: Node2D
+var gravity_fracture_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -9,6 +46,60 @@ var small_cracks: Array[PackedVector2Array] = []
 
 func _ready():
 	_build_environment()
+	planet_static_layer = Node2D.new()
+	planet_static_layer.set_script(PlanetStaticLayer)
+	add_child(planet_static_layer)
+	planet_dynamic_layer = Node2D.new()
+	planet_dynamic_layer.set_script(PlanetDynamicLayer)
+	add_child(planet_dynamic_layer)
+	red_planet_static_layer = Node2D.new()
+	red_planet_static_layer.set_script(RedPlanetStaticLayer)
+	add_child(red_planet_static_layer)
+	red_planet_dynamic_layer = Node2D.new()
+	red_planet_dynamic_layer.set_script(RedPlanetDynamicLayer)
+	add_child(red_planet_dynamic_layer)
+	ice_giant_static_layer=Node2D.new()
+	ice_giant_static_layer.set_script(IceGiantStaticLayer)
+	add_child(ice_giant_static_layer)
+	ice_giant_dynamic_layer=Node2D.new()
+	ice_giant_dynamic_layer.set_script(IceGiantDynamicLayer)
+	add_child(ice_giant_dynamic_layer)
+	shattered_world_static_layer=Node2D.new()
+	shattered_world_static_layer.set_script(ShatteredWorldStaticLayer)
+	add_child(shattered_world_static_layer)
+	shattered_world_dynamic_layer=Node2D.new()
+	shattered_world_dynamic_layer.set_script(ShatteredWorldDynamicLayer)
+	add_child(shattered_world_dynamic_layer)
+	binary_world_static_layer=Node2D.new()
+	binary_world_static_layer.set_script(BinaryWorldStaticLayer)
+	add_child(binary_world_static_layer)
+	binary_world_dynamic_layer=Node2D.new()
+	binary_world_dynamic_layer.set_script(BinaryWorldDynamicLayer)
+	add_child(binary_world_dynamic_layer)
+	storm_giant_static_layer=Node2D.new()
+	storm_giant_static_layer.set_script(StormGiantStaticLayer)
+	add_child(storm_giant_static_layer)
+	storm_giant_dynamic_layer=Node2D.new()
+	storm_giant_dynamic_layer.set_script(StormGiantDynamicLayer)
+	add_child(storm_giant_dynamic_layer)
+	void_rift_static_layer=Node2D.new()
+	void_rift_static_layer.set_script(VoidRiftStaticLayer)
+	add_child(void_rift_static_layer)
+	void_rift_dynamic_layer=Node2D.new()
+	void_rift_dynamic_layer.set_script(VoidRiftDynamicLayer)
+	add_child(void_rift_dynamic_layer)
+	prism_relic_static_layer=Node2D.new()
+	prism_relic_static_layer.set_script(PrismRelicStaticLayer)
+	add_child(prism_relic_static_layer)
+	prism_relic_dynamic_layer=Node2D.new()
+	prism_relic_dynamic_layer.set_script(PrismRelicDynamicLayer)
+	add_child(prism_relic_dynamic_layer)
+	gravity_fracture_static_layer=Node2D.new()
+	gravity_fracture_static_layer.set_script(GravityFractureStaticLayer)
+	add_child(gravity_fracture_static_layer)
+	gravity_fracture_dynamic_layer=Node2D.new()
+	gravity_fracture_dynamic_layer.set_script(GravityFractureDynamicLayer)
+	add_child(gravity_fracture_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -19,13 +110,131 @@ func _process(delta):
 		var level_value = int(main.get("current_level"))
 		if level_value != displayed_level:
 			displayed_level = level_value
-	queue_redraw()
+	if displayed_level > 10:
+		queue_redraw()
 
 func _sync_level():
 	var main = get_parent()
 	if main != null:
 		displayed_level = int(main.get("current_level"))
+	_update_planet_layers()
+	_update_red_planet_layers()
+	_update_ice_giant_layers()
+	_update_shattered_world_layers()
+	_update_binary_world_layers()
+	_update_storm_giant_layers()
+	_update_void_rift_layers()
+	_update_prism_relic_layers()
+	_update_gravity_fracture_layers()
 	queue_redraw()
+
+func _update_planet_layers() -> void:
+	if planet_static_layer == null or planet_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 1 and displayed_level <= 10
+	planet_static_layer.visible = active
+	planet_dynamic_layer.visible = active
+	planet_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(clampi(displayed_level, 1, 10) - 1) / 9.0
+		planet_static_layer.call("set_progress", progress)
+		planet_dynamic_layer.call("set_progress", progress)
+
+func _update_red_planet_layers() -> void:
+	if red_planet_static_layer == null or red_planet_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 11 and displayed_level <= 20
+	red_planet_static_layer.visible = active
+	red_planet_dynamic_layer.visible = active
+	red_planet_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 11) / 9.0
+		red_planet_static_layer.call("set_progress", progress)
+		red_planet_dynamic_layer.call("set_progress", progress)
+
+func _update_ice_giant_layers() -> void:
+	if ice_giant_static_layer == null or ice_giant_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 21 and displayed_level <= 30
+	ice_giant_static_layer.visible = active
+	ice_giant_dynamic_layer.visible = active
+	ice_giant_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 21) / 9.0
+		ice_giant_static_layer.call("set_progress", progress)
+		ice_giant_dynamic_layer.call("set_progress", progress)
+
+func _update_shattered_world_layers() -> void:
+	if shattered_world_static_layer == null or shattered_world_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 31 and displayed_level <= 40
+	shattered_world_static_layer.visible = active
+	shattered_world_dynamic_layer.visible = active
+	shattered_world_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 31) / 9.0
+		shattered_world_static_layer.call("set_progress", progress)
+		shattered_world_dynamic_layer.call("set_progress", progress)
+
+func _update_binary_world_layers() -> void:
+	if binary_world_static_layer == null or binary_world_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 41 and displayed_level <= 50
+	binary_world_static_layer.visible = active
+	binary_world_dynamic_layer.visible = active
+	binary_world_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 41) / 9.0
+		binary_world_static_layer.call("set_progress", progress)
+		binary_world_dynamic_layer.call("set_progress", progress)
+
+func _update_storm_giant_layers() -> void:
+	if storm_giant_static_layer == null or storm_giant_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 51 and displayed_level <= 60
+	storm_giant_static_layer.visible = active
+	storm_giant_dynamic_layer.visible = active
+	storm_giant_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 51) / 9.0
+		storm_giant_static_layer.call("set_progress", progress)
+		storm_giant_dynamic_layer.call("set_progress", progress)
+
+func _update_void_rift_layers() -> void:
+	if void_rift_static_layer == null or void_rift_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 61 and displayed_level <= 70
+	void_rift_static_layer.visible = active
+	void_rift_dynamic_layer.visible = active
+	void_rift_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 61) / 9.0
+		void_rift_static_layer.call("set_progress", progress)
+		void_rift_dynamic_layer.call("set_progress", progress)
+
+func _update_prism_relic_layers() -> void:
+	if prism_relic_static_layer == null or prism_relic_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 71 and displayed_level <= 80
+	prism_relic_static_layer.visible = active
+	prism_relic_dynamic_layer.visible = active
+	prism_relic_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 71) / 9.0
+		prism_relic_static_layer.call("set_progress", progress)
+		prism_relic_dynamic_layer.call("set_progress", progress)
+
+func _update_gravity_fracture_layers() -> void:
+	if gravity_fracture_static_layer == null or gravity_fracture_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 81 and displayed_level <= 90
+	gravity_fracture_static_layer.visible = active
+	gravity_fracture_dynamic_layer.visible = active
+	gravity_fracture_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 81) / 9.0
+		gravity_fracture_static_layer.call("set_progress", progress)
+		gravity_fracture_dynamic_layer.call("set_progress", progress)
 
 func _build_environment():
 	rock_shapes = [
@@ -41,28 +250,23 @@ func _build_environment():
 
 func _draw():
 	if displayed_level <= 10:
-		_draw_core()
+		pass
 	elif displayed_level <= 20:
-		_draw_surface()
+		pass
 	elif displayed_level <= 30:
-		_draw_biosphere()
+		pass
 	elif displayed_level <= 40:
-		_draw_upper_atmosphere()
+		pass
 	elif displayed_level <= 50:
-		var progress = float(displayed_level - 41) / 9.0
-		OrbitBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 60:
-		var progress = float(displayed_level - 51) / 9.0
-		DeepSpaceBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 70:
-		var progress = float(displayed_level - 61) / 9.0
-		NebulaBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 80:
-		var progress = float(displayed_level - 71) / 9.0
-		DistortedSpaceBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 90:
-		var progress = float(displayed_level - 81) / 9.0
-		FracturedRealityBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 100:
 		var progress = float(displayed_level - 91) / 9.0
 		BlackHoleBackground.draw_background(self, progress, animation_time)
