@@ -145,7 +145,7 @@ func _set_gameplay_button(button: Button, rank: int, max_rank: int, description:
 	var complete := rank >= max_rank
 	var affordable := SaveManager.can_afford_skill()
 	button.disabled = complete or not affordable
-	button.text = description + ("    ✓" if complete else "    %d/%d  •  5 ОЧКОВ" % [rank, max_rank])
+	button.text = description + ("    ✓" if complete else "    %d/%d" % [rank, max_rank])
 	_apply_node_style(button, complete, affordable and not complete)
 
 func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
@@ -158,7 +158,7 @@ func _set_duration_button(button: Button, rank: int, prerequisite_met: bool):
 	if complete:
 		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n+%.1f сек   ✓" % [stars, rank * 0.5]
 	elif prerequisite_met:
-		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n+%.1f → +%.1f сек   •   5 ОЧКОВ" % [stars, rank * 0.5, (rank + 1) * 0.5]
+		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n+%.1f → +%.1f сек" % [stars, rank * 0.5, (rank + 1) * 0.5]
 	else:
 		button.text = "ПРОДОЛЖИТЕЛЬНОСТЬ   %s\n🔒" % stars
 	_apply_node_style(button, complete, available)
