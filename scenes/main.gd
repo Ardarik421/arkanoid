@@ -520,6 +520,11 @@ func start_next_level():
 		return_to_main_menu()
 		return
 
+	$Paddle.can_move = false
+	var transition := create_tween()
+	transition.tween_property(victory_fade,"color:a",0.90,0.38)
+	await transition.finished
+
 	current_level += 1
 	score_at_level_start = score
 	update_level_label()
@@ -542,6 +547,8 @@ func start_next_level():
 	reset_ball()
 
 	game_won = false
+	var reveal := create_tween()
+	reveal.tween_property(victory_fade,"color:a",0.0,0.62).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_show_chapter_intro_if_needed()
 
 func reset_level_effects():
@@ -593,7 +600,7 @@ func show_victory():
 	else:
 		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + "\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
 	victory_fade.color = Color(0.05,0.025,0.0,0.0)
-	create_tween().tween_property(victory_fade,"color:a",0.24,0.75)
+	create_tween().tween_property(victory_fade,"color:a",0.55,0.55)
 
 	$WinLabel.visible = true
 
