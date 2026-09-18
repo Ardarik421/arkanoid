@@ -6,6 +6,8 @@ const RedPlanetStaticLayer = preload("res://scenes/red_planet_static_layer.gd")
 const RedPlanetDynamicLayer = preload("res://scenes/red_planet_dynamic_layer.gd")
 const IceGiantStaticLayer = preload("res://scenes/ice_giant_static_layer.gd")
 const IceGiantDynamicLayer = preload("res://scenes/ice_giant_dynamic_layer.gd")
+const ShatteredWorldStaticLayer = preload("res://scenes/shattered_world_static_layer.gd")
+const ShatteredWorldDynamicLayer = preload("res://scenes/shattered_world_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
@@ -15,6 +17,8 @@ var red_planet_static_layer: Node2D
 var red_planet_dynamic_layer: Node2D
 var ice_giant_static_layer: Node2D
 var ice_giant_dynamic_layer: Node2D
+var shattered_world_static_layer: Node2D
+var shattered_world_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -40,6 +44,12 @@ func _ready():
 	ice_giant_dynamic_layer=Node2D.new()
 	ice_giant_dynamic_layer.set_script(IceGiantDynamicLayer)
 	add_child(ice_giant_dynamic_layer)
+	shattered_world_static_layer=Node2D.new()
+	shattered_world_static_layer.set_script(ShatteredWorldStaticLayer)
+	add_child(shattered_world_static_layer)
+	shattered_world_dynamic_layer=Node2D.new()
+	shattered_world_dynamic_layer.set_script(ShatteredWorldDynamicLayer)
+	add_child(shattered_world_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -60,6 +70,7 @@ func _sync_level():
 	_update_planet_layers()
 	_update_red_planet_layers()
 	_update_ice_giant_layers()
+	_update_shattered_world_layers()
 	queue_redraw()
 
 func _update_planet_layers() -> void:
@@ -98,6 +109,18 @@ func _update_ice_giant_layers() -> void:
 		ice_giant_static_layer.call("set_progress", progress)
 		ice_giant_dynamic_layer.call("set_progress", progress)
 
+func _update_shattered_world_layers() -> void:
+	if shattered_world_static_layer == null or shattered_world_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 31 and displayed_level <= 40
+	shattered_world_static_layer.visible = active
+	shattered_world_dynamic_layer.visible = active
+	shattered_world_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 31) / 9.0
+		shattered_world_static_layer.call("set_progress", progress)
+		shattered_world_dynamic_layer.call("set_progress", progress)
+
 func _build_environment():
 	rock_shapes = [
 		PackedVector2Array([Vector2(0,1080),Vector2(0,470),Vector2(42,445),Vector2(78,475),Vector2(104,535),Vector2(145,570),Vector2(126,635),Vector2(171,690),Vector2(145,756),Vector2(190,824),Vector2(168,900),Vector2(220,970),Vector2(205,1080)]),
@@ -118,7 +141,7 @@ func _draw():
 	elif displayed_level <= 30:
 		pass
 	elif displayed_level <= 40:
-		_draw_upper_atmosphere()
+		pass
 	elif displayed_level <= 50:
 		var progress = float(displayed_level - 41) / 9.0
 		OrbitBackground.draw_background(self, progress, animation_time)
