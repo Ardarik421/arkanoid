@@ -15,7 +15,12 @@ func _ready():
 	_setup_confirmation_dialog()
 	MenuMusic.play_menu_music()
 	$Menu/NewGameButton.release_focus()
+	_setup_gamepad_focus()
 	queue_redraw()
+
+func _setup_gamepad_focus() -> void:
+	var first_button: Button = $Menu/ContinueButton if not $Menu/ContinueButton.disabled else $Menu/NewGameButton
+	first_button.grab_focus()
 
 func _process(delta):
 	animation_time += delta
