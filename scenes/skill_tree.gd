@@ -3,7 +3,8 @@ extends Control
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
 var animation_time: float = 0.0
 
-@onready var sp_label: Label = $Margin/VBox/Header/SPLabel
+@onready var points_value: Label = $Margin/VBox/PointsPanel/HBox/Available/Value
+@onready var cost_value: Label = $Margin/VBox/PointsPanel/HBox/Cost/Value
 @onready var status_label: Label = $Margin/VBox/StatusLabel
 
 func _ready():
@@ -39,8 +40,7 @@ func _setup_style():
 	$Margin/VBox/Title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74))
 	$Margin/VBox/Title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 0.95))
 	$Margin/VBox/Title.add_theme_constant_override("outline_size", 5)
-	sp_label.add_theme_font_size_override("font_size", 23)
-	sp_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.62))
+	_setup_points_panel()
 	status_label.add_theme_font_size_override("font_size", 16)
 	status_label.add_theme_color_override("font_color", Color(0.90, 0.78, 0.56))
 	for branch in $Margin/VBox/Branches.get_children():
@@ -50,11 +50,33 @@ func _setup_style():
 		for child in content.get_children():
 			if child is Button:
 				child.custom_minimum_size = Vector2(0, 58)
-				child.add_theme_font_size_override("font_size", 15)
+				child.add_theme_font_size_override("font_size", 17)
 		var duration_button: Button = content.get_node("Duration")
 		duration_button.custom_minimum_size = Vector2(0, 76)
 	$Margin/VBox/BackButton.add_theme_font_size_override("font_size", 19)
 	_style_back_button($Margin/VBox/BackButton)
+
+func _setup_points_panel() -> void:
+	var panel: PanelContainer = $Margin/VBox/PointsPanel
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.028, 0.008, 0.88)
+	style.border_color = Color(1.0, 0.48, 0.06, 0.92)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
+	style.shadow_color = Color(0.95, 0.34, 0.02, 0.18)
+	style.shadow_size = 12
+	panel.add_theme_stylebox_override("panel", style)
+	for path in ["HBox/Available/Caption", "HBox/Cost/Caption"]:
+		var label: Label = panel.get_node(path)
+		label.add_theme_font_size_override("font_size", 16)
+		label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.30))
+	for label in [points_value, cost_value]:
+		label.add_theme_font_size_override("font_size", 32)
+		label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.58))
 
 func _make_card_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -88,14 +110,15 @@ func _apply_node_style(button: Button, purchased: bool, available: bool):
 	button.add_theme_color_override("font_focus_color", Color(0.96, 0.995, 1.0))
 	button.add_theme_color_override("font_disabled_color", Color(0.34, 0.43, 0.48, 0.72))
 	if purchased:
-		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.34, 0.86, 1.0, 0.72), Color(0.02, 0.11, 0.15, 0.92), 2))
-		button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.28, 0.70, 0.84, 0.48), Color(0.015, 0.075, 0.10, 0.86), 1))
+		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.82, 0.58, 0.18, 0.70), Color(0.055, 0.035, 0.012, 0.90), 2))
+		button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.62, 0.44, 0.16, 0.48), Color(0.035, 0.024, 0.012, 0.86), 1))
 	elif available:
-		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.52, 0.70, 0.55), Color(0.01, 0.035, 0.052, 0.82), 1))
-		button.add_theme_stylebox_override("hover", _make_button_style(Color(0.42, 0.88, 1.0, 0.92), Color(0.02, 0.08, 0.11, 0.94), 2))
-		button.add_theme_stylebox_override("focus", _make_button_style(Color(0.48, 0.90, 1.0, 0.96), Color(0.02, 0.07, 0.10, 0.94), 2))
+		button.add_theme_color_override("font_color", Color(1.0, 0.91, 0.64))
+		button.add_theme_stylebox_override("normal", _make_button_style(Color(1.0, 0.68, 0.14, 0.94), Color(0.095, 0.050, 0.008, 0.94), 2))
+		button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.82, 0.30, 1.0), Color(0.14, 0.075, 0.010, 0.98), 3))
+		button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.84, 0.34, 1.0), Color(0.12, 0.065, 0.010, 0.98), 3))
 	else:
-		button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.10, 0.20, 0.25, 0.42), Color(0.008, 0.016, 0.024, 0.80), 1))
+		button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.22, 0.18, 0.12, 0.32), Color(0.006, 0.010, 0.014, 0.76), 1))
 
 func _style_back_button(button: Button):
 	button.add_theme_color_override("font_color", Color(0.92, 0.86, 0.68))
@@ -107,7 +130,8 @@ func _node(branch: String, node_name: String) -> Button:
 	return get_node("Margin/VBox/Branches/%s/Content/%s" % [branch, node_name]) as Button
 
 func _refresh():
-	sp_label.text = "%d %s     •     СЛЕДУЮЩЕЕ УЛУЧШЕНИЕ: %d %s" % [SaveManager.skill_points, _points_word(SaveManager.skill_points), SaveManager.SKILL_COST, _points_word(SaveManager.SKILL_COST)]
+	points_value.text = str(SaveManager.skill_points)
+	cost_value.text = str(SaveManager.SKILL_COST)
 	_set_gameplay_button(_node("Piercing", "Gameplay"), SaveManager.piercing_gameplay, 1, "ПРОБИВАЕТ ТЁМНЫЕ СТЕНЫ ×5")
 	_set_duration_button(_node("Piercing", "Duration"), SaveManager.piercing_duration, SaveManager.piercing_gameplay >= 1)
 	_set_gameplay_button(_node("Explosive", "Gameplay"), SaveManager.explosive_gameplay, 3, _explosive_text())
