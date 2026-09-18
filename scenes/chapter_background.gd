@@ -14,6 +14,8 @@ const StormGiantStaticLayer = preload("res://scenes/storm_giant_static_layer.gd"
 const StormGiantDynamicLayer = preload("res://scenes/storm_giant_dynamic_layer.gd")
 const VoidRiftStaticLayer = preload("res://scenes/void_rift_static_layer.gd")
 const VoidRiftDynamicLayer = preload("res://scenes/void_rift_dynamic_layer.gd")
+const PrismRelicStaticLayer = preload("res://scenes/prism_relic_static_layer.gd")
+const PrismRelicDynamicLayer = preload("res://scenes/prism_relic_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
@@ -31,6 +33,8 @@ var storm_giant_static_layer: Node2D
 var storm_giant_dynamic_layer: Node2D
 var void_rift_static_layer: Node2D
 var void_rift_dynamic_layer: Node2D
+var prism_relic_static_layer: Node2D
+var prism_relic_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -80,6 +84,12 @@ func _ready():
 	void_rift_dynamic_layer=Node2D.new()
 	void_rift_dynamic_layer.set_script(VoidRiftDynamicLayer)
 	add_child(void_rift_dynamic_layer)
+	prism_relic_static_layer=Node2D.new()
+	prism_relic_static_layer.set_script(PrismRelicStaticLayer)
+	add_child(prism_relic_static_layer)
+	prism_relic_dynamic_layer=Node2D.new()
+	prism_relic_dynamic_layer.set_script(PrismRelicDynamicLayer)
+	add_child(prism_relic_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -104,6 +114,7 @@ func _sync_level():
 	_update_binary_world_layers()
 	_update_storm_giant_layers()
 	_update_void_rift_layers()
+	_update_prism_relic_layers()
 	queue_redraw()
 
 func _update_planet_layers() -> void:
@@ -190,6 +201,18 @@ func _update_void_rift_layers() -> void:
 		void_rift_static_layer.call("set_progress", progress)
 		void_rift_dynamic_layer.call("set_progress", progress)
 
+func _update_prism_relic_layers() -> void:
+	if prism_relic_static_layer == null or prism_relic_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 71 and displayed_level <= 80
+	prism_relic_static_layer.visible = active
+	prism_relic_dynamic_layer.visible = active
+	prism_relic_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 71) / 9.0
+		prism_relic_static_layer.call("set_progress", progress)
+		prism_relic_dynamic_layer.call("set_progress", progress)
+
 func _build_environment():
 	rock_shapes = [
 		PackedVector2Array([Vector2(0,1080),Vector2(0,470),Vector2(42,445),Vector2(78,475),Vector2(104,535),Vector2(145,570),Vector2(126,635),Vector2(171,690),Vector2(145,756),Vector2(190,824),Vector2(168,900),Vector2(220,970),Vector2(205,1080)]),
@@ -218,8 +241,7 @@ func _draw():
 	elif displayed_level <= 70:
 		pass
 	elif displayed_level <= 80:
-		var progress = float(displayed_level - 71) / 9.0
-		DistortedSpaceBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 90:
 		var progress = float(displayed_level - 81) / 9.0
 		FracturedRealityBackground.draw_background(self, progress, animation_time)
