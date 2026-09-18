@@ -60,6 +60,7 @@ func _build_bonus_cards() -> void:
 func _build_brick_cards() -> void:
 	for data in BRICKS:
 		var visual: Node2D = BRICK_SCENE.instantiate()
+		visual.set("preview_mode",true)
 		var hits: int = int(data["hits"])
 		visual.set("health",hits)
 		visual.set("max_health",hits)
