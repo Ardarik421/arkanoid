@@ -52,15 +52,15 @@ func _draw():
 	_draw_portal(center, pulse)
 	_draw_energy_path(center, viewport_size, pulse)
 
-	var panel_rect = Rect2(Vector2(247.0, 318.0), Vector2(466.0, 484.0))
+	var panel_rect = Rect2(Vector2(247.0, 318.0), Vector2(466.0, 555.0))
 	draw_style_box(_make_panel_style(), panel_rect)
 
 	draw_line(Vector2(300.0, 321.0), Vector2(660.0, 321.0), Color(0.42, 0.88, 1.0, 0.24 + pulse * 0.08), 1.0, true)
-	draw_line(Vector2(342.0, 807.0), Vector2(618.0, 807.0), Color(0.26, 0.66, 0.92, 0.13), 1.0, true)
+	draw_line(Vector2(342.0, 878.0), Vector2(618.0, 878.0), Color(0.26, 0.66, 0.92, 0.13), 1.0, true)
 
 	for side in [-1.0, 1.0]:
 		var x = center.x + side * 232.0
-		draw_line(Vector2(x, 353.0), Vector2(x, 760.0), Color(0.28, 0.72, 1.0, 0.09), 1.0, true)
+		draw_line(Vector2(x, 353.0), Vector2(x, 831.0), Color(0.28, 0.72, 1.0, 0.09), 1.0, true)
 
 func _draw_stars(viewport_size: Vector2, pulse: float):
 	for i in range(54):
@@ -157,13 +157,13 @@ func _setup_layout():
 	$Menu.offset_left = 285.0
 	$Menu.offset_top = 340.0
 	$Menu.offset_right = 675.0
-	$Menu.offset_bottom = 785.0
+	$Menu.offset_bottom = 856.0
 	$Menu.add_theme_constant_override("separation", 15)
 
 func _setup_title():
 	var title = $Menu/Title
-	title.text = "SPACE CRYSTALL"
-	title.custom_minimum_size = Vector2(0, 105)
+	title.text = "Space\n     Ball"
+	title.custom_minimum_size = Vector2(0, 118)
 	title.add_theme_font_size_override("font_size", 42)
 	title.add_theme_color_override("font_color", Color(0.88, 0.97, 1.0, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.02, 0.20, 0.31, 0.95))
