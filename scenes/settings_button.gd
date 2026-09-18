@@ -10,13 +10,13 @@ func _ready():
 func _style_self():
 	custom_minimum_size = Vector2(0, 56)
 	add_theme_font_size_override("font_size", 22)
-	add_theme_color_override("font_color", Color(0.72, 0.87, 0.94, 1.0))
-	add_theme_color_override("font_hover_color", Color(0.96, 0.995, 1.0, 1.0))
-	add_theme_color_override("font_focus_color", Color(0.96, 0.995, 1.0, 1.0))
-	add_theme_color_override("font_pressed_color", Color(0.72, 0.92, 1.0, 1.0))
-	add_theme_stylebox_override("normal", _make_style(Color(0.18, 0.50, 0.68, 0.38), Color(0.012, 0.035, 0.052, 0.72), 1))
-	add_theme_stylebox_override("hover", _make_style(Color(0.38, 0.84, 1.0, 0.88), Color(0.020, 0.075, 0.105, 0.90), 2))
-	add_theme_stylebox_override("focus", _make_style(Color(0.46, 0.88, 1.0, 0.96), Color(0.018, 0.062, 0.090, 0.92), 2))
+	add_theme_color_override("font_color", Color(0.92, 0.86, 0.68, 1.0))
+	add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.86, 1.0))
+	add_theme_color_override("font_focus_color", Color(1.0, 0.98, 0.86, 1.0))
+	add_theme_color_override("font_pressed_color", Color(1.0, 0.86, 0.48, 1.0))
+	add_theme_stylebox_override("normal", _make_style(Color(0.58, 0.38, 0.12, 0.42), Color(0.018, 0.028, 0.035, 0.78), 1))
+	add_theme_stylebox_override("hover", _make_style(Color(1.0, 0.72, 0.24, 0.90), Color(0.075, 0.055, 0.025, 0.92), 2))
+	add_theme_stylebox_override("focus", _make_style(Color(1.0, 0.80, 0.34, 0.96), Color(0.065, 0.045, 0.020, 0.92), 2))
 	add_theme_stylebox_override("pressed", _make_style(Color(0.70, 0.94, 1.0, 1.0), Color(0.012, 0.045, 0.070, 0.96), 2))
 
 func _compact_menu():
