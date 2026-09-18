@@ -126,6 +126,7 @@ var ambient_player: AudioStreamPlayer
 var chapter_label: Label
 var hint_label: Label
 var victory_fade: ColorRect
+var victory_input_ready: bool = false
 
 var shield_active: bool = false
 var magnet_active: bool = false
@@ -288,8 +289,6 @@ func _process(_delta):
 	update_effects_ui()
 
 	if game_won:
-		if Input.is_action_just_pressed("launch_ball"):
-			start_next_level()
 		return
 
 	if game_over:
@@ -582,6 +581,19 @@ func show_game_over():
 	$Paddle.can_move = false
 	reset_ball()
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not game_won or not victory_input_ready:
+		return
+	if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton or event is InputEventScreenTouch:
+		if event.pressed:
+			victory_input_ready = false
+			start_next_level()
+			get_viewport().set_input_as_handled()
+
+func _enable_victory_input() -> void:
+	if game_won:
+		victory_input_ready = true
+
 func show_victory():
 	var bonus = get_level_bonus()
 	var first_completion: bool = current_level > SaveManager.highest_completed_level
@@ -596,13 +608,15 @@ func show_victory():
 
 	var reward_text: String = "\n+1 ОЧКО УЛУЧШЕНИЯ" if first_completion and not use_test_level else ""
 	if current_level >= 100:
-		$WinLabel.text = "ОСНОВНОЙ МАРШРУТ ПРОЙДЕН!" + reward_text + "\nБОНУСНЫЕ УРОВНИ — СКОРО\nSPACE — главное меню"
+		$WinLabel.text = "ОСНОВНОЙ МАРШРУТ ПРОЙДЕН!" + reward_text + "\nБОНУСНЫЕ УРОВНИ — СКОРО"
 	else:
-		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + "\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+		$WinLabel.text = "УРОВЕНЬ ПРОЙДЕН" + reward_text + "\n+" + str(bonus) + " за сохранённые шары"
 	victory_fade.color = Color(0.05,0.025,0.0,0.0)
 	create_tween().tween_property(victory_fade,"color:a",0.55,0.55)
 
 	$WinLabel.visible = true
+	victory_input_ready = false
+	get_tree().create_timer(0.5).timeout.connect(_enable_victory_input)
 
 	stop_all_balls()
 	$Paddle.can_move = false
