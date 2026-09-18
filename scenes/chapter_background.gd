@@ -41,7 +41,8 @@ func _build_environment():
 
 func _draw():
 	if displayed_level <= 10:
-		_draw_core()
+		var progress: float = float(clampi(displayed_level, 1, 10) - 1) / 9.0
+		PlanetSpaceBackground.draw_background(self, progress, animation_time)
 	elif displayed_level <= 20:
 		_draw_surface()
 	elif displayed_level <= 30:
