@@ -4,6 +4,8 @@ const PlanetSpaceBackground = preload("res://scenes/planet_space_background.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
+var planet_redraw_accumulator: float = 0.0
+const PLANET_REDRAW_INTERVAL: float = 1.0 / 20.0
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -21,7 +23,13 @@ func _process(delta):
 		var level_value = int(main.get("current_level"))
 		if level_value != displayed_level:
 			displayed_level = level_value
-	queue_redraw()
+	if displayed_level <= 10:
+		planet_redraw_accumulator += delta
+		if planet_redraw_accumulator >= PLANET_REDRAW_INTERVAL:
+			planet_redraw_accumulator = 0.0
+			queue_redraw()
+	else:
+		queue_redraw()
 
 func _sync_level():
 	var main = get_parent()
