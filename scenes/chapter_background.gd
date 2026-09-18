@@ -4,6 +4,8 @@ const PlanetStaticLayer = preload("res://scenes/planet_static_layer.gd")
 const PlanetDynamicLayer = preload("res://scenes/planet_dynamic_layer.gd")
 const RedPlanetStaticLayer = preload("res://scenes/red_planet_static_layer.gd")
 const RedPlanetDynamicLayer = preload("res://scenes/red_planet_dynamic_layer.gd")
+const IceGiantStaticLayer = preload("res://scenes/ice_giant_static_layer.gd")
+const IceGiantDynamicLayer = preload("res://scenes/ice_giant_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
@@ -11,6 +13,8 @@ var planet_static_layer: Node2D
 var planet_dynamic_layer: Node2D
 var red_planet_static_layer: Node2D
 var red_planet_dynamic_layer: Node2D
+var ice_giant_static_layer: Node2D
+var ice_giant_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -30,6 +34,12 @@ func _ready():
 	red_planet_dynamic_layer = Node2D.new()
 	red_planet_dynamic_layer.set_script(RedPlanetDynamicLayer)
 	add_child(red_planet_dynamic_layer)
+	ice_giant_static_layer=Node2D.new()
+	ice_giant_static_layer.set_script(IceGiantStaticLayer)
+	add_child(ice_giant_static_layer)
+	ice_giant_dynamic_layer=Node2D.new()
+	ice_giant_dynamic_layer.set_script(IceGiantDynamicLayer)
+	add_child(ice_giant_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -49,6 +59,7 @@ func _sync_level():
 		displayed_level = int(main.get("current_level"))
 	_update_planet_layers()
 	_update_red_planet_layers()
+	_update_ice_giant_layers()
 	queue_redraw()
 
 func _update_planet_layers() -> void:
@@ -75,6 +86,18 @@ func _update_red_planet_layers() -> void:
 		red_planet_static_layer.call("set_progress", progress)
 		red_planet_dynamic_layer.call("set_progress", progress)
 
+func _update_ice_giant_layers() -> void:
+	if ice_giant_static_layer == null or ice_giant_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 21 and displayed_level <= 30
+	ice_giant_static_layer.visible = active
+	ice_giant_dynamic_layer.visible = active
+	ice_giant_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 21) / 9.0
+		ice_giant_static_layer.call("set_progress", progress)
+		ice_giant_dynamic_layer.call("set_progress", progress)
+
 func _build_environment():
 	rock_shapes = [
 		PackedVector2Array([Vector2(0,1080),Vector2(0,470),Vector2(42,445),Vector2(78,475),Vector2(104,535),Vector2(145,570),Vector2(126,635),Vector2(171,690),Vector2(145,756),Vector2(190,824),Vector2(168,900),Vector2(220,970),Vector2(205,1080)]),
@@ -93,7 +116,7 @@ func _draw():
 	elif displayed_level <= 20:
 		pass
 	elif displayed_level <= 30:
-		_draw_biosphere()
+		pass
 	elif displayed_level <= 40:
 		_draw_upper_atmosphere()
 	elif displayed_level <= 50:
