@@ -4,10 +4,7 @@ const GAME_SCENE: String = "res://scenes/main.tscn"
 const SKILL_TREE_SCENE: String = "res://scenes/skill_tree.tscn"
 const LEVEL_SELECT_SCENE: String = "res://scenes/level_select.tscn"
 const GUIDE_SCENE: String = "res://scenes/game_guide.tscn"
-const MENU_MUSIC: AudioStream = preload("res://audio/music/menu_theme.wav")
-
 var animation_time: float = 0.0
-var menu_music_player: AudioStreamPlayer
 
 func _ready():
 	$Menu/ContinueButton.disabled = SaveManager.highest_unlocked_level <= 1
@@ -16,21 +13,9 @@ func _ready():
 	_setup_title()
 	_setup_buttons()
 	_setup_confirmation_dialog()
-	_setup_music()
-	$Menu/NewGameButton.grab_focus()
+	MenuMusic.play_menu_music()
+	$Menu/NewGameButton.release_focus()
 	queue_redraw()
-
-func _setup_music():
-	menu_music_player = AudioStreamPlayer.new()
-	menu_music_player.stream = MENU_MUSIC
-	menu_music_player.volume_db = -5.0
-	menu_music_player.finished.connect(_on_menu_music_finished)
-	add_child(menu_music_player)
-	menu_music_player.play()
-
-func _on_menu_music_finished():
-	if is_instance_valid(menu_music_player):
-		menu_music_player.play()
 
 func _process(delta):
 	animation_time += delta
@@ -183,7 +168,7 @@ func _style_button(button: Button):
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.58, 0.38, 0.12, 0.42), Color(0.018, 0.028, 0.035, 0.78), 1))
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.72, 0.24, 0.90), Color(0.075, 0.055, 0.025, 0.92), 2))
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.80, 0.34, 0.96), Color(0.065, 0.045, 0.020, 0.92), 2))
-	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.70, 0.94, 1.0, 1.0), Color(0.012, 0.045, 0.070, 0.96), 2))
+	button.add_theme_stylebox_override("pressed", _make_button_style(Color(1.0, 0.76, 0.24, 1.0), Color(0.095, 0.055, 0.012, 0.96), 2))
 	button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.12, 0.19, 0.23, 0.48), Color(0.010, 0.018, 0.025, 0.72), 1))
 
 func _make_button_style(border: Color, background: Color, border_width: int) -> StyleBoxFlat:
@@ -231,13 +216,18 @@ func _on_new_game_pressed():
 func _on_new_game_confirmed():
 	start_new_game()
 
+func _leave_menu_for_game() -> void:
+	MenuMusic.stop_menu_music()
+
 func start_new_game():
 	SaveManager.reset_progress()
 	SaveManager.selected_level = 1
+	_leave_menu_for_game()
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 func _on_continue_pressed():
 	SaveManager.selected_level = SaveManager.highest_unlocked_level
+	_leave_menu_for_game()
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 func _on_level_select_pressed():
