@@ -1,6 +1,7 @@
 extends RefCounted
 
 static func draw_background(canvas: CanvasItem, progress: float, time: float) -> void:
+	progress = clampf(progress, 0.0, 1.0)
 	_draw_space(canvas, progress)
 	_draw_nebula(canvas, progress, time)
 	_draw_stars(canvas, progress, time)
@@ -18,7 +19,7 @@ static func _draw_space(c: CanvasItem, progress: float) -> void:
 		c.draw_rect(Rect2(0, y, 960, 13), top.lerp(bottom, t))
 
 static func _draw_nebula(c: CanvasItem, progress: float, time: float) -> void:
-	var drift: float = sin(time * 0.035) * 12.0
+	var drift: float = sin(time * 0.035) * 12.0 - progress * 105.0
 	var centers: Array[Vector2] = [
 		Vector2(600 + drift, 95), Vector2(710 + drift, 165), Vector2(525 + drift, 225),
 		Vector2(805 + drift, 300), Vector2(665 + drift, 375), Vector2(865 + drift, 470)
@@ -49,7 +50,8 @@ static func _draw_stars(c: CanvasItem, progress: float, time: float) -> void:
 			c.draw_line(Vector2(x, y - flare), Vector2(x, y + flare), Color(0.55, 0.82, 1.0, 0.12 + pulse * 0.18), 1.0, true)
 
 static func _draw_sun(c: CanvasItem, progress: float, time: float) -> void:
-	var center: Vector2 = Vector2(900.0 - progress * 18.0, 430.0 + progress * 22.0)
+	var arc: float = sin(progress * PI)
+	var center: Vector2 = Vector2(900.0 - progress * 205.0, 430.0 - arc * 105.0 + progress * 95.0)
 	var pulse: float = 0.90 + 0.10 * sin(time * 1.15)
 	for i in range(9, 0, -1):
 		c.draw_circle(center, 12.0 + float(i) * 11.0, Color(1.0, 0.56, 0.20, 0.006 * float(i) * pulse))
@@ -62,8 +64,9 @@ static func _draw_sun(c: CanvasItem, progress: float, time: float) -> void:
 	c.draw_circle(center, 3.5 * pulse, Color(1.0, 1.0, 0.94, 0.96))
 
 static func _draw_moon(c: CanvasItem, progress: float, time: float) -> void:
-	var center: Vector2 = Vector2(735.0 + sin(time * 0.035) * 5.0, 245.0 + progress * 12.0)
-	var radius: float = 67.0
+	var arc: float = sin(progress * PI)
+	var center: Vector2 = Vector2(735.0 - progress * 430.0 + sin(time * 0.035) * 5.0, 245.0 + arc * 105.0 + progress * 55.0)
+	var radius: float = 67.0 - progress * 18.0
 	for i in range(5, 0, -1):
 		c.draw_circle(center, radius + float(i) * 10.0, Color(0.16, 0.52, 0.90, 0.008 * float(i)))
 	c.draw_circle(center, radius, Color(0.035, 0.065, 0.105, 0.98))
@@ -78,14 +81,14 @@ static func _draw_moon(c: CanvasItem, progress: float, time: float) -> void:
 static func _draw_asteroid_belt(c: CanvasItem, progress: float, time: float) -> void:
 	for i in range(62):
 		var t: float = float(i) / 61.0
-		var x: float = -80.0 + t * 1120.0
-		var y: float = 255.0 + t * 360.0 + sin(t * 10.0 + time * 0.045) * 26.0
+		var x: float = -80.0 + t * 1120.0 + progress * 75.0
+		var y: float = 255.0 + t * 360.0 + progress * 120.0 + sin(t * 10.0 + time * 0.045) * (26.0 + progress * 18.0)
 		var depth: float = 0.45 + 0.55 * (0.5 + 0.5 * sin(float(i) * 1.91))
 		var radius: float = 2.0 + depth * (3.0 + float(i % 7) * 1.45)
 		_draw_asteroid(c, Vector2(x, y), radius, float(i) * 0.73 + time * 0.012, depth)
 	for i in range(18):
 		var t: float = float(i) / 17.0
-		var p: Vector2 = Vector2(-90.0 + t * 1130.0, 295.0 + t * 350.0 + sin(float(i) * 2.3) * 58.0)
+		var p: Vector2 = Vector2(-90.0 + t * 1130.0 + progress * 75.0, 295.0 + t * 350.0 + progress * 120.0 + sin(float(i) * 2.3) * 58.0)
 		_draw_asteroid(c, p, 9.0 + float(i % 5) * 3.5, float(i), 0.78)
 
 static func _draw_asteroid(c: CanvasItem, center: Vector2, radius: float, phase: float, depth: float) -> void:
@@ -101,8 +104,10 @@ static func _draw_asteroid(c: CanvasItem, center: Vector2, radius: float, phase:
 	c.draw_circle(center - Vector2(radius * 0.22, radius * 0.18), maxf(0.8, radius * 0.16), Color(0.22, 0.27, 0.30, 0.22))
 
 static func _draw_planet(c: CanvasItem, progress: float, time: float) -> void:
-	var center: Vector2 = Vector2(175.0 - progress * 22.0, 890.0 + progress * 18.0)
-	var radius: float = 385.0 + progress * 16.0
+	# Chapter 1 is a fly-by: approach the planet, skim its limb, then leave it behind.
+	var approach: float = sin(progress * PI)
+	var center: Vector2 = Vector2(175.0 - progress * 360.0, 890.0 + progress * 150.0 - approach * 55.0)
+	var radius: float = 385.0 + approach * 105.0 - progress * 38.0
 	for i in range(12, 0, -1):
 		var r: float = radius + float(i) * 12.0
 		c.draw_circle(center, r, Color(0.05, 0.52, 0.92, 0.0035 * float(i)))
