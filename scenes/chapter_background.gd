@@ -2,11 +2,15 @@ extends Node2D
 
 const PlanetStaticLayer = preload("res://scenes/planet_static_layer.gd")
 const PlanetDynamicLayer = preload("res://scenes/planet_dynamic_layer.gd")
+const RedPlanetStaticLayer = preload("res://scenes/red_planet_static_layer.gd")
+const RedPlanetDynamicLayer = preload("res://scenes/red_planet_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
 var planet_static_layer: Node2D
 var planet_dynamic_layer: Node2D
+var red_planet_static_layer: Node2D
+var red_planet_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -20,6 +24,12 @@ func _ready():
 	planet_dynamic_layer = Node2D.new()
 	planet_dynamic_layer.set_script(PlanetDynamicLayer)
 	add_child(planet_dynamic_layer)
+	red_planet_static_layer = Node2D.new()
+	red_planet_static_layer.set_script(RedPlanetStaticLayer)
+	add_child(red_planet_static_layer)
+	red_planet_dynamic_layer = Node2D.new()
+	red_planet_dynamic_layer.set_script(RedPlanetDynamicLayer)
+	add_child(red_planet_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -38,6 +48,7 @@ func _sync_level():
 	if main != null:
 		displayed_level = int(main.get("current_level"))
 	_update_planet_layers()
+	_update_red_planet_layers()
 	queue_redraw()
 
 func _update_planet_layers() -> void:
@@ -51,6 +62,18 @@ func _update_planet_layers() -> void:
 		var progress: float = float(clampi(displayed_level, 1, 10) - 1) / 9.0
 		planet_static_layer.call("set_progress", progress)
 		planet_dynamic_layer.call("set_progress", progress)
+
+func _update_red_planet_layers() -> void:
+	if red_planet_static_layer == null or red_planet_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 11 and displayed_level <= 20
+	red_planet_static_layer.visible = active
+	red_planet_dynamic_layer.visible = active
+	red_planet_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(displayed_level - 11) / 9.0
+		red_planet_static_layer.call("set_progress", progress)
+		red_planet_dynamic_layer.call("set_progress", progress)
 
 func _build_environment():
 	rock_shapes = [
@@ -68,7 +91,7 @@ func _draw():
 	if displayed_level <= 10:
 		pass
 	elif displayed_level <= 20:
-		_draw_surface()
+		pass
 	elif displayed_level <= 30:
 		_draw_biosphere()
 	elif displayed_level <= 40:
