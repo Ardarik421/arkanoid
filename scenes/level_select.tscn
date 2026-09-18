@@ -8,12 +8,12 @@ content_margin_left = 26.0
 content_margin_top = 22.0
 content_margin_right = 26.0
 content_margin_bottom = 22.0
-bg_color = Color(0.006, 0.014, 0.028, 0.54)
+bg_color = Color(0.006, 0.010, 0.016, 0.66)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.2, 0.58, 0.92, 0.7)
+border_color = Color(0.88, 0.58, 0.14, 0.72)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
@@ -22,31 +22,31 @@ shadow_color = Color(0, 0, 0, 0.54)
 shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back"]
-bg_color = Color(0.018, 0.04, 0.068, 0.9)
+bg_color = Color(0.040, 0.028, 0.012, 0.92)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.28, 0.68, 1, 0.78)
+border_color = Color(0.92, 0.62, 0.16, 0.82)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(0.06, 0.35, 0.65, 0.24)
+shadow_color = Color(0.70, 0.38, 0.06, 0.22)
 shadow_size = 7
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back_hover"]
-bg_color = Color(0.04, 0.085, 0.13, 0.96)
+bg_color = Color(0.075, 0.052, 0.018, 0.96)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.45, 0.82, 1, 0.98)
+border_color = Color(1, 0.76, 0.26, 0.98)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(0.08, 0.5, 0.9, 0.36)
+shadow_color = Color(0.82, 0.48, 0.08, 0.32)
 shadow_size = 9
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_back_pressed"]
@@ -55,7 +55,7 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.2, 0.54, 0.82, 0.92)
+border_color = Color(0.82, 0.54, 0.12, 0.92)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -94,8 +94,8 @@ theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="Panel/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.93, 1, 1)
-theme_override_colors/font_outline_color = Color(0.025, 0.12, 0.2, 1)
+theme_override_colors/font_color = Color(1, 0.92, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0.22, 0.10, 0.01, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 42
 text = "МАРШРУТ ПРЕСЛЕДОВАНИЯ"
@@ -103,7 +103,7 @@ horizontal_alignment = 1
 
 [node name="Info" type="Label" parent="Panel/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.68, 0.8, 0.9, 1)
+theme_override_colors/font_color = Color(0.92, 0.82, 0.64, 1)
 theme_override_font_sizes/font_size = 18
 text = "Из глубины в бесконечность"
 horizontal_alignment = 1
@@ -118,10 +118,10 @@ columns = 5
 [node name="BackButton" type="Button" parent="Panel/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 68)
-theme_override_colors/font_color = Color(0.78, 0.93, 1, 1)
-theme_override_colors/font_hover_color = Color(0.94, 0.98, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.65, 0.86, 1, 1)
-theme_override_colors/font_focus_color = Color(0.94, 0.98, 1, 1)
+theme_override_colors/font_color = Color(1, 0.92, 0.68, 1)
+theme_override_colors/font_hover_color = Color(1, 0.97, 0.84, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.80, 0.32, 1)
+theme_override_colors/font_focus_color = Color(1, 0.97, 0.84, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBox_back")
