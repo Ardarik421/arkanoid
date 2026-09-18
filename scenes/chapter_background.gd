@@ -1,11 +1,12 @@
 extends Node2D
 
-const PlanetSpaceBackground = preload("res://scenes/planet_space_background.gd")
+const PlanetStaticLayer = preload("res://scenes/planet_static_layer.gd")
+const PlanetDynamicLayer = preload("res://scenes/planet_dynamic_layer.gd")
 
 var displayed_level: int = -1
 var animation_time: float = 0.0
-var planet_redraw_accumulator: float = 0.0
-const PLANET_REDRAW_INTERVAL: float = 1.0 / 12.0
+var planet_static_layer: Node2D
+var planet_dynamic_layer: Node2D
 var rock_shapes: Array[PackedVector2Array] = []
 var mid_rock_shapes: Array[PackedVector2Array] = []
 var ember_points: Array[Vector2] = []
@@ -13,6 +14,12 @@ var small_cracks: Array[PackedVector2Array] = []
 
 func _ready():
 	_build_environment()
+	planet_static_layer = Node2D.new()
+	planet_static_layer.set_script(PlanetStaticLayer)
+	add_child(planet_static_layer)
+	planet_dynamic_layer = Node2D.new()
+	planet_dynamic_layer.set_script(PlanetDynamicLayer)
+	add_child(planet_dynamic_layer)
 	call_deferred("_sync_level")
 	queue_redraw()
 
@@ -23,19 +30,27 @@ func _process(delta):
 		var level_value = int(main.get("current_level"))
 		if level_value != displayed_level:
 			displayed_level = level_value
-	if displayed_level <= 10:
-		planet_redraw_accumulator += delta
-		if planet_redraw_accumulator >= PLANET_REDRAW_INTERVAL:
-			planet_redraw_accumulator = 0.0
-			queue_redraw()
-	else:
+	if displayed_level > 10:
 		queue_redraw()
 
 func _sync_level():
 	var main = get_parent()
 	if main != null:
 		displayed_level = int(main.get("current_level"))
+	_update_planet_layers()
 	queue_redraw()
+
+func _update_planet_layers() -> void:
+	if planet_static_layer == null or planet_dynamic_layer == null:
+		return
+	var active: bool = displayed_level >= 1 and displayed_level <= 10
+	planet_static_layer.visible = active
+	planet_dynamic_layer.visible = active
+	planet_dynamic_layer.process_mode = Node.PROCESS_MODE_INHERIT if active else Node.PROCESS_MODE_DISABLED
+	if active:
+		var progress: float = float(clampi(displayed_level, 1, 10) - 1) / 9.0
+		planet_static_layer.call("set_progress", progress)
+		planet_dynamic_layer.call("set_progress", progress)
 
 func _build_environment():
 	rock_shapes = [
@@ -51,8 +66,7 @@ func _build_environment():
 
 func _draw():
 	if displayed_level <= 10:
-		var progress: float = float(clampi(displayed_level, 1, 10) - 1) / 9.0
-		PlanetSpaceBackground.draw_background(self, progress, animation_time)
+		pass
 	elif displayed_level <= 20:
 		_draw_surface()
 	elif displayed_level <= 30:
