@@ -190,8 +190,24 @@ func _make_button_style(border: Color, background: Color, border_width: int) -> 
 func _setup_confirmation_dialog():
 	var dialog = $NewGameConfirmation
 	dialog.add_theme_font_size_override("font_size", 20)
+	dialog.add_theme_color_override("font_color", Color(1.0, 0.94, 0.76, 1.0))
+	dialog.add_theme_stylebox_override("panel", _make_dialog_style())
 	_style_button(dialog.get_ok_button())
 	_style_button(dialog.get_cancel_button())
+
+func _make_dialog_style() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.008, 0.012, 0.016, 0.985)
+	style.border_color = Color(0.92, 0.62, 0.16, 0.72)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(14)
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 14.0
+	style.content_margin_bottom = 14.0
+	style.shadow_color = Color(0.90, 0.48, 0.08, 0.14)
+	style.shadow_size = 16
+	return style
 
 func _on_new_game_pressed():
 	if SaveManager.highest_unlocked_level > 1:
