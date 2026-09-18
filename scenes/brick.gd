@@ -9,6 +9,7 @@ signal exploded(brick_position: Vector2)
 @export var max_health: int = 1
 @export var points: int = 100
 @export var indestructible: bool = false
+@export var preview_mode: bool = false
 
 var guaranteed_bonus: bool = false
 var powerful_bonus: bool = false
@@ -40,6 +41,9 @@ func _ready():
 	glass_color = GLASS_PALETTE.pick_random()
 	set_process(false)
 	queue_redraw()
+
+	if preview_mode:
+		return
 
 	var bricks_parent = get_parent()
 	if not bricks_parent.has_meta(BONUS_ASSIGNMENT_META):
