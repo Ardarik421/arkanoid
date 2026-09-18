@@ -327,6 +327,7 @@ func spawn_ball(source_ball: CharacterBody2D) -> CharacterBody2D:
 	new_ball.is_explosive = source_ball.is_explosive
 	new_ball.shield_active = shield_active
 	new_ball.magnet_active = magnet_active
+	new_ball.shield_return_boost_active = source_ball.shield_return_boost_active
 	new_ball.is_attached = false
 
 	for ball in active_balls:
@@ -451,6 +452,10 @@ func return_to_main_menu():
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 func start_next_level():
+	if current_level >= 100:
+		return_to_main_menu()
+		return
+
 	current_level += 1
 	score_at_level_start = score
 	update_level_label()
@@ -509,11 +514,18 @@ func show_victory():
 	var bonus = get_level_bonus()
 
 	score += bonus
-	SaveManager.unlock_level(current_level + 1)
+
+	if not use_test_level:
+		SaveManager.unlock_level(current_level + 1)
+
 	update_score_label()
 	clear_bonuses()
 
-	$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+	if current_level >= 100:
+		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — главное меню"
+	else:
+		$WinLabel.text = "ПОБЕДА!\nБонус за сохраненные шары: +" + str(bonus) + "\nSPACE — следующий уровень"
+
 	$WinLabel.visible = true
 
 	stop_all_balls()
@@ -664,28 +676,28 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 			if piercing_time > 0.0:
 				piercing_time += PIERCING_REPEAT_DURATION
 			else:
-				piercing_time = PIERCING_DURATION
+				piercing_time = SaveManager.get_piercing_duration(PIERCING_DURATION)
 				set_all_balls_piercing(true)
 
 		Bonus.BonusType.EXPLOSIVE_BALL:
 			if explosive_time > 0.0:
 				explosive_time += EXPLOSIVE_REPEAT_DURATION
 			else:
-				explosive_time = EXPLOSIVE_DURATION
+				explosive_time = SaveManager.get_explosive_duration(EXPLOSIVE_DURATION)
 				set_all_balls_explosive(true)
 
 		Bonus.BonusType.SHIELD:
 			if shield_time > 0.0:
 				shield_time += SHIELD_REPEAT_DURATION
 			else:
-				shield_time = SHIELD_DURATION
+				shield_time = SaveManager.get_shield_duration(SHIELD_DURATION)
 				set_shield_enabled(true)
 
 		Bonus.BonusType.MAGNET:
 			if magnet_time > 0.0:
 				magnet_time += MAGNET_REPEAT_DURATION
 			else:
-				magnet_time = MAGNET_DURATION
+				magnet_time = SaveManager.get_magnet_duration(MAGNET_DURATION)
 				set_magnet_enabled(true)
 
 func clear_bonuses():

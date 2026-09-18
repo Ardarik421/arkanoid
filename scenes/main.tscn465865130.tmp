@@ -1,0 +1,435 @@
+[gd_scene format=3 uid="uid://gc8ij6q4gvia"]
+
+[ext_resource type="PackedScene" uid="uid://cvood65r4pw7f" path="res://scenes/ball.tscn" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://cue3rmvxipnq8" path="res://scenes/main.gd" id="1_sugp2"]
+[ext_resource type="PackedScene" uid="uid://b4kt1kvh5w7el" path="res://scenes/paddle.tscn" id="2_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://c21lyl7xsd1i0" path="res://scenes/brick.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://can5q72w1heag" path="res://scenes/bonus.tscn" id="5_tbgi4"]
+[ext_resource type="Script" uid="uid://bauva4yg63gt8" path="res://scenes/pause_menu.gd" id="6_tefeu"]
+[ext_resource type="Script" uid="uid://d1hhkv3rlljld" path="res://scenes/chapter_background.gd" id="7_background"]
+[ext_resource type="Script" uid="uid://dv2lgbgv5kujp" path="res://scenes/effect_card.gd" id="8_effect_card"]
+[ext_resource type="Script" uid="uid://cwwtbksevh70s" path="res://scenes/shield_visual.gd" id="9_shield_visual"]
+[ext_resource type="Script" uid="uid://ssa7opoa6sba" path="res://scenes/magnet_visual.gd" id="10_magnet_visual"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ck4f2"]
+size = Vector2(40, 1080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8pemw"]
+size = Vector2(960, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2k4f0"]
+size = Vector2(960, 80)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_lives"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.68, 1, 0.72)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.08, 0.48, 0.85, 0.24)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_score"]
+content_margin_left = 12.0
+content_margin_right = 12.0
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.82, 0.92, 0.48)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.48)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_level"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.018, 0.035, 0.055, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.82, 1, 0.62)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.08, 0.48, 0.85, 0.18)
+shadow_size = 5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mxp4v"]
+size = Vector2(920, 12)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_p"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.11, 0.085, 0.018, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.82, 0.22, 0.9)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_e"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.13, 0.025, 0.012, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.23, 0.08, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_b"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.018, 0.055, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.58, 1, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_m"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.11, 0.018, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.92, 0.24, 0.96, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_f"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.13, 0.07, 0.012, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.62, 0.16, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_effect_h"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.085, 0.018, 0.13, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.36, 1, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="Main" type="Node2D" unique_id=1023616930]
+script = ExtResource("1_sugp2")
+brick_scene = ExtResource("3_sugp2")
+bonus_scene = ExtResource("5_tbgi4")
+test_start_level = 25
+use_test_level = false
+test_pattern = 7
+
+[node name="ChapterBackground" type="Node2D" parent="." unique_id=922490815]
+z_index = -100
+script = ExtResource("7_background")
+
+[node name="Walls" type="Node2D" parent="." unique_id=1927932240]
+
+[node name="LeftWall" type="StaticBody2D" parent="Walls" unique_id=316117791]
+position = Vector2(20, 540)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/LeftWall" unique_id=49621843]
+shape = SubResource("RectangleShape2D_ck4f2")
+
+[node name="RightWall2" type="StaticBody2D" parent="Walls" unique_id=635096243]
+position = Vector2(940, 540)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/RightWall2" unique_id=694679426]
+shape = SubResource("RectangleShape2D_ck4f2")
+
+[node name="TopWall" type="StaticBody2D" parent="Walls" unique_id=1644843342]
+position = Vector2(480, 20)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/TopWall" unique_id=98191690]
+shape = SubResource("RectangleShape2D_8pemw")
+
+[node name="Ball" parent="." unique_id=139788040 instance=ExtResource("1_o5qli")]
+position = Vector2(480, 700)
+speed = 700.0
+
+[node name="Paddle" parent="." unique_id=1838408433 instance=ExtResource("2_0wfyh")]
+position = Vector2(480, 980)
+
+[node name="MagnetVisual" type="Node2D" parent="." unique_id=1234936299]
+visible = false
+z_index = 3
+script = ExtResource("10_magnet_visual")
+
+[node name="Bricks" type="Node2D" parent="." unique_id=1180379604]
+
+[node name="DeathZone" type="Area2D" parent="." unique_id=724698786]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathZone" unique_id=1245830123]
+position = Vector2(480, 1120)
+shape = SubResource("RectangleShape2D_2k4f0")
+
+[node name="LivesLabel" type="Label" parent="." unique_id=576695795]
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 110.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.78, 0.93, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.22, 0.34, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_lives")
+text = "HP 3"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverLabel" type="Label" parent="." unique_id=303475574]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 471.0
+offset_right = 960.0
+offset_bottom = 608.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "ИГРА ОКОНЧЕНА
+
+SPACE - новая игра
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinLabel" type="Label" parent="." unique_id=328525402]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 471.0
+offset_right = 960.0
+offset_bottom = 608.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "ПОБЕДА!
+
+SPACE - продолжить"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=361577964]
+offset_left = 120.0
+offset_top = 16.0
+offset_right = 245.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.93, 0.96, 1, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.09, 0.13, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_score")
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelLabel" type="Label" parent="." unique_id=1069848913]
+offset_left = 255.0
+offset_top = 16.0
+offset_right = 365.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.72, 0.91, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.2, 0.31, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_level")
+text = "LVL 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Shield" type="StaticBody2D" parent="." unique_id=1753832067]
+process_mode = 4
+position = Vector2(480, 1040)
+
+[node name="ShieldVisual" type="Node2D" parent="Shield" unique_id=1333693576]
+z_index = 3
+script = ExtResource("9_shield_visual")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shield" unique_id=1149921399]
+shape = SubResource("RectangleShape2D_mxp4v")
+disabled = true
+
+[node name="EffectsUI" type="HBoxContainer" parent="." unique_id=367337261]
+offset_left = 390.0
+offset_top = 16.0
+offset_right = 940.0
+offset_bottom = 62.0
+theme_override_constants/separation = 7
+alignment = 2
+
+[node name="Piercing" type="Label" parent="EffectsUI" unique_id=1437575256]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.12, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_p")
+text = "7.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+
+[node name="Explosive" type="Label" parent="EffectsUI" unique_id=1610261575]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.66, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.025, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_e")
+text = "12.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "explosive"
+
+[node name="Shield" type="Label" parent="EffectsUI" unique_id=1697420844]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.84, 1, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.08, 0.2, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_b")
+text = "15.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "shield"
+
+[node name="Magnet" type="Label" parent="EffectsUI" unique_id=1670060544]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.67, 1, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.01, 0.19, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_m")
+text = "15.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "magnet"
+
+[node name="Fast" type="Label" parent="EffectsUI" unique_id=157303934]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.19, 0.07, 0.01, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_f")
+text = "12.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "fast"
+
+[node name="Hyper" type="Label" parent="EffectsUI" unique_id=2138204108]
+custom_minimum_size = Vector2(82, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.72, 1, 1)
+theme_override_colors/font_outline_color = Color(0.13, 0.01, 0.19, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_effect_h")
+text = "6.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = ExtResource("8_effect_card")
+effect_kind = "hyper"
+
+[node name="PauseLayer" type="CanvasLayer" parent="." unique_id=135469963]
+process_mode = 3
+visible = false
+script = ExtResource("6_tefeu")
+
+[node name="PauseOverlay" type="ColorRect" parent="PauseLayer" unique_id=2109353330]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6509804)
+
+[node name="PauseMenu" type="VBoxContainer" parent="PauseLayer/PauseOverlay" unique_id=266760029]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.0
+offset_top = -46.5
+offset_right = 69.0
+offset_bottom = 46.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseTitle" type="Label" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=119717442]
+layout_mode = 2
+text = "ПАУЗА"
+
+[node name="ContinueButton" type="Button" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=2140518272]
+layout_mode = 2
+text = "Продолжить"
+
+[node name="MainMenuButton" type="Button" parent="PauseLayer/PauseOverlay/PauseMenu" unique_id=1917928394]
+layout_mode = 2
+text = "В главное меню"
+
+[connection signal="body_entered" from="DeathZone" to="." method="_on_death_zone_body_entered"]
