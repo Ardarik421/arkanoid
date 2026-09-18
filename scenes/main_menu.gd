@@ -158,10 +158,19 @@ func _setup_buttons():
 		$Menu/LevelSelectButton,
 		$Menu/SkillTreeButton,
 		$Menu/SettingsButton,
-		$Menu/GuideButton,
 		$Menu/ExitButton
 	]:
 		_style_button(button)
+	_style_guide_button()
+
+func _style_guide_button() -> void:
+	var button: Button = $GuideButton
+	button.add_theme_color_override("font_color", Color(1.0, 0.90, 0.58))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.82))
+	button.add_theme_color_override("font_focus_color", Color(1.0, 0.98, 0.82))
+	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.92, 0.60, 0.14, 0.72), Color(0.025, 0.018, 0.010, 0.88), 2))
+	button.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.80, 0.28, 1.0), Color(0.10, 0.060, 0.012, 0.96), 3))
+	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.80, 0.28, 1.0), Color(0.10, 0.060, 0.012, 0.96), 3))
 
 func _style_button(button: Button):
 	button.custom_minimum_size = Vector2(0, 62)
