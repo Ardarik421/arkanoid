@@ -3,10 +3,7 @@ extends Node
 var main: Node
 var score_label: Label
 var level_label: Label
-var level_intro: Label
-var last_level: int = -1
 var last_score: int = -1
-var level_tween: Tween
 var score_tween: Tween
 
 func _ready():
@@ -19,11 +16,7 @@ func _ready():
 	last_score = int(main.get("score"))
 
 func _process(_delta):
-	var current_level = int(main.get("current_level"))
 	var current_score = int(main.get("score"))
-
-	if current_level != last_level:
-		last_level = current_level
 
 	if current_score != last_score:
 		last_score = current_score
