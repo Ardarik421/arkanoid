@@ -52,7 +52,7 @@ enum LevelStyle {
 # =========================
 
 @export_range(1, 100) var test_start_level: int = 1
-@export var use_test_level: bool = true
+@export var use_test_level: bool = false
 
 @export var use_test_pattern: bool = false
 @export var test_pattern: LevelPattern = LevelPattern.VERTICAL_WALL
@@ -872,11 +872,6 @@ func apply_level_settings():
 	if current_level >= 30:
 		available_patterns.append(LevelPattern.HORIZONTAL_GAP)
 
-	print(
-		"Level: ", current_level,
-		" | Style: ", LevelStyle.keys()[current_level_style],
-		" | Fill: ", current_fill_chance
-	)
 
 	if use_test_pattern:
 		active_patterns.append(test_pattern)
@@ -942,12 +937,6 @@ func apply_level_settings():
 
 				available_patterns.erase(LevelPattern.CROSS)
 
-	var pattern_names: Array[String] = []
-
-	for pattern in active_patterns:
-		pattern_names.append(LevelPattern.keys()[pattern])
-
-	print("Patterns: ", ", ".join(pattern_names))
 
 func get_pattern_vertical_offset(pattern: LevelPattern) -> int:
 	if (
