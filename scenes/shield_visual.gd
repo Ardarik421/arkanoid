@@ -1,7 +1,7 @@
 extends Node2D
 
 var animation_time: float = 0.0
-var shield_width: float = shield_width
+var shield_width: float = 920.0
 
 func set_shield_width(value: float) -> void:
 	shield_width = value
