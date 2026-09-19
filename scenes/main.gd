@@ -175,7 +175,7 @@ const PADDLE_BOTTOM_MARGIN: float = 80.0
 const SHIELD_BOTTOM_MARGIN: float = 120.0
 const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 80.0
 const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 88.0
-const EFFECTS_BELOW_PADDLE_GAP: float = 6.0
+const EFFECTS_BELOW_PADDLE_GAP: float = 9.0
 const PADDLE_HALF_HEIGHT: float = 12.0
 const EFFECTS_BOTTOM_MARGIN: float = 12.0
 
@@ -674,10 +674,18 @@ func reset_level_effects():
 # ПОБЕДА И ПОРАЖЕНИЕ
 # =========================
 
+func _layout_game_over_label() -> void:
+	var arena_size := get_viewport_rect().size
+	$GameOverLabel.position = Vector2.ZERO
+	$GameOverLabel.size = arena_size
+	$GameOverLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$GameOverLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
 func show_game_over():
 	game_over = true
 	$GameOverLabel.text = "ИГРА ОКОНЧЕНА\nSPACE — повторить уровень\nESC — главное меню"
 	$GameOverLabel.visible = true
+	_layout_game_over_label()
 	$Paddle.can_move = false
 	reset_ball()
 
