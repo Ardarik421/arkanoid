@@ -175,7 +175,7 @@ const PADDLE_BOTTOM_MARGIN: float = 100.0
 const SHIELD_BOTTOM_MARGIN: float = 120.0
 const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 55.0
 const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 75.0
-const LANDSCAPE_EFFECTS_BOTTOM_MARGIN: float = 118.0
+const EFFECTS_BELOW_PADDLE_GAP: float = 18.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -293,15 +293,12 @@ func _configure_arena(arena_size: Vector2) -> void:
 	shield_shape.size.x = arena_size.x - WALL_THICKNESS
 	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
 
-	# Keep active-effect timers near the paddle in landscape instead of leaving
-	# them at the portrait HUD position.
-	if landscape:
-		$EffectsUI.position = Vector2(
-			center_x - $EffectsUI.size.x * 0.5,
-			arena_size.y - LANDSCAPE_EFFECTS_BOTTOM_MARGIN
-		)
-	else:
-		$EffectsUI.position = Vector2(390.0, 14.0)
+	# Keep active-effect timers directly below the paddle in every layout.
+	# Their Y position follows the paddle instead of inheriting the old portrait HUD position.
+	$EffectsUI.position = Vector2(
+		center_x - $EffectsUI.size.x * 0.5,
+		paddle_y + EFFECTS_BELOW_PADDLE_GAP
+	)
 
 	# Keep the established 960 px brick formation intact and center it in wider arenas.
 	$Bricks.position.x = (arena_size.x - PORTRAIT_ARENA_SIZE.x) * 0.5
