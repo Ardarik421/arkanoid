@@ -167,12 +167,12 @@ const PADDLE_MAX_WIDTH: float = 280.0
 const PADDLE_WIDTH_STEP: float = 40.0
 
 const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
-const DEFAULT_PADDLE_Y: float = 980.0
-const COMPACT_PADDLE_Y: float = 700.0
-const DEFAULT_SHIELD_Y: float = 1040.0
-const COMPACT_SHIELD_Y: float = 760.0
-const DEFAULT_DEATH_ZONE_Y: float = 1120.0
-const COMPACT_DEATH_ZONE_Y: float = 820.0
+const PORTRAIT_ARENA_SIZE := Vector2(960.0, 1080.0)
+const LANDSCAPE_ARENA_SIZE := Vector2(1280.0, 800.0)
+const WALL_THICKNESS: float = 40.0
+const DEATH_ZONE_HEIGHT: float = 80.0
+const PADDLE_BOTTOM_MARGIN: float = 100.0
+const SHIELD_BOTTOM_MARGIN: float = 40.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -254,18 +254,48 @@ func _setup_progression_polish() -> void:
 	layer.add_child(victory_fade)
 
 func _apply_gameplay_layout() -> void:
-	var compact := SettingsManager.display_mode == 1
-	var paddle_y := COMPACT_PADDLE_Y if compact else DEFAULT_PADDLE_Y
-	var shield_y := COMPACT_SHIELD_Y if compact else DEFAULT_SHIELD_Y
-	var death_y := COMPACT_DEATH_ZONE_Y if compact else DEFAULT_DEATH_ZONE_Y
-	$Paddle.global_position.y = paddle_y
-	$Shield.global_position.y = shield_y
-	$DeathZone/CollisionShape2D.position = Vector2(480.0, death_y)
+	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
+	_configure_arena(arena_size)
+
+func _configure_arena(arena_size: Vector2) -> void:
+	var center_x := arena_size.x * 0.5
+	var center_y := arena_size.y * 0.5
+	var paddle_y := arena_size.y - PADDLE_BOTTOM_MARGIN
+	var shield_y := arena_size.y - SHIELD_BOTTOM_MARGIN
+
+	$Walls/LeftWall.position = Vector2(WALL_THICKNESS * 0.5, center_y)
+	$Walls/RightWall2.position = Vector2(arena_size.x - WALL_THICKNESS * 0.5, center_y)
+	$Walls/TopWall.position = Vector2(center_x, WALL_THICKNESS * 0.5)
+
+	var left_shape := $Walls/LeftWall/CollisionShape2D.shape as RectangleShape2D
+	var right_shape := $Walls/RightWall2/CollisionShape2D.shape as RectangleShape2D
+	var top_shape := $Walls/TopWall/CollisionShape2D.shape as RectangleShape2D
+	left_shape.size = Vector2(WALL_THICKNESS, arena_size.y)
+	right_shape.size = Vector2(WALL_THICKNESS, arena_size.y)
+	top_shape.size = Vector2(arena_size.x, WALL_THICKNESS)
+
+	var death_shape := $DeathZone/CollisionShape2D.shape as RectangleShape2D
+	death_shape.size = Vector2(arena_size.x, DEATH_ZONE_HEIGHT)
+	$DeathZone/CollisionShape2D.position = Vector2(center_x, arena_size.y + DEATH_ZONE_HEIGHT * 0.5)
+
+	$Paddle.configure_horizontal_limits(WALL_THICKNESS * 0.5, arena_size.x - WALL_THICKNESS * 0.5)
+	$Paddle.global_position = Vector2(center_x, paddle_y)
+	$Paddle.set_fixed_y(paddle_y)
+	$Shield.global_position = Vector2(center_x, shield_y)
+	var shield_shape := $Shield/CollisionShape2D.shape as RectangleShape2D
+	shield_shape.size.x = arena_size.x - WALL_THICKNESS
+
+	# Keep the established 960 px brick formation intact and center it in wider arenas.
+	$Bricks.position.x = (arena_size.x - PORTRAIT_ARENA_SIZE.x) * 0.5
+
 	if is_instance_valid(hint_label):
-		hint_label.position.y = 655.0 if compact else 875.0
+		hint_label.position.y = arena_size.y - 145.0
 
 func _reset_paddle_position() -> void:
-	$Paddle.global_position = Vector2(480.0, COMPACT_PADDLE_Y if SettingsManager.display_mode == 1 else DEFAULT_PADDLE_Y)
+	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
+	var paddle_y := arena_size.y - PADDLE_BOTTOM_MARGIN
+	$Paddle.global_position = Vector2(arena_size.x * 0.5, paddle_y)
+	$Paddle.set_fixed_y(paddle_y)
 
 func _show_chapter_intro_if_needed() -> void:
 	if (current_level - 1) % 10 != 0:
@@ -539,7 +569,7 @@ func restart_level():
 	$GameOverLabel.visible = false
 
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, COMPACT_PADDLE_Y if SettingsManager.display_mode == 1 else DEFAULT_PADDLE_Y)
+	_reset_paddle_position()
 
 	clear_bonuses()
 
@@ -581,7 +611,7 @@ func start_next_level():
 
 	$WinLabel.visible = false
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, COMPACT_PADDLE_Y if SettingsManager.display_mode == 1 else DEFAULT_PADDLE_Y)
+	_reset_paddle_position()
 
 	for brick in $Bricks.get_children():
 		$Bricks.remove_child(brick)
