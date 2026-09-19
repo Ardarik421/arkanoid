@@ -575,13 +575,13 @@ func set_magnet_enabled(enabled: bool):
 
 func update_ball_speed():
 	if hyper_time > 0.0:
-		set_all_balls_speed(1400.0)
+		set_all_balls_speed(1100.0)
 
 	elif fast_time > 0.0:
-		set_all_balls_speed(1000.0)
+		set_all_balls_speed(950.0)
 
 	else:
-		set_all_balls_speed(700.0)
+		set_all_balls_speed(840.0)
 
 func stop_all_balls():
 	for ball in active_balls:
