@@ -315,8 +315,31 @@ func _configure_arena(arena_size: Vector2) -> void:
 	# landscape grows sideways. Keep brick size and gaps unchanged.
 	$Bricks.position.x = 0.0
 
+	# Keep the top HUD responsive to the current arena width.
+	_layout_top_hud(arena_size)
+
 	if is_instance_valid(hint_label):
 		hint_label.position.y = arena_size.y - 145.0
+
+func _layout_top_hud(arena_size: Vector2) -> void:
+	const HUD_TOP: float = 14.0
+	const HUD_HEIGHT: float = 50.0
+	const LEVEL_LEFT: float = 20.0
+	const LEVEL_WIDTH: float = 120.0
+	const SCORE_WIDTH: float = 180.0
+
+	# Level stays in the upper-left corner; score is always geometrically centered.
+	$LevelLabel.position = Vector2(LEVEL_LEFT, HUD_TOP)
+	$LevelLabel.size = Vector2(LEVEL_WIDTH, HUD_HEIGHT)
+	$ScoreLabel.position = Vector2(arena_size.x * 0.5 - SCORE_WIDTH * 0.5, HUD_TOP)
+	$ScoreLabel.size = Vector2(SCORE_WIDTH, HUD_HEIGHT)
+
+	# Use the same visual treatment for both primary HUD values.
+	$LevelLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$LevelLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	$ScoreLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$ScoreLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
 
 func _reset_paddle_position() -> void:
 	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
