@@ -576,7 +576,7 @@ func set_magnet_enabled(enabled: bool):
 func update_ball_speed():
 	var landscape := SettingsManager.display_mode == 1
 	var normal_speed := 700.0 if landscape else 840.0
-	var fast_speed := 950.0 if landscape else 1000.0
+	var fast_speed := 950.0 if landscape else 1100.0
 	var hyper_speed := 1100.0 if landscape else 1400.0
 
 	if hyper_time > 0.0:
