@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://h57ugx32kxc7"
-path="res://.godot/imported/ambient_01.wav-96aca242133fb7a15066778177689d28.sample"
+uid="uid://crmmok1jns15n"
+path="res://.godot/imported/ambient_03.wav-a7363a43b96537bd77d20de85b4bb05f.sample"
 
 [deps]
 
-source_file="res://audio/music/ambient_01.wav"
-dest_files=["res://.godot/imported/ambient_01.wav-96aca242133fb7a15066778177689d28.sample"]
+source_file="res://audio/music/ambient_03.wav"
+dest_files=["res://.godot/imported/ambient_03.wav-a7363a43b96537bd77d20de85b4bb05f.sample"]
 
 [params]
 
