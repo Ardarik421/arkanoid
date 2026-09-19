@@ -10,7 +10,6 @@ extends CharacterBody2D
 
 var can_move: bool = true
 var use_mouse_control: bool = false
-var last_mouse_x: float = NAN
 var fixed_y: float
 var animation_time: float = 0.0
 var hit_feedback: float = 0.0
@@ -20,11 +19,6 @@ var life_loss_feedback: float = 0.0
 
 func _ready():
 	fixed_y = global_position.y
-	# Mouse control must be available immediately after entering a level.
-	# Depending on the display mode, the initial mouse position can already be
-	# inside the viewport, so no MouseMotion event is guaranteed before launch.
-	use_mouse_control = true
-	last_mouse_x = get_global_mouse_position().x
 	queue_redraw()
 
 func _process(delta):
@@ -142,13 +136,6 @@ func _physics_process(delta):
 	if not can_move:
 		velocity = Vector2.ZERO
 		return
-
-	# Detect mouse movement from its actual viewport position as well as _input().
-	# This avoids depending on an initial MouseMotion event after a portrait window resize.
-	var current_mouse_x := get_global_mouse_position().x
-	if is_nan(last_mouse_x) or abs(current_mouse_x - last_mouse_x) > 0.1:
-		use_mouse_control = true
-	last_mouse_x = current_mouse_x
 
 	var direction = Input.get_axis("move_left", "move_right")
 
