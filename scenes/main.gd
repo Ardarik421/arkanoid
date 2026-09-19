@@ -172,7 +172,7 @@ const LANDSCAPE_ARENA_SIZE := Vector2(1280.0, 800.0)
 const WALL_THICKNESS: float = 40.0
 const DEATH_ZONE_HEIGHT: float = 80.0
 const PADDLE_BOTTOM_MARGIN: float = 100.0
-const SHIELD_BOTTOM_MARGIN: float = 40.0
+const SHIELD_BOTTOM_MARGIN: float = 120.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
