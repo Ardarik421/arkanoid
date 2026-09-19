@@ -177,7 +177,7 @@ const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 80.0
 const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 58.0
 const EFFECTS_BELOW_PADDLE_GAP: float = 9.0
 const PADDLE_HALF_HEIGHT: float = 12.0
-const EFFECTS_BOTTOM_MARGIN: float = 12.0
+const EFFECTS_BOTTOM_MARGIN: float = 5.0
 const PORTRAIT_GRID_ROWS: int = 10
 const PORTRAIT_GRID_COLUMNS: int = 11
 const LANDSCAPE_GRID_ROWS: int = 8
@@ -302,13 +302,10 @@ func _configure_arena(arena_size: Vector2) -> void:
 	shield_shape.size.x = arena_size.x - WALL_THICKNESS
 	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
 
-	# Keep the effect cards below the paddle with symmetric breathing room:
-	# paddle -> cards == cards -> bottom edge whenever the layout has enough room.
+	# Test the effect cards as a bottom HUD: keep them 5 px above the screen edge
+	# in both portrait and landscape modes.
 	var effects_height := maxf($EffectsUI.size.y, $EffectsUI.get_combined_minimum_size().y)
 	var effects_y := arena_size.y - EFFECTS_BOTTOM_MARGIN - effects_height
-	var below_paddle_y := paddle_y + PADDLE_HALF_HEIGHT + EFFECTS_BELOW_PADDLE_GAP
-	if below_paddle_y + effects_height + EFFECTS_BOTTOM_MARGIN <= arena_size.y:
-		effects_y = below_paddle_y
 	$EffectsUI.position = Vector2(
 		center_x - $EffectsUI.size.x * 0.5,
 		effects_y
