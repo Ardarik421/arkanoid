@@ -38,10 +38,10 @@ func _ready():
 
 func _setup_layout() -> void:
 	var landscape := SettingsManager.display_mode == 1
-	var panel_size := Vector2(620.0, 720.0) if landscape else Vector2(580.0, 870.0)
+	var panel_size := Vector2(620.0, 748.0) if landscape else Vector2(580.0, 870.0)
 	panel.position = (size - panel_size) * 0.5
 	panel.size = panel_size
-	$Panel/VBox.add_theme_constant_override("separation", 12 if landscape else 20)
+	$Panel/VBox.add_theme_constant_override("separation", 7 if landscape else 20)
 
 func _process(delta):
 	animation_time += delta
@@ -61,9 +61,10 @@ func _draw():
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
-	$Panel/VBox.add_theme_constant_override("separation", 20)
+	$Panel/VBox.add_theme_constant_override("separation", 7 if SettingsManager.display_mode == 1 else 20)
 
-	title.add_theme_font_size_override("font_size", 42)
+	title.custom_minimum_size.y = 62.0 if SettingsManager.display_mode == 1 else 92.0
+	title.add_theme_font_size_override("font_size", 36 if SettingsManager.display_mode == 1 else 42)
 	title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 0.95))
 	title.add_theme_constant_override("outline_size", 6)
@@ -88,7 +89,8 @@ func _setup_style():
 	_style_button(back_button)
 
 	hint.add_theme_color_override("font_color", Color(0.78, 0.58, 0.28, 0.92))
-	hint.add_theme_font_size_override("font_size", 16)
+	hint.custom_minimum_size.y = 42.0 if SettingsManager.display_mode == 1 else 58.0
+	hint.add_theme_font_size_override("font_size", 14 if SettingsManager.display_mode == 1 else 16)
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -105,14 +107,14 @@ func _make_panel_style() -> StyleBoxFlat:
 	return style
 
 func _style_toggle(toggle: CheckButton):
-	toggle.custom_minimum_size = Vector2(0.0, 56.0)
+	toggle.custom_minimum_size = Vector2(0.0, 44.0 if SettingsManager.display_mode == 1 else 56.0)
 	toggle.add_theme_font_size_override("font_size", 21)
 	toggle.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	toggle.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
 	toggle.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
 
 func _style_slider(slider: HSlider):
-	slider.custom_minimum_size = Vector2(0.0, 36.0)
+	slider.custom_minimum_size = Vector2(0.0, 26.0 if SettingsManager.display_mode == 1 else 36.0)
 	slider.add_theme_icon_override("grabber", _make_grabber(Color(1.0, 0.78, 0.30, 1.0)))
 	slider.add_theme_icon_override("grabber_highlight", _make_grabber(Color(1.0, 0.94, 0.66, 1.0)))
 	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.075, 0.052, 0.018, 0.95), 4))
@@ -137,7 +139,7 @@ func _make_grabber(color: Color) -> GradientTexture2D:
 	return texture
 
 func _style_button(button: Button):
-	button.custom_minimum_size = Vector2(0.0, 62.0)
+	button.custom_minimum_size = Vector2(0.0, 48.0 if SettingsManager.display_mode == 1 else 62.0)
 	button.add_theme_font_size_override("font_size", 22)
 	button.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
