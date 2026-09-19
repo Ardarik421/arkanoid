@@ -19,6 +19,10 @@ var life_loss_feedback: float = 0.0
 
 func _ready():
 	fixed_y = global_position.y
+	# Mouse control must be available immediately after entering a level.
+	# Depending on the display mode, the initial mouse position can already be
+	# inside the viewport, so no MouseMotion event is guaranteed before launch.
+	use_mouse_control = true
 	queue_redraw()
 
 func _process(delta):
