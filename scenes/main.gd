@@ -161,10 +161,16 @@ const FAST_REPEAT_DURATION: float = 6.0
 const HYPER_DURATION: float = 6.0
 const HYPER_REPEAT_DURATION: float = 3.0
 
-const PADDLE_DEFAULT_WIDTH: float = 160.0
-const PADDLE_MIN_WIDTH: float = 40.0
-const PADDLE_MAX_WIDTH: float = 280.0
-const PADDLE_WIDTH_STEP: float = 40.0
+const PORTRAIT_PADDLE_DEFAULT_WIDTH: float = 160.0
+const LANDSCAPE_PADDLE_DEFAULT_WIDTH: float = 200.0
+const PORTRAIT_PADDLE_MIN_WIDTH: float = 40.0
+const LANDSCAPE_PADDLE_MIN_WIDTH: float = 50.0
+const PORTRAIT_PADDLE_MAX_WIDTH: float = 280.0
+const LANDSCAPE_PADDLE_MAX_WIDTH: float = 350.0
+const PORTRAIT_PADDLE_WIDTH_STEP: float = 40.0
+const LANDSCAPE_PADDLE_WIDTH_STEP: float = 50.0
+const PORTRAIT_BONUS_FALL_SPEED: float = 250.0
+const LANDSCAPE_BONUS_FALL_SPEED: float = 190.0
 
 const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
 const PORTRAIT_ARENA_SIZE := Vector2(960.0, 1080.0)
@@ -573,6 +579,21 @@ func set_magnet_enabled(enabled: bool):
 		if is_instance_valid(ball):
 			ball.magnet_active = enabled
 
+func _get_paddle_default_width() -> float:
+	return LANDSCAPE_PADDLE_DEFAULT_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_DEFAULT_WIDTH
+
+func _get_paddle_min_width() -> float:
+	return LANDSCAPE_PADDLE_MIN_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_MIN_WIDTH
+
+func _get_paddle_max_width() -> float:
+	return LANDSCAPE_PADDLE_MAX_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_MAX_WIDTH
+
+func _get_paddle_width_step() -> float:
+	return LANDSCAPE_PADDLE_WIDTH_STEP if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_WIDTH_STEP
+
+func _get_bonus_fall_speed() -> float:
+	return LANDSCAPE_BONUS_FALL_SPEED if SettingsManager.display_mode == 1 else PORTRAIT_BONUS_FALL_SPEED
+
 func update_ball_speed():
 	var landscape := SettingsManager.display_mode == 1
 	var normal_speed := 700.0 if landscape else 840.0
@@ -685,7 +706,7 @@ func start_next_level():
 
 func reset_level_effects():
 	lives = 3
-	$Paddle.set_width(PADDLE_DEFAULT_WIDTH)
+	$Paddle.set_width(_get_paddle_default_width())
 
 	fast_time = 0.0
 	hyper_time = 0.0
@@ -845,6 +866,7 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 			bonus.forced_bonus_type = guaranteed_pool.pick_random()
 
 		add_child(bonus)
+		bonus.fall_speed = _get_bonus_fall_speed()
 		bonus.global_position = brick_position
 		bonus.collected.connect(_on_bonus_collected)
 
@@ -875,12 +897,12 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	_show_bonus_hint(int(bonus_type))
 	match bonus_type:
 		Bonus.BonusType.EXPAND_PADDLE:
-			var new_width = $Paddle.width + PADDLE_WIDTH_STEP
-			$Paddle.set_width(min(new_width, PADDLE_MAX_WIDTH))
+			var new_width = $Paddle.width + _get_paddle_width_step()
+			$Paddle.set_width(min(new_width, _get_paddle_max_width()))
 
 		Bonus.BonusType.SHRINK_PADDLE:
-			var new_width = $Paddle.width - PADDLE_WIDTH_STEP
-			$Paddle.set_width(max(new_width, PADDLE_MIN_WIDTH))
+			var new_width = $Paddle.width - _get_paddle_width_step()
+			$Paddle.set_width(max(new_width, _get_paddle_min_width()))
 
 		Bonus.BonusType.EXTRA_LIFE:
 			lives += 1
