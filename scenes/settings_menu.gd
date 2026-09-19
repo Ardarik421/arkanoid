@@ -23,8 +23,10 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 var animation_time: float = 0.0
 
 func _ready():
-	_setup_layout()
 	_setup_style()
+	_setup_layout()
+	get_viewport().size_changed.connect(_setup_layout)
+	call_deferred("_setup_layout")
 	music_toggle.button_pressed = SettingsManager.music_enabled
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
 	hints_toggle.button_pressed = SettingsManager.tutorial_hints_enabled
@@ -38,7 +40,7 @@ func _ready():
 
 func _setup_layout() -> void:
 	var landscape := SettingsManager.display_mode == 1
-	var panel_size := Vector2(620.0, 748.0) if landscape else Vector2(580.0, 870.0)
+	var panel_size := Vector2(620.0, 680.0) if landscape else Vector2(580.0, 870.0)
 	panel.position = (size - panel_size) * 0.5
 	panel.size = panel_size
 	$Panel/VBox.add_theme_constant_override("separation", 7 if landscape else 20)
