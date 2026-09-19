@@ -1,6 +1,11 @@
 extends Node2D
 
 var animation_time: float = 0.0
+var shield_width: float = shield_width
+
+func set_shield_width(value: float) -> void:
+	shield_width = value
+	queue_redraw()
 
 func _process(delta):
 	animation_time += delta
@@ -14,12 +19,12 @@ func _draw():
 	for i in range(7):
 		var y = top_y + float(i) * 7.0
 		var alpha = (0.045 - float(i) * 0.0045) * pulse
-		draw_rect(Rect2(-460.0, y, 920.0, 8.0), Color(0.04, 0.34, 0.78, alpha))
+		draw_rect(Rect2(-shield_width * 0.5, y, shield_width, 8.0), Color(0.04, 0.34, 0.78, alpha))
 
 	for i in range(5):
 		var y = top_y + float(i) * 3.0
 		var alpha = (0.16 - float(i) * 0.025) * pulse
-		draw_line(Vector2(-460.0, y), Vector2(460.0, y), Color(0.20, 0.72, 1.0, alpha), 1.2 + float(4 - i) * 0.45, true)
+		draw_line(Vector2(-shield_width * 0.5, y), Vector2(shield_width * 0.5, y), Color(0.20, 0.72, 1.0, alpha), 1.2 + float(4 - i) * 0.45, true)
 
 	var radius = 14.0
 	var hex_width = radius * 1.732
@@ -30,8 +35,8 @@ func _draw():
 
 	while y < bottom_y:
 		var offset = hex_width * 0.5 if row % 2 == 1 else 0.0
-		var x = -480.0 - scroll + offset
-		while x < 480.0:
+		var x = -shield_width * 0.5 + 20.0 - scroll + offset
+		while x < shield_width * 0.5 + 20.0:
 			var points = PackedVector2Array()
 			for point_index in range(6):
 				var angle = deg_to_rad(60.0 * float(point_index) - 30.0)
@@ -44,7 +49,7 @@ func _draw():
 
 	for i in range(12):
 		var phase = animation_time * (0.65 + float(i % 4) * 0.11) + float(i) * 1.73
-		var x = -430.0 + float((i * 157 + 83) % 860)
+		var x = -shield_width * 0.46 + fmod(float(i * 157 + 83), shield_width * 0.92)
 		var y_pos = 8.0 + float((i * 37) % 32) + sin(phase) * 3.0
 		var brightness = 0.45 + 0.55 * max(0.0, sin(phase * 1.7))
 		draw_circle(Vector2(x, y_pos), 0.8 + brightness * 0.8, Color(0.42, 0.86, 1.0, 0.12 * brightness))
