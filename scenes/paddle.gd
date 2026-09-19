@@ -171,6 +171,14 @@ func _physics_process(delta):
 	global_position.y = fixed_y
 	velocity.y = 0.0
 
+func configure_horizontal_limits(new_left_limit: float, new_right_limit: float) -> void:
+	left_limit = new_left_limit
+	right_limit = new_right_limit
+
+func set_fixed_y(new_y: float) -> void:
+	fixed_y = new_y
+	global_position.y = new_y
+
 func set_width(new_width: float):
 	width = new_width
 
