@@ -574,14 +574,19 @@ func set_magnet_enabled(enabled: bool):
 			ball.magnet_active = enabled
 
 func update_ball_speed():
+	var landscape := SettingsManager.display_mode == 1
+	var normal_speed := 700.0 if landscape else 840.0
+	var fast_speed := 950.0 if landscape else 1000.0
+	var hyper_speed := 1100.0 if landscape else 1400.0
+
 	if hyper_time > 0.0:
-		set_all_balls_speed(1100.0)
+		set_all_balls_speed(hyper_speed)
 
 	elif fast_time > 0.0:
-		set_all_balls_speed(950.0)
+		set_all_balls_speed(fast_speed)
 
 	else:
-		set_all_balls_speed(840.0)
+		set_all_balls_speed(normal_speed)
 
 func stop_all_balls():
 	for ball in active_balls:
