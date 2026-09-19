@@ -260,7 +260,7 @@ func _apply_gameplay_layout() -> void:
 	var death_y := COMPACT_DEATH_ZONE_Y if compact else DEFAULT_DEATH_ZONE_Y
 	$Paddle.global_position.y = paddle_y
 	$Shield.global_position.y = shield_y
-	$DeathZone/CollisionShape2D.global_position.y = death_y
+	$DeathZone/CollisionShape2D.position = Vector2(480.0, death_y)
 	if is_instance_valid(hint_label):
 		hint_label.position.y = 655.0 if compact else 875.0
 
