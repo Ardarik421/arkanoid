@@ -9,9 +9,11 @@ var animation_time: float = 0.0
 func _ready():
 	$Menu/ContinueButton.disabled = SaveManager.highest_unlocked_level <= 1
 	$Menu/LevelSelectButton.disabled = false
-	_setup_layout()
 	_setup_title()
 	_setup_buttons()
+	_setup_layout()
+	get_viewport().size_changed.connect(_setup_layout)
+	call_deferred("_setup_layout")
 	_setup_confirmation_dialog()
 	MenuMusic.play_menu_music()
 	$Menu/NewGameButton.release_focus()
