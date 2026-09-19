@@ -54,10 +54,14 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 text = "ПОДСКАЗКИ БОНУСОВ"
 
-[node name="CompactLayoutToggle" type="CheckButton" parent="Panel/VBox"]
+[node name="DisplayOption" type="OptionButton" parent="Panel/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
-text = "КОМПАКТНОЕ ПОЛЕ (ЭКСПЕРИМЕНТ)"
+item_count = 2
+popup/item_0/text = "960 × 1080 — ПОРТРЕТ"
+popup/item_0/id = 0
+popup/item_1/text = "1280 × 800 — 16:10"
+popup/item_1/id = 1
 
 [node name="MouseLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
@@ -143,7 +147,7 @@ text = "НАЗАД"
 [connection signal="toggled" from="Panel/VBox/MusicToggle" to="." method="_on_music_toggled"]
 [connection signal="toggled" from="Panel/VBox/SoundsToggle" to="." method="_on_sounds_toggled"]
 [connection signal="toggled" from="Panel/VBox/HintsToggle" to="." method="_on_hints_toggled"]
-[connection signal="toggled" from="Panel/VBox/CompactLayoutToggle" to="." method="_on_compact_layout_toggled"]
+[connection signal="item_selected" from="Panel/VBox/DisplayOption" to="." method="_on_display_mode_selected"]
 [connection signal="value_changed" from="Panel/VBox/MouseRow/MouseSlider" to="." method="_on_mouse_changed"]
 [connection signal="value_changed" from="Panel/VBox/KeyboardRow/KeyboardSlider" to="." method="_on_keyboard_changed"]
 [connection signal="value_changed" from="Panel/VBox/GamepadRow/GamepadSlider" to="." method="_on_gamepad_changed"]
