@@ -9,6 +9,7 @@ var seen_bonus_hints: Dictionary = {}
 var keyboard_sensitivity: float = 1.0
 var mouse_sensitivity: float = 1.0
 var gamepad_sensitivity: float = 1.0
+var compact_gameplay_layout: bool = false
 
 var _scan_timer: float = 0.0
 
@@ -87,6 +88,7 @@ func save_settings():
 	config.set_value("controls", "keyboard_sensitivity", keyboard_sensitivity)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("controls", "gamepad_sensitivity", gamepad_sensitivity)
+	config.set_value("display", "compact_gameplay_layout", compact_gameplay_layout)
 	config.save(SETTINGS_PATH)
 	apply_audio_settings()
 
@@ -102,6 +104,7 @@ func load_settings():
 	keyboard_sensitivity = float(config.get_value("controls", "keyboard_sensitivity", 1.0))
 	mouse_sensitivity = float(config.get_value("controls", "mouse_sensitivity", 1.0))
 	gamepad_sensitivity = float(config.get_value("controls", "gamepad_sensitivity", 1.0))
+	compact_gameplay_layout = bool(config.get_value("display", "compact_gameplay_layout", false))
 
 func should_show_bonus_hint(bonus_type: int) -> bool:
 	return tutorial_hints_enabled and not seen_bonus_hints.has(str(bonus_type))
