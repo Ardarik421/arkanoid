@@ -9,9 +9,11 @@ var animation_time: float = 0.0
 func _ready():
 	$Menu/ContinueButton.disabled = SaveManager.highest_unlocked_level <= 1
 	$Menu/LevelSelectButton.disabled = false
-	_setup_layout()
 	_setup_title()
 	_setup_buttons()
+	_setup_layout()
+	get_viewport().size_changed.connect(_setup_layout)
+	call_deferred("_setup_layout")
 	_setup_confirmation_dialog()
 	MenuMusic.play_menu_music()
 	$Menu/NewGameButton.release_focus()
@@ -36,10 +38,11 @@ func _draw():
 	_draw_menu_moon(viewport_size, pulse)
 	_draw_menu_orbit_dust(viewport_size, pulse)
 	_draw_menu_sun(viewport_size, pulse)
-	var panel_rect := Rect2(Vector2(247.0, 318.0), Vector2(466.0, 555.0))
+	var panel_margin := Vector2(38.0, 22.0)
+	var panel_rect := Rect2($Menu.position - panel_margin, $Menu.size + panel_margin * 2.0)
 	draw_style_box(_make_panel_style(), panel_rect)
-	draw_line(Vector2(300.0,321.0),Vector2(660.0,321.0),Color(1.0,0.78,0.30,0.30+pulse*0.08),1.0,true)
-	draw_line(Vector2(342.0,878.0),Vector2(618.0,878.0),Color(0.80,0.55,0.18,0.16),1.0,true)
+	draw_line(Vector2(panel_rect.position.x + 52.0,panel_rect.position.y + 3.0),Vector2(panel_rect.end.x - 52.0,panel_rect.position.y + 3.0),Color(1.0,0.78,0.30,0.30+pulse*0.08),1.0,true)
+	draw_line(Vector2(panel_rect.position.x + 92.0,panel_rect.end.y + 5.0),Vector2(panel_rect.end.x - 92.0,panel_rect.end.y + 5.0),Color(0.80,0.55,0.18,0.16),1.0,true)
 
 func _draw_menu_nebula(viewport_size: Vector2) -> void:
 	var center:=Vector2(viewport_size.x*0.72,viewport_size.y*0.26)
@@ -121,16 +124,20 @@ func _make_panel_style() -> StyleBoxFlat:
 	return style
 
 func _setup_layout():
-	$Menu.offset_left = 285.0
-	$Menu.offset_top = 340.0
-	$Menu.offset_right = 675.0
-	$Menu.offset_bottom = 856.0
-	$Menu.add_theme_constant_override("separation", 15)
+	var landscape := SettingsManager.display_mode == 1
+	var menu_width := 430.0 if landscape else 390.0
+	var menu_height := 560.0 if landscape else 516.0
+	var center := size * 0.5
+	$Menu.offset_left = center.x - menu_width * 0.5
+	$Menu.offset_top = center.y - menu_height * 0.5
+	$Menu.offset_right = center.x + menu_width * 0.5
+	$Menu.offset_bottom = center.y + menu_height * 0.5
+	$Menu.add_theme_constant_override("separation", 6 if landscape else 15)
 
 func _setup_title():
 	var title = $Menu/Title
 	title.text = "Space\n     Ball"
-	title.custom_minimum_size = Vector2(0, 118)
+	title.custom_minimum_size = Vector2(0, 82 if SettingsManager.display_mode == 1 else 118)
 	title.add_theme_font_size_override("font_size", 42)
 	title.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.24, 0.12, 0.02, 0.95))
@@ -163,7 +170,7 @@ func _style_guide_button() -> void:
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.80, 0.28, 1.0), Color(0.10, 0.060, 0.012, 0.96), 3))
 
 func _style_button(button: Button):
-	button.custom_minimum_size = Vector2(0, 62)
+	button.custom_minimum_size = Vector2(0, 48 if SettingsManager.display_mode == 1 else 62)
 	button.add_theme_font_size_override("font_size", 22)
 	button.add_theme_color_override("font_color", Color(0.92, 0.86, 0.68, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.86, 1.0))

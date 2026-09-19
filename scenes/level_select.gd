@@ -24,8 +24,17 @@ const CHAPTER_COLORS: Array[Color] = [
 ]
 
 func _ready():
+	_apply_layout()
 	create_level_buttons()
 	$Panel/Content/BackButton.grab_focus()
+
+func _apply_layout() -> void:
+	if SettingsManager.display_mode == 1:
+		$Panel.position = Vector2(60.0, 48.0)
+		$Panel.size = Vector2(size.x - 120.0, size.y - 96.0)
+	else:
+		$Panel.position = Vector2(56.0, 42.0)
+		$Panel.size = Vector2(798.0, 962.0)
 
 func create_level_buttons():
 	for level in CHECKPOINTS:
@@ -35,7 +44,7 @@ func create_level_buttons():
 
 		var button = Button.new()
 		button.text = str(level)
-		button.custom_minimum_size = Vector2(136, 72)
+		button.custom_minimum_size = Vector2(190, 62) if SettingsManager.display_mode == 1 else Vector2(136, 72)
 		button.add_theme_font_size_override("font_size", 25)
 		button.add_theme_constant_override("outline_size", 2)
 		button.add_theme_color_override("font_outline_color", Color(0.01, 0.018, 0.03, 1.0))
@@ -46,7 +55,7 @@ func create_level_buttons():
 
 func add_grid_spacer():
 	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(136, 72)
+	spacer.custom_minimum_size = Vector2(190, 62) if SettingsManager.display_mode == 1 else Vector2(136, 72)
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Panel/Content/LevelGrid.add_child(spacer)
 

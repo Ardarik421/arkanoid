@@ -19,11 +19,12 @@ static func draw_background(canvas: CanvasItem, progress: float, time: float) ->
 	draw_dynamic(canvas, progress, time)
 
 static func _draw_space(c: CanvasItem, progress: float) -> void:
+	var size := c.get_viewport_rect().size
 	var top: Color = Color(0.002, 0.008, 0.022)
 	var bottom: Color = Color(0.030, 0.026, 0.018).lerp(Color(0.012, 0.018, 0.040), progress)
-	for y in range(0, 1080, 12):
-		var t: float = float(y) / 1080.0
-		c.draw_rect(Rect2(0, y, 960, 13), top.lerp(bottom, t))
+	for y in range(0, int(size.y) + 12, 12):
+		var t: float = float(y) / maxf(size.y, 1.0)
+		c.draw_rect(Rect2(0, y, size.x, 13), top.lerp(bottom, t))
 
 static func _draw_nebula(c: CanvasItem, progress: float, time: float) -> void:
 	var drift: float = sin(time * 0.035) * 12.0 - progress * 105.0

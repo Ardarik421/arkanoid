@@ -7,6 +7,7 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 @onready var music_toggle: CheckButton = $Panel/VBox/MusicToggle
 @onready var sounds_toggle: CheckButton = $Panel/VBox/SoundsToggle
 @onready var hints_toggle: CheckButton = $Panel/VBox/HintsToggle
+@onready var display_option: OptionButton = $Panel/VBox/DisplayOption
 @onready var mouse_label: Label = $Panel/VBox/MouseLabel
 @onready var mouse_slider: HSlider = $Panel/VBox/MouseRow/MouseSlider
 @onready var mouse_value: Label = $Panel/VBox/MouseRow/MouseValue
@@ -23,15 +24,26 @@ var animation_time: float = 0.0
 
 func _ready():
 	_setup_style()
+	_setup_layout()
+	get_viewport().size_changed.connect(_setup_layout)
+	call_deferred("_setup_layout")
 	music_toggle.button_pressed = SettingsManager.music_enabled
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
 	hints_toggle.button_pressed = SettingsManager.tutorial_hints_enabled
+	display_option.select(SettingsManager.display_mode)
 	mouse_slider.value = SettingsManager.mouse_sensitivity
 	keyboard_slider.value = SettingsManager.keyboard_sensitivity
 	gamepad_slider.value = SettingsManager.gamepad_sensitivity
 	_update_values()
 	back_button.grab_focus()
 	queue_redraw()
+
+func _setup_layout() -> void:
+	var landscape := SettingsManager.display_mode == 1
+	var panel_size := Vector2(620.0, 680.0) if landscape else Vector2(580.0, 870.0)
+	panel.position = (size - panel_size) * 0.5
+	panel.size = panel_size
+	$Panel/VBox.add_theme_constant_override("separation", 7 if landscape else 20)
 
 func _process(delta):
 	animation_time += delta
@@ -40,20 +52,21 @@ func _process(delta):
 func _draw():
 	var pulse = 0.5 + 0.5 * sin(animation_time * 0.8)
 	for i in range(38):
-		var x = float((i * 173 + 47) % 960)
-		var y = float((i * 97 + 31) % 1080)
+		var x = float((i * 173 + 47) % int(size.x))
+		var y = float((i * 97 + 31) % int(size.y))
 		var twinkle = 0.5 + 0.5 * sin(animation_time * (0.5 + float(i % 4) * 0.09) + float(i) * 1.31)
 		draw_circle(Vector2(x, y), 0.7 + float(i % 3) * 0.25, Color(1.0, 0.82, 0.42, 0.08 + twinkle * 0.18))
 
 	for side in [-1.0, 1.0]:
-		var x = 164.0 if side < 0.0 else 796.0
-		draw_line(Vector2(x, 155.0), Vector2(x, 925.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
+		var x = panel.position.x - 26.0 if side < 0.0 else panel.position.x + panel.size.x + 26.0
+		draw_line(Vector2(x, panel.position.y + 50.0), Vector2(x, panel.position.y + panel.size.y - 50.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
-	$Panel/VBox.add_theme_constant_override("separation", 20)
+	$Panel/VBox.add_theme_constant_override("separation", 7 if SettingsManager.display_mode == 1 else 20)
 
-	title.add_theme_font_size_override("font_size", 42)
+	title.custom_minimum_size.y = 62.0 if SettingsManager.display_mode == 1 else 92.0
+	title.add_theme_font_size_override("font_size", 36 if SettingsManager.display_mode == 1 else 42)
 	title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.74, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.015, 0.95))
 	title.add_theme_constant_override("outline_size", 6)
@@ -71,13 +84,15 @@ func _setup_style():
 	_style_toggle(music_toggle)
 	_style_toggle(sounds_toggle)
 	_style_toggle(hints_toggle)
+	_style_button(display_option)
 	_style_slider(mouse_slider)
 	_style_slider(keyboard_slider)
 	_style_slider(gamepad_slider)
 	_style_button(back_button)
 
 	hint.add_theme_color_override("font_color", Color(0.78, 0.58, 0.28, 0.92))
-	hint.add_theme_font_size_override("font_size", 16)
+	hint.custom_minimum_size.y = 42.0 if SettingsManager.display_mode == 1 else 58.0
+	hint.add_theme_font_size_override("font_size", 14 if SettingsManager.display_mode == 1 else 16)
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -94,14 +109,14 @@ func _make_panel_style() -> StyleBoxFlat:
 	return style
 
 func _style_toggle(toggle: CheckButton):
-	toggle.custom_minimum_size = Vector2(0.0, 56.0)
+	toggle.custom_minimum_size = Vector2(0.0, 44.0 if SettingsManager.display_mode == 1 else 56.0)
 	toggle.add_theme_font_size_override("font_size", 21)
 	toggle.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	toggle.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
 	toggle.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
 
 func _style_slider(slider: HSlider):
-	slider.custom_minimum_size = Vector2(0.0, 36.0)
+	slider.custom_minimum_size = Vector2(0.0, 26.0 if SettingsManager.display_mode == 1 else 36.0)
 	slider.add_theme_icon_override("grabber", _make_grabber(Color(1.0, 0.78, 0.30, 1.0)))
 	slider.add_theme_icon_override("grabber_highlight", _make_grabber(Color(1.0, 0.94, 0.66, 1.0)))
 	slider.add_theme_stylebox_override("slider", _make_slider_style(Color(0.075, 0.052, 0.018, 0.95), 4))
@@ -126,7 +141,7 @@ func _make_grabber(color: Color) -> GradientTexture2D:
 	return texture
 
 func _style_button(button: Button):
-	button.custom_minimum_size = Vector2(0.0, 62.0)
+	button.custom_minimum_size = Vector2(0.0, 48.0 if SettingsManager.display_mode == 1 else 62.0)
 	button.add_theme_font_size_override("font_size", 22)
 	button.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
@@ -160,6 +175,9 @@ func _on_sounds_toggled(enabled: bool):
 func _on_hints_toggled(enabled: bool):
 	SettingsManager.tutorial_hints_enabled = enabled
 	SettingsManager.save_settings()
+
+func _on_display_mode_selected(index: int):
+	SettingsManager.set_display_mode(index)
 
 func _on_mouse_changed(value: float):
 	SettingsManager.mouse_sensitivity = value

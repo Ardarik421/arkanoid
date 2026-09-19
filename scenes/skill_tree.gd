@@ -8,10 +8,22 @@ var animation_time: float = 0.0
 @onready var status_label: Label = $Margin/VBox/StatusLabel
 
 func _ready():
+	_apply_layout()
 	_setup_style()
 	_refresh()
 	$Margin/VBox/Branches/Piercing/Content/Gameplay.grab_focus()
 	queue_redraw()
+
+func _apply_layout() -> void:
+	var landscape := SettingsManager.display_mode == 1
+	$Margin.offset_left = 36.0 if landscape else 34.0
+	$Margin.offset_top = 18.0 if landscape else 38.0
+	$Margin.offset_right = -36.0 if landscape else -34.0
+	$Margin.offset_bottom = -18.0 if landscape else -34.0
+	$Margin/VBox.add_theme_constant_override("separation", 8 if landscape else 12)
+	for branch in $Margin/VBox/Branches.get_children():
+		branch.custom_minimum_size.y = 160.0 if landscape else 205.0
+	$Margin/VBox/PointsPanel.custom_minimum_size.y = 76.0 if landscape else 92.0
 
 func _process(delta):
 	animation_time += delta
@@ -49,10 +61,10 @@ func _setup_style():
 		content.add_theme_constant_override("separation", 8)
 		for child in content.get_children():
 			if child is Button:
-				child.custom_minimum_size = Vector2(0, 58)
+				child.custom_minimum_size = Vector2(0, 46 if SettingsManager.display_mode == 1 else 58)
 				child.add_theme_font_size_override("font_size", 17)
 		var duration_button: Button = content.get_node("Duration")
-		duration_button.custom_minimum_size = Vector2(0, 76)
+		duration_button.custom_minimum_size = Vector2(0, 58 if SettingsManager.display_mode == 1 else 76)
 	$Margin/VBox/BackButton.add_theme_font_size_override("font_size", 19)
 	_style_back_button($Margin/VBox/BackButton)
 

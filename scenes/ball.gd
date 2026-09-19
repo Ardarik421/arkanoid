@@ -27,7 +27,6 @@ var shield_active: bool = false
 var magnet_active: bool = false
 var magnet_captured: bool = false
 var shield_return_boost_active: bool = false
-var shield_y: float = 1040.0
 var attached_offset_x: float = 0.0
 var visual_time: float = 0.0
 var launch_aim_angle: float = 0.0
@@ -130,14 +129,16 @@ func _physics_process(delta):
 		if abs(movement) > 20.0:
 			launch_aim_angle += sign(movement) * aim_turn_speed * delta; launch_aim_angle = clamp(launch_aim_angle, -max_bounce_angle, max_bounce_angle)
 		global_position.x = paddle.global_position.x + attached_offset_x; global_position.y = paddle.global_position.y - 40; _update_trail(true); return
-	if shield_active and direction.y > 0.0 and global_position.y + radius >= shield_y:
-		_play_paddle_hit_sound(); global_position.y = shield_y - radius; direction.y = -abs(direction.y); _prevent_horizontal_lock()
-		if SaveManager.has_shield_return_boost(): shield_return_boost_active = true
 	var movement_speed := speed * (SHIELD_RETURN_SPEED_MULTIPLIER if shield_return_boost_active else 1.0)
 	var collision = move_and_collide(direction * movement_speed * delta)
 	if collision:
 		var collider = collision.get_collider()
-		if collider.name == "Paddle":
+		if collider.name == "Shield" and shield_active:
+			_play_paddle_hit_sound()
+			direction = direction.bounce(collision.get_normal())
+			_prevent_horizontal_lock()
+			if SaveManager.has_shield_return_boost(): shield_return_boost_active = true
+		elif collider.name == "Paddle":
 			_play_paddle_hit_sound()
 			if collider.has_method("play_hit_feedback"): collider.play_hit_feedback()
 			if magnet_active: attach_to_paddle(true)

@@ -675,6 +675,7 @@ func _draw_embres(progress: float):
 		draw_circle(Vector2(p.x+sin(animation_time*0.6+i)*4.0,p.y-travel),1.2,Color(1.0,0.36,0.045,0.22+progress*0.25))
 
 func _draw_vignette():
+	var viewport_size := get_viewport_rect().size
 	for i in range(12):
 		var inset = float(i)*9.0
-		draw_rect(Rect2(inset,inset,960.0-inset*2.0,1080.0-inset*2.0),Color(0,0,0,0.014+float(i)*0.004),false,18.0)
+		draw_rect(Rect2(inset,inset,viewport_size.x-inset*2.0,viewport_size.y-inset*2.0),Color(0,0,0,0.014+float(i)*0.004),false,18.0)

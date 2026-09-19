@@ -161,12 +161,33 @@ const FAST_REPEAT_DURATION: float = 6.0
 const HYPER_DURATION: float = 6.0
 const HYPER_REPEAT_DURATION: float = 3.0
 
-const PADDLE_DEFAULT_WIDTH: float = 160.0
-const PADDLE_MIN_WIDTH: float = 40.0
-const PADDLE_MAX_WIDTH: float = 280.0
-const PADDLE_WIDTH_STEP: float = 40.0
+const PORTRAIT_PADDLE_DEFAULT_WIDTH: float = 160.0
+const LANDSCAPE_PADDLE_DEFAULT_WIDTH: float = 200.0
+const PORTRAIT_PADDLE_MIN_WIDTH: float = 40.0
+const LANDSCAPE_PADDLE_MIN_WIDTH: float = 50.0
+const PORTRAIT_PADDLE_MAX_WIDTH: float = 280.0
+const LANDSCAPE_PADDLE_MAX_WIDTH: float = 350.0
+const PORTRAIT_PADDLE_WIDTH_STEP: float = 40.0
+const LANDSCAPE_PADDLE_WIDTH_STEP: float = 50.0
+const PORTRAIT_BONUS_FALL_SPEED: float = 250.0
+const LANDSCAPE_BONUS_FALL_SPEED: float = 190.0
 
 const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
+const PORTRAIT_ARENA_SIZE := Vector2(960.0, 1080.0)
+const LANDSCAPE_ARENA_SIZE := Vector2(1280.0, 800.0)
+const WALL_THICKNESS: float = 40.0
+const DEATH_ZONE_HEIGHT: float = 80.0
+const PADDLE_BOTTOM_MARGIN: float = 80.0
+const SHIELD_BOTTOM_MARGIN: float = 80.0
+const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 80.0
+const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 58.0
+const EFFECTS_BELOW_PADDLE_GAP: float = 9.0
+const PADDLE_HALF_HEIGHT: float = 12.0
+const EFFECTS_BOTTOM_MARGIN: float = 5.0
+const PORTRAIT_GRID_ROWS: int = 10
+const PORTRAIT_GRID_COLUMNS: int = 11
+const LANDSCAPE_GRID_ROWS: int = 8
+const LANDSCAPE_GRID_COLUMNS: int = 15
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -195,6 +216,7 @@ var pattern_sizes: Dictionary = {}
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	_setup_progression_polish()
+	_apply_gameplay_layout()
 	_setup_ambient()
 	_setup_explosive_audio()
 	
@@ -245,6 +267,92 @@ func _setup_progression_polish() -> void:
 	victory_fade.color = Color(0.01,0.005,0.0,0.0)
 	victory_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(victory_fade)
+
+func _apply_gameplay_layout() -> void:
+	var landscape := SettingsManager.display_mode == 1
+	rows = LANDSCAPE_GRID_ROWS if landscape else PORTRAIT_GRID_ROWS
+	columns = LANDSCAPE_GRID_COLUMNS if landscape else PORTRAIT_GRID_COLUMNS
+	var arena_size := LANDSCAPE_ARENA_SIZE if landscape else PORTRAIT_ARENA_SIZE
+	_configure_arena(arena_size)
+
+func _configure_arena(arena_size: Vector2) -> void:
+	var center_x := arena_size.x * 0.5
+	var center_y := arena_size.y * 0.5
+	var landscape := SettingsManager.display_mode == 1
+	var paddle_bottom_margin := LANDSCAPE_PADDLE_BOTTOM_MARGIN if landscape else PADDLE_BOTTOM_MARGIN
+	var shield_bottom_margin := LANDSCAPE_SHIELD_BOTTOM_MARGIN if landscape else SHIELD_BOTTOM_MARGIN
+	var paddle_y := arena_size.y - paddle_bottom_margin
+	var shield_y := arena_size.y - shield_bottom_margin
+
+	$Walls/LeftWall.position = Vector2(WALL_THICKNESS * 0.5, center_y)
+	$Walls/RightWall2.position = Vector2(arena_size.x - WALL_THICKNESS * 0.5, center_y)
+	$Walls/TopWall.position = Vector2(center_x, WALL_THICKNESS * 0.5)
+
+	var left_shape := $Walls/LeftWall/CollisionShape2D.shape as RectangleShape2D
+	var right_shape := $Walls/RightWall2/CollisionShape2D.shape as RectangleShape2D
+	var top_shape := $Walls/TopWall/CollisionShape2D.shape as RectangleShape2D
+	left_shape.size = Vector2(WALL_THICKNESS, arena_size.y)
+	right_shape.size = Vector2(WALL_THICKNESS, arena_size.y)
+	top_shape.size = Vector2(arena_size.x, WALL_THICKNESS)
+
+	var death_shape := $DeathZone/CollisionShape2D.shape as RectangleShape2D
+	death_shape.size = Vector2(arena_size.x, DEATH_ZONE_HEIGHT)
+	$DeathZone/CollisionShape2D.position = Vector2(center_x, arena_size.y + DEATH_ZONE_HEIGHT * 0.5)
+
+	$Paddle.configure_horizontal_limits(WALL_THICKNESS * 0.5, arena_size.x - WALL_THICKNESS * 0.5)
+	$Paddle.global_position = Vector2(center_x, paddle_y)
+	$Paddle.set_fixed_y(paddle_y)
+	$Shield.global_position = Vector2(center_x, shield_y)
+	$Shield/CollisionShape2D.disabled = not shield_active
+	var shield_shape := $Shield/CollisionShape2D.shape as RectangleShape2D
+	shield_shape.size.x = arena_size.x - WALL_THICKNESS
+	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
+
+	# Test the effect cards as a bottom HUD: keep them 5 px above the screen edge
+	# in both portrait and landscape modes.
+	var effects_height := maxf($EffectsUI.size.y, $EffectsUI.get_combined_minimum_size().y)
+	var effects_y := arena_size.y - EFFECTS_BOTTOM_MARGIN - effects_height
+	$EffectsUI.position = Vector2(
+		center_x - $EffectsUI.size.x * 0.5,
+		effects_y
+	)
+
+	# The grid itself adapts to the arena: portrait grows downward,
+	# landscape grows sideways. Keep brick size and gaps unchanged.
+	$Bricks.position.x = 0.0
+
+	# Keep the top HUD responsive to the current arena width.
+	_layout_top_hud(arena_size)
+
+	if is_instance_valid(hint_label):
+		hint_label.position.y = arena_size.y - 145.0
+
+func _layout_top_hud(arena_size: Vector2) -> void:
+	const HUD_TOP: float = 14.0
+	const HUD_HEIGHT: float = 50.0
+	const LEVEL_LEFT: float = 20.0
+	const LEVEL_WIDTH: float = 120.0
+	const SCORE_WIDTH: float = 180.0
+
+	# Level stays in the upper-left corner; score is always geometrically centered.
+	$LevelLabel.position = Vector2(LEVEL_LEFT, HUD_TOP)
+	$LevelLabel.size = Vector2(LEVEL_WIDTH, HUD_HEIGHT)
+	$ScoreLabel.position = Vector2(arena_size.x * 0.5 - SCORE_WIDTH * 0.5, HUD_TOP)
+	$ScoreLabel.size = Vector2(SCORE_WIDTH, HUD_HEIGHT)
+
+	# Use the same visual treatment for both primary HUD values.
+	$LevelLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$LevelLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	$ScoreLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$ScoreLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+
+func _reset_paddle_position() -> void:
+	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
+	var paddle_bottom_margin := LANDSCAPE_PADDLE_BOTTOM_MARGIN if SettingsManager.display_mode == 1 else PADDLE_BOTTOM_MARGIN
+	var paddle_y := arena_size.y - paddle_bottom_margin
+	$Paddle.global_position = Vector2(arena_size.x * 0.5, paddle_y)
+	$Paddle.set_fixed_y(paddle_y)
 
 func _show_chapter_intro_if_needed() -> void:
 	if (current_level - 1) % 10 != 0:
@@ -458,6 +566,7 @@ func set_all_balls_explosive(enabled: bool):
 func set_shield_enabled(enabled: bool):
 	shield_active = enabled
 	$Shield.visible = enabled
+	$Shield/CollisionShape2D.set_deferred("disabled", not enabled)
 
 	for ball in active_balls:
 		if is_instance_valid(ball):
@@ -470,15 +579,35 @@ func set_magnet_enabled(enabled: bool):
 		if is_instance_valid(ball):
 			ball.magnet_active = enabled
 
+func _get_paddle_default_width() -> float:
+	return LANDSCAPE_PADDLE_DEFAULT_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_DEFAULT_WIDTH
+
+func _get_paddle_min_width() -> float:
+	return LANDSCAPE_PADDLE_MIN_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_MIN_WIDTH
+
+func _get_paddle_max_width() -> float:
+	return LANDSCAPE_PADDLE_MAX_WIDTH if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_MAX_WIDTH
+
+func _get_paddle_width_step() -> float:
+	return LANDSCAPE_PADDLE_WIDTH_STEP if SettingsManager.display_mode == 1 else PORTRAIT_PADDLE_WIDTH_STEP
+
+func _get_bonus_fall_speed() -> float:
+	return LANDSCAPE_BONUS_FALL_SPEED if SettingsManager.display_mode == 1 else PORTRAIT_BONUS_FALL_SPEED
+
 func update_ball_speed():
+	var landscape := SettingsManager.display_mode == 1
+	var normal_speed := 700.0 if landscape else 840.0
+	var fast_speed := 950.0 if landscape else 1100.0
+	var hyper_speed := 1100.0 if landscape else 1400.0
+
 	if hyper_time > 0.0:
-		set_all_balls_speed(1400.0)
+		set_all_balls_speed(hyper_speed)
 
 	elif fast_time > 0.0:
-		set_all_balls_speed(1000.0)
+		set_all_balls_speed(fast_speed)
 
 	else:
-		set_all_balls_speed(700.0)
+		set_all_balls_speed(normal_speed)
 
 func stop_all_balls():
 	for ball in active_balls:
@@ -518,7 +647,7 @@ func restart_level():
 	$GameOverLabel.visible = false
 
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, 980)
+	_reset_paddle_position()
 
 	clear_bonuses()
 
@@ -560,7 +689,7 @@ func start_next_level():
 
 	$WinLabel.visible = false
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, 980)
+	_reset_paddle_position()
 
 	for brick in $Bricks.get_children():
 		$Bricks.remove_child(brick)
@@ -577,7 +706,7 @@ func start_next_level():
 
 func reset_level_effects():
 	lives = 3
-	$Paddle.set_width(PADDLE_DEFAULT_WIDTH)
+	$Paddle.set_width(_get_paddle_default_width())
 
 	fast_time = 0.0
 	hyper_time = 0.0
@@ -599,10 +728,18 @@ func reset_level_effects():
 # ПОБЕДА И ПОРАЖЕНИЕ
 # =========================
 
+func _layout_game_over_label() -> void:
+	var arena_size := get_viewport_rect().size
+	$GameOverLabel.position = Vector2.ZERO
+	$GameOverLabel.size = arena_size
+	$GameOverLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$GameOverLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
 func show_game_over():
 	game_over = true
 	$GameOverLabel.text = "ИГРА ОКОНЧЕНА\nSPACE — повторить уровень\nESC — главное меню"
 	$GameOverLabel.visible = true
+	_layout_game_over_label()
 	$Paddle.can_move = false
 	reset_ball()
 
@@ -729,6 +866,7 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 			bonus.forced_bonus_type = guaranteed_pool.pick_random()
 
 		add_child(bonus)
+		bonus.fall_speed = _get_bonus_fall_speed()
 		bonus.global_position = brick_position
 		bonus.collected.connect(_on_bonus_collected)
 
@@ -759,12 +897,12 @@ func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	_show_bonus_hint(int(bonus_type))
 	match bonus_type:
 		Bonus.BonusType.EXPAND_PADDLE:
-			var new_width = $Paddle.width + PADDLE_WIDTH_STEP
-			$Paddle.set_width(min(new_width, PADDLE_MAX_WIDTH))
+			var new_width = $Paddle.width + _get_paddle_width_step()
+			$Paddle.set_width(min(new_width, _get_paddle_max_width()))
 
 		Bonus.BonusType.SHRINK_PADDLE:
-			var new_width = $Paddle.width - PADDLE_WIDTH_STEP
-			$Paddle.set_width(max(new_width, PADDLE_MIN_WIDTH))
+			var new_width = $Paddle.width - _get_paddle_width_step()
+			$Paddle.set_width(max(new_width, _get_paddle_min_width()))
 
 		Bonus.BonusType.EXTRA_LIFE:
 			lives += 1

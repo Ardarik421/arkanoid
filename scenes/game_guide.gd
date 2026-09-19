@@ -27,11 +27,20 @@ const BRICKS: Array[Dictionary] = [
 ]
 
 func _ready() -> void:
+	_apply_layout()
 	_build_bonus_cards()
 	_build_brick_cards()
 	_style()
 	$Margin/VBox/BackButton.grab_focus()
 	queue_redraw()
+
+func _apply_layout() -> void:
+	var landscape := SettingsManager.display_mode == 1
+	$Margin.offset_left = 56.0 if landscape else 52.0
+	$Margin.offset_top = 30.0 if landscape else 28.0
+	$Margin.offset_right = -56.0 if landscape else -52.0
+	$Margin.offset_bottom = -14.0 if landscape else -28.0
+	$Margin/VBox.add_theme_constant_override("separation", 5 if landscape else 8)
 
 func _process(delta: float) -> void:
 	animation_time += delta
@@ -74,19 +83,19 @@ func _build_brick_cards() -> void:
 
 func _add_card(grid: GridContainer, visual: Node2D, title_text: String, desc_text: String) -> void:
 	var card:=PanelContainer.new()
-	card.custom_minimum_size=Vector2(0,88)
+	card.custom_minimum_size=Vector2(0,66 if SettingsManager.display_mode == 1 else 88)
 	card.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	card.add_theme_stylebox_override("panel",_card_style())
 	var row:=HBoxContainer.new()
 	row.add_theme_constant_override("separation",16)
 	card.add_child(row)
 	var holder:=Control.new()
-	holder.custom_minimum_size=Vector2(92,66)
+	holder.custom_minimum_size=Vector2(92,52 if SettingsManager.display_mode == 1 else 66)
 	row.add_child(holder)
 	holder.add_child(visual)
-	visual.position=Vector2(46,33)
+	visual.position=Vector2(46,26 if SettingsManager.display_mode == 1 else 33)
 	if visual is Bonus:
-		visual.scale=Vector2(1.55,1.55)
+		visual.scale=Vector2(1.35,1.35) if SettingsManager.display_mode == 1 else Vector2(1.55,1.55)
 	var texts:=VBoxContainer.new()
 	texts.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	texts.alignment=BoxContainer.ALIGNMENT_CENTER

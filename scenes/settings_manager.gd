@@ -9,6 +9,7 @@ var seen_bonus_hints: Dictionary = {}
 var keyboard_sensitivity: float = 1.0
 var mouse_sensitivity: float = 1.0
 var gamepad_sensitivity: float = 1.0
+var display_mode: int = 0
 
 var _scan_timer: float = 0.0
 
@@ -17,6 +18,7 @@ func _ready():
 	_ensure_audio_bus("SFX")
 	load_settings()
 	apply_audio_settings()
+	apply_display_settings()
 	get_tree().node_added.connect(_on_node_added)
 
 func _process(delta):
@@ -87,6 +89,7 @@ func save_settings():
 	config.set_value("controls", "keyboard_sensitivity", keyboard_sensitivity)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("controls", "gamepad_sensitivity", gamepad_sensitivity)
+	config.set_value("display", "mode", display_mode)
 	config.save(SETTINGS_PATH)
 	apply_audio_settings()
 
@@ -102,6 +105,22 @@ func load_settings():
 	keyboard_sensitivity = float(config.get_value("controls", "keyboard_sensitivity", 1.0))
 	mouse_sensitivity = float(config.get_value("controls", "mouse_sensitivity", 1.0))
 	gamepad_sensitivity = float(config.get_value("controls", "gamepad_sensitivity", 1.0))
+	display_mode = int(config.get_value("display", "mode", 0))
+
+func apply_display_settings() -> void:
+	var size := Vector2i(960, 1080) if display_mode == 0 else Vector2i(1280, 800)
+	var window := get_window()
+	window.mode = Window.MODE_WINDOWED
+	# The selected mode is a real window/viewport size, not a virtual canvas
+	# squeezed into the old portrait window.
+	window.content_scale_size = Vector2i.ZERO
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+	window.size = size
+
+func set_display_mode(mode: int) -> void:
+	display_mode = clampi(mode, 0, 1)
+	apply_display_settings()
+	save_settings()
 
 func should_show_bonus_hint(bonus_type: int) -> bool:
 	return tutorial_hints_enabled and not seen_bonus_hints.has(str(bonus_type))
