@@ -111,10 +111,11 @@ func apply_display_settings() -> void:
 	var size := Vector2i(960, 1080) if display_mode == 0 else Vector2i(1280, 800)
 	var window := get_window()
 	window.mode = Window.MODE_WINDOWED
-	window.content_scale_size = size
+	# The selected mode is a real window/viewport size, not a virtual canvas
+	# squeezed into the old portrait window.
+	window.content_scale_size = Vector2i.ZERO
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	window.size = size
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 
 func set_display_mode(mode: int) -> void:
 	display_mode = clampi(mode, 0, 1)
