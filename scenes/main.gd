@@ -132,6 +132,7 @@ const BONUS_HINTS: Dictionary = {0:"РАСШИРЕНИЕ — увеличива�
 var explosive_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer
 var last_ambient_index: int = -1
+var ambient_restart_pending: bool = false
 var chapter_label: Label
 var hint_label: Label
 var victory_fade: ColorRect
@@ -274,6 +275,7 @@ func _show_bonus_hint(bonus_type: int) -> void:
 func _setup_ambient() -> void:
 	ambient_player = AudioStreamPlayer.new()
 	ambient_player.volume_db = -13.0
+	ambient_player.finished.connect(_on_ambient_finished)
 	add_child(ambient_player)
 	_play_new_ambient()
 
@@ -287,11 +289,13 @@ func _play_new_ambient() -> void:
 			next_index = randi_range(0, LEVEL_AMBIENT_TRACKS.size() - 1)
 
 	last_ambient_index = next_index
-	var stream: AudioStream = LEVEL_AMBIENT_TRACKS[next_index]
-	if stream is AudioStreamWAV:
-		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	ambient_player.stream = stream
+	ambient_player.stream = LEVEL_AMBIENT_TRACKS[next_index]
 	ambient_player.play()
+
+func _on_ambient_finished() -> void:
+	# Keep the selected track for the whole level attempt.
+	if is_instance_valid(ambient_player):
+		ambient_player.play()
 
 func _setup_explosive_audio():
 	explosive_player = AudioStreamPlayer.new()
