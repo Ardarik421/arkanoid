@@ -56,8 +56,8 @@ func _draw():
 		draw_circle(Vector2(x, y), 0.7 + float(i % 3) * 0.25, Color(1.0, 0.82, 0.42, 0.08 + twinkle * 0.18))
 
 	for side in [-1.0, 1.0]:
-		var x = panel.position.x - 26.0 if side < 0.0 else panel.end.x + 26.0
-		draw_line(Vector2(x, panel.position.y + 50.0), Vector2(x, panel.end.y - 50.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
+		var x = panel.position.x - 26.0 if side < 0.0 else panel.position.x + panel.size.x + 26.0
+		draw_line(Vector2(x, panel.position.y + 50.0), Vector2(x, panel.position.y + panel.size.y - 50.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
