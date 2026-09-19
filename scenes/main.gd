@@ -173,6 +173,9 @@ const WALL_THICKNESS: float = 40.0
 const DEATH_ZONE_HEIGHT: float = 80.0
 const PADDLE_BOTTOM_MARGIN: float = 100.0
 const SHIELD_BOTTOM_MARGIN: float = 120.0
+const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 55.0
+const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 75.0
+const LANDSCAPE_EFFECTS_BOTTOM_MARGIN: float = 118.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -260,8 +263,11 @@ func _apply_gameplay_layout() -> void:
 func _configure_arena(arena_size: Vector2) -> void:
 	var center_x := arena_size.x * 0.5
 	var center_y := arena_size.y * 0.5
-	var paddle_y := arena_size.y - PADDLE_BOTTOM_MARGIN
-	var shield_y := arena_size.y - SHIELD_BOTTOM_MARGIN
+	var landscape := SettingsManager.display_mode == 1
+	var paddle_bottom_margin := LANDSCAPE_PADDLE_BOTTOM_MARGIN if landscape else PADDLE_BOTTOM_MARGIN
+	var shield_bottom_margin := LANDSCAPE_SHIELD_BOTTOM_MARGIN if landscape else SHIELD_BOTTOM_MARGIN
+	var paddle_y := arena_size.y - paddle_bottom_margin
+	var shield_y := arena_size.y - shield_bottom_margin
 
 	$Walls/LeftWall.position = Vector2(WALL_THICKNESS * 0.5, center_y)
 	$Walls/RightWall2.position = Vector2(arena_size.x - WALL_THICKNESS * 0.5, center_y)
@@ -287,6 +293,16 @@ func _configure_arena(arena_size: Vector2) -> void:
 	shield_shape.size.x = arena_size.x - WALL_THICKNESS
 	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
 
+	# Keep active-effect timers near the paddle in landscape instead of leaving
+	# them at the portrait HUD position.
+	if landscape:
+		$EffectsUI.position = Vector2(
+			center_x - $EffectsUI.size.x * 0.5,
+			arena_size.y - LANDSCAPE_EFFECTS_BOTTOM_MARGIN
+		)
+	else:
+		$EffectsUI.position = Vector2(390.0, 14.0)
+
 	# Keep the established 960 px brick formation intact and center it in wider arenas.
 	$Bricks.position.x = (arena_size.x - PORTRAIT_ARENA_SIZE.x) * 0.5
 
@@ -295,7 +311,8 @@ func _configure_arena(arena_size: Vector2) -> void:
 
 func _reset_paddle_position() -> void:
 	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
-	var paddle_y := arena_size.y - PADDLE_BOTTOM_MARGIN
+	var paddle_bottom_margin := LANDSCAPE_PADDLE_BOTTOM_MARGIN if SettingsManager.display_mode == 1 else PADDLE_BOTTOM_MARGIN
+	var paddle_y := arena_size.y - paddle_bottom_margin
 	$Paddle.global_position = Vector2(arena_size.x * 0.5, paddle_y)
 	$Paddle.set_fixed_y(paddle_y)
 
