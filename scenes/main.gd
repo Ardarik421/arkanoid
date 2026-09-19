@@ -131,7 +131,6 @@ const BONUS_HINTS: Dictionary = {0:"РАСШИРЕНИЕ — увеличива�
 
 var explosive_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer
-var ambient_playlist: Array[int] = []
 var last_ambient_index: int = -1
 var chapter_label: Label
 var hint_label: Label
@@ -275,38 +274,24 @@ func _show_bonus_hint(bonus_type: int) -> void:
 func _setup_ambient() -> void:
 	ambient_player = AudioStreamPlayer.new()
 	ambient_player.volume_db = -13.0
-	ambient_player.finished.connect(_on_ambient_finished)
 	add_child(ambient_player)
-	_refill_ambient_playlist()
-	_play_next_ambient()
+	_play_new_ambient()
 
-func _refill_ambient_playlist() -> void:
-	ambient_playlist.clear()
-	for index in range(LEVEL_AMBIENT_TRACKS.size()):
-		ambient_playlist.append(index)
-	ambient_playlist.shuffle()
-
-	# Do not let a new shuffle cycle start with the track that just finished.
-	if ambient_playlist.size() > 1 and ambient_playlist[0] == last_ambient_index:
-		var swap_index: int = randi_range(1, ambient_playlist.size() - 1)
-		var first_index: int = ambient_playlist[0]
-		ambient_playlist[0] = ambient_playlist[swap_index]
-		ambient_playlist[swap_index] = first_index
-
-func _play_next_ambient() -> void:
+func _play_new_ambient() -> void:
 	if not is_instance_valid(ambient_player) or LEVEL_AMBIENT_TRACKS.is_empty():
 		return
 
-	if ambient_playlist.is_empty():
-		_refill_ambient_playlist()
+	var next_index: int = randi_range(0, LEVEL_AMBIENT_TRACKS.size() - 1)
+	if LEVEL_AMBIENT_TRACKS.size() > 1:
+		while next_index == last_ambient_index:
+			next_index = randi_range(0, LEVEL_AMBIENT_TRACKS.size() - 1)
 
-	var next_index: int = ambient_playlist.pop_front()
 	last_ambient_index = next_index
-	ambient_player.stream = LEVEL_AMBIENT_TRACKS[next_index]
+	var stream: AudioStream = LEVEL_AMBIENT_TRACKS[next_index]
+	if stream is AudioStreamWAV:
+		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	ambient_player.stream = stream
 	ambient_player.play()
-
-func _on_ambient_finished() -> void:
-	_play_next_ambient()
 
 func _setup_explosive_audio():
 	explosive_player = AudioStreamPlayer.new()
@@ -516,6 +501,7 @@ func lose_life():
 		show_game_over()
 
 func restart_level():
+	_play_new_ambient()
 	reset_level_effects()
 	score = score_at_level_start
 	balls_lost_this_level = 0
@@ -559,6 +545,7 @@ func start_next_level():
 	await transition.finished
 
 	current_level += 1
+	_play_new_ambient()
 	score_at_level_start = score
 	update_level_label()
 
