@@ -282,6 +282,7 @@ func _configure_arena(arena_size: Vector2) -> void:
 	$Paddle.global_position = Vector2(center_x, paddle_y)
 	$Paddle.set_fixed_y(paddle_y)
 	$Shield.global_position = Vector2(center_x, shield_y)
+	$Shield/CollisionShape2D.disabled = not shield_active
 	var shield_shape := $Shield/CollisionShape2D.shape as RectangleShape2D
 	shield_shape.size.x = arena_size.x - WALL_THICKNESS
 	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
@@ -510,6 +511,7 @@ func set_all_balls_explosive(enabled: bool):
 func set_shield_enabled(enabled: bool):
 	shield_active = enabled
 	$Shield.visible = enabled
+	$Shield/CollisionShape2D.set_deferred("disabled", not enabled)
 
 	for ball in active_balls:
 		if is_instance_valid(ball):
