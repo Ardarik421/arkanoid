@@ -284,6 +284,7 @@ func _configure_arena(arena_size: Vector2) -> void:
 	$Shield.global_position = Vector2(center_x, shield_y)
 	var shield_shape := $Shield/CollisionShape2D.shape as RectangleShape2D
 	shield_shape.size.x = arena_size.x - WALL_THICKNESS
+	$Shield/ShieldVisual.set_shield_width(arena_size.x - WALL_THICKNESS)
 
 	# Keep the established 960 px brick formation intact and center it in wider arenas.
 	$Bricks.position.x = (arena_size.x - PORTRAIT_ARENA_SIZE.x) * 0.5
