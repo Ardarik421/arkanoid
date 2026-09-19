@@ -167,6 +167,12 @@ const PADDLE_MAX_WIDTH: float = 280.0
 const PADDLE_WIDTH_STEP: float = 40.0
 
 const MAX_RANDOM_BONUSES_ON_SCREEN: int = 5
+const DEFAULT_PADDLE_Y: float = 980.0
+const COMPACT_PADDLE_Y: float = 760.0
+const DEFAULT_SHIELD_Y: float = 1040.0
+const COMPACT_SHIELD_Y: float = 805.0
+const DEFAULT_DEATH_ZONE_Y: float = 1120.0
+const COMPACT_DEATH_ZONE_Y: float = 850.0
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -195,6 +201,7 @@ var pattern_sizes: Dictionary = {}
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	_setup_progression_polish()
+	_apply_gameplay_layout()
 	_setup_ambient()
 	_setup_explosive_audio()
 	
@@ -245,6 +252,20 @@ func _setup_progression_polish() -> void:
 	victory_fade.color = Color(0.01,0.005,0.0,0.0)
 	victory_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(victory_fade)
+
+func _apply_gameplay_layout() -> void:
+	var compact := SettingsManager.compact_gameplay_layout
+	var paddle_y := COMPACT_PADDLE_Y if compact else DEFAULT_PADDLE_Y
+	var shield_y := COMPACT_SHIELD_Y if compact else DEFAULT_SHIELD_Y
+	var death_y := COMPACT_DEATH_ZONE_Y if compact else DEFAULT_DEATH_ZONE_Y
+	$Paddle.global_position.y = paddle_y
+	$Shield.global_position.y = shield_y
+	$DeathZone/CollisionShape2D.global_position.y = death_y
+	if is_instance_valid(hint_label):
+		hint_label.position.y = 655.0 if compact else 875.0
+
+func _reset_paddle_position() -> void:
+	$Paddle.global_position = Vector2(480.0, COMPACT_PADDLE_Y if SettingsManager.compact_gameplay_layout else DEFAULT_PADDLE_Y)
 
 func _show_chapter_intro_if_needed() -> void:
 	if (current_level - 1) % 10 != 0:
@@ -518,7 +539,7 @@ func restart_level():
 	$GameOverLabel.visible = false
 
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, 980)
+	$Paddle.global_position = Vector2(480, COMPACT_PADDLE_Y if SettingsManager.compact_gameplay_layout else DEFAULT_PADDLE_Y)
 
 	clear_bonuses()
 
@@ -560,7 +581,7 @@ func start_next_level():
 
 	$WinLabel.visible = false
 	$Paddle.can_move = true
-	$Paddle.global_position = Vector2(480, 980)
+	$Paddle.global_position = Vector2(480, COMPACT_PADDLE_Y if SettingsManager.compact_gameplay_layout else DEFAULT_PADDLE_Y)
 
 	for brick in $Bricks.get_children():
 		$Bricks.remove_child(brick)
