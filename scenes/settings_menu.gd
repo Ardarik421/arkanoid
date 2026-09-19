@@ -23,6 +23,7 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 var animation_time: float = 0.0
 
 func _ready():
+	_setup_layout()
 	_setup_style()
 	music_toggle.button_pressed = SettingsManager.music_enabled
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
@@ -35,6 +36,13 @@ func _ready():
 	back_button.grab_focus()
 	queue_redraw()
 
+func _setup_layout() -> void:
+	var landscape := SettingsManager.display_mode == 1
+	var panel_size := Vector2(620.0, 720.0) if landscape else Vector2(580.0, 870.0)
+	panel.position = (size - panel_size) * 0.5
+	panel.size = panel_size
+	$Panel/VBox.add_theme_constant_override("separation", 12 if landscape else 20)
+
 func _process(delta):
 	animation_time += delta
 	queue_redraw()
@@ -42,14 +50,14 @@ func _process(delta):
 func _draw():
 	var pulse = 0.5 + 0.5 * sin(animation_time * 0.8)
 	for i in range(38):
-		var x = float((i * 173 + 47) % 960)
-		var y = float((i * 97 + 31) % 1080)
+		var x = float((i * 173 + 47) % int(size.x))
+		var y = float((i * 97 + 31) % int(size.y))
 		var twinkle = 0.5 + 0.5 * sin(animation_time * (0.5 + float(i % 4) * 0.09) + float(i) * 1.31)
 		draw_circle(Vector2(x, y), 0.7 + float(i % 3) * 0.25, Color(1.0, 0.82, 0.42, 0.08 + twinkle * 0.18))
 
 	for side in [-1.0, 1.0]:
-		var x = 164.0 if side < 0.0 else 796.0
-		draw_line(Vector2(x, 155.0), Vector2(x, 925.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
+		var x = panel.position.x - 26.0 if side < 0.0 else panel.end.x + 26.0
+		draw_line(Vector2(x, panel.position.y + 50.0), Vector2(x, panel.end.y - 50.0), Color(0.88, 0.58, 0.16, 0.08 + pulse * 0.05), 1.0, true)
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
