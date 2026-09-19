@@ -116,13 +116,23 @@ var active_balls: Array[CharacterBody2D] = []
 
 const BALL_SCENE = preload("res://scenes/ball.tscn")
 const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
-const LEVEL_AMBIENT: AudioStream = preload("res://audio/music/ambient_01.wav")
+const LEVEL_AMBIENT_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/ambient_01.wav"),
+	preload("res://audio/music/ambient_02.wav"),
+	preload("res://audio/music/ambient_03.wav"),
+	preload("res://audio/music/ambient_04.wav"),
+	preload("res://audio/music/ambient_05.wav"),
+	preload("res://audio/music/ambient_06.wav"),
+	preload("res://audio/music/ambient_07.wav")
+]
 const EXPLOSIVE_SOUND: AudioStream = preload("res://audio/sfx/explosive.wav")
 const CHAPTER_NAMES: Array[String] = ["ЗОЛОТАЯ ОРБИТА","КРАСНЫЙ МИР","ЛЕДЯНОЙ ГИГАНТ","РАСКОЛОТЫЙ МИР","ДВОЙНАЯ СИСТЕМА","ШТОРМОВОЙ ГИГАНТ","БЕЗМОЛВИЕ","ПРИЗМАТИЧЕСКАЯ РЕЛИКВИЯ","РАЗЛОМ ГРАВИТАЦИИ","ЧЁРНАЯ ДЫРА"]
 const BONUS_HINTS: Dictionary = {0:"РАСШИРЕНИЕ — увеличивает платформу",1:"УМЕНЬШЕНИЕ — уменьшает платформу",2:"ЖИЗНЬ — добавляет одну жизнь",3:"ГИПЕРСКОРОСТЬ — сильно ускоряет шар",4:"УСКОРЕНИЕ — ускоряет шар",5:"МУЛЬТИШАР — добавляет дополнительные шары",6:"ПРОБИВАНИЕ — позволяет шару пробивать кирпичи",7:"ВЗРЫВ — разрушает область вокруг кирпича",8:"ЩИТ — возвращает упавший шар в игру",9:"МАГНИТ — ловит шар на платформу перед запуском"}
 
 var explosive_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer
+var last_ambient_index: int = -1
+var ambient_restart_pending: bool = false
 var chapter_label: Label
 var hint_label: Label
 var victory_fade: ColorRect
@@ -262,15 +272,28 @@ func _show_bonus_hint(bonus_type: int) -> void:
 	tween.tween_property(hint_label,"modulate:a",0.0,0.35)
 	tween.tween_callback(func(): hint_label.visible = false)
 
-func _setup_ambient():
+func _setup_ambient() -> void:
 	ambient_player = AudioStreamPlayer.new()
-	ambient_player.stream = LEVEL_AMBIENT
 	ambient_player.volume_db = -13.0
 	ambient_player.finished.connect(_on_ambient_finished)
 	add_child(ambient_player)
+	_play_new_ambient()
+
+func _play_new_ambient() -> void:
+	if not is_instance_valid(ambient_player) or LEVEL_AMBIENT_TRACKS.is_empty():
+		return
+
+	var next_index: int = randi_range(0, LEVEL_AMBIENT_TRACKS.size() - 1)
+	if LEVEL_AMBIENT_TRACKS.size() > 1:
+		while next_index == last_ambient_index:
+			next_index = randi_range(0, LEVEL_AMBIENT_TRACKS.size() - 1)
+
+	last_ambient_index = next_index
+	ambient_player.stream = LEVEL_AMBIENT_TRACKS[next_index]
 	ambient_player.play()
 
-func _on_ambient_finished():
+func _on_ambient_finished() -> void:
+	# Keep the selected track for the whole level attempt.
 	if is_instance_valid(ambient_player):
 		ambient_player.play()
 
@@ -482,6 +505,7 @@ func lose_life():
 		show_game_over()
 
 func restart_level():
+	_play_new_ambient()
 	reset_level_effects()
 	score = score_at_level_start
 	balls_lost_this_level = 0
@@ -525,6 +549,7 @@ func start_next_level():
 	await transition.finished
 
 	current_level += 1
+	_play_new_ambient()
 	score_at_level_start = score
 	update_level_label()
 
