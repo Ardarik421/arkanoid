@@ -178,6 +178,10 @@ const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 88.0
 const EFFECTS_BELOW_PADDLE_GAP: float = 9.0
 const PADDLE_HALF_HEIGHT: float = 12.0
 const EFFECTS_BOTTOM_MARGIN: float = 12.0
+const PORTRAIT_GRID_ROWS: int = 10
+const PORTRAIT_GRID_COLUMNS: int = 11
+const LANDSCAPE_GRID_ROWS: int = 8
+const LANDSCAPE_GRID_COLUMNS: int = 15
 
 # =========================
 # СОСТОЯНИЕ ГЕНЕРАЦИИ УРОВНЯ
@@ -259,7 +263,10 @@ func _setup_progression_polish() -> void:
 	layer.add_child(victory_fade)
 
 func _apply_gameplay_layout() -> void:
-	var arena_size := LANDSCAPE_ARENA_SIZE if SettingsManager.display_mode == 1 else PORTRAIT_ARENA_SIZE
+	var landscape := SettingsManager.display_mode == 1
+	rows = LANDSCAPE_GRID_ROWS if landscape else PORTRAIT_GRID_ROWS
+	columns = LANDSCAPE_GRID_COLUMNS if landscape else PORTRAIT_GRID_COLUMNS
+	var arena_size := LANDSCAPE_ARENA_SIZE if landscape else PORTRAIT_ARENA_SIZE
 	_configure_arena(arena_size)
 
 func _configure_arena(arena_size: Vector2) -> void:
@@ -307,8 +314,9 @@ func _configure_arena(arena_size: Vector2) -> void:
 		effects_y
 	)
 
-	# Keep the established 960 px brick formation intact and center it in wider arenas.
-	$Bricks.position.x = (arena_size.x - PORTRAIT_ARENA_SIZE.x) * 0.5
+	# The grid itself adapts to the arena: portrait grows downward,
+	# landscape grows sideways. Keep brick size and gaps unchanged.
+	$Bricks.position.x = 0.0
 
 	if is_instance_valid(hint_label):
 		hint_label.position.y = arena_size.y - 145.0
