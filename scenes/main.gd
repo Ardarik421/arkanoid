@@ -171,11 +171,12 @@ const PORTRAIT_ARENA_SIZE := Vector2(960.0, 1080.0)
 const LANDSCAPE_ARENA_SIZE := Vector2(1280.0, 800.0)
 const WALL_THICKNESS: float = 40.0
 const DEATH_ZONE_HEIGHT: float = 80.0
-const PADDLE_BOTTOM_MARGIN: float = 100.0
+const PADDLE_BOTTOM_MARGIN: float = 72.0
 const SHIELD_BOTTOM_MARGIN: float = 120.0
-const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 55.0
-const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 75.0
-const EFFECTS_BELOW_PADDLE_GAP: float = 12.0
+const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 68.0
+const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 88.0
+const EFFECTS_BELOW_PADDLE_GAP: float = 10.0
+const PADDLE_HALF_HEIGHT: float = 12.0
 const EFFECTS_BOTTOM_MARGIN: float = 12.0
 
 # =========================
@@ -298,9 +299,9 @@ func _configure_arena(arena_size: Vector2) -> void:
 	# paddle -> cards == cards -> bottom edge whenever the layout has enough room.
 	var effects_height := maxf($EffectsUI.size.y, $EffectsUI.get_combined_minimum_size().y)
 	var effects_y := arena_size.y - EFFECTS_BOTTOM_MARGIN - effects_height
-	var symmetric_y := paddle_y + EFFECTS_BELOW_PADDLE_GAP
-	if symmetric_y + effects_height + EFFECTS_BELOW_PADDLE_GAP <= arena_size.y:
-		effects_y = symmetric_y
+	var below_paddle_y := paddle_y + PADDLE_HALF_HEIGHT + EFFECTS_BELOW_PADDLE_GAP
+	if below_paddle_y + effects_height + EFFECTS_BOTTOM_MARGIN <= arena_size.y:
+		effects_y = below_paddle_y
 	$EffectsUI.position = Vector2(
 		center_x - $EffectsUI.size.x * 0.5,
 		effects_y
