@@ -124,18 +124,18 @@ func _make_panel_style() -> StyleBoxFlat:
 func _setup_layout():
 	var landscape := SettingsManager.display_mode == 1
 	var menu_width := 430.0 if landscape else 390.0
-	var menu_height := 660.0 if landscape else 516.0
+	var menu_height := 560.0 if landscape else 516.0
 	var center := size * 0.5
 	$Menu.offset_left = center.x - menu_width * 0.5
 	$Menu.offset_top = center.y - menu_height * 0.5
 	$Menu.offset_right = center.x + menu_width * 0.5
 	$Menu.offset_bottom = center.y + menu_height * 0.5
-	$Menu.add_theme_constant_override("separation", 8 if landscape else 15)
+	$Menu.add_theme_constant_override("separation", 6 if landscape else 15)
 
 func _setup_title():
 	var title = $Menu/Title
 	title.text = "Space\n     Ball"
-	title.custom_minimum_size = Vector2(0, 118)
+	title.custom_minimum_size = Vector2(0, 82 if SettingsManager.display_mode == 1 else 118)
 	title.add_theme_font_size_override("font_size", 42)
 	title.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.24, 0.12, 0.02, 0.95))
@@ -168,7 +168,7 @@ func _style_guide_button() -> void:
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(1.0, 0.80, 0.28, 1.0), Color(0.10, 0.060, 0.012, 0.96), 3))
 
 func _style_button(button: Button):
-	button.custom_minimum_size = Vector2(0, 54 if SettingsManager.display_mode == 1 else 62)
+	button.custom_minimum_size = Vector2(0, 48 if SettingsManager.display_mode == 1 else 62)
 	button.add_theme_font_size_override("font_size", 22)
 	button.add_theme_color_override("font_color", Color(0.92, 0.86, 0.68, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.86, 1.0))
