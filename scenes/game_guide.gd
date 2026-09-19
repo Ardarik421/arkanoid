@@ -37,7 +37,7 @@ func _ready() -> void:
 func _apply_layout() -> void:
 	var landscape := SettingsManager.display_mode == 1
 	$Margin.offset_left = 56.0 if landscape else 52.0
-	$Margin.offset_top = 14.0 if landscape else 28.0
+	$Margin.offset_top = 30.0 if landscape else 28.0
 	$Margin.offset_right = -56.0 if landscape else -52.0
 	$Margin.offset_bottom = -14.0 if landscape else -28.0
 	$Margin/VBox.add_theme_constant_override("separation", 5 if landscape else 8)
