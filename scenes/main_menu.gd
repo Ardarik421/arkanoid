@@ -21,8 +21,14 @@ func _ready():
 	queue_redraw()
 
 func _setup_gamepad_focus() -> void:
-	var first_button: Button = $Menu/ContinueButton if not $Menu/ContinueButton.disabled else $Menu/NewGameButton
-	first_button.grab_focus()
+	# Do not force keyboard/gamepad focus on startup: the focus style is visually
+	# identical to an active/hovered menu item and looks wrong for mouse users.
+	$Menu/NewGameButton.release_focus()
+	$Menu/ContinueButton.release_focus()
+	$Menu/LevelSelectButton.release_focus()
+	$Menu/SkillTreeButton.release_focus()
+	$Menu/SettingsButton.release_focus()
+	$Menu/ExitButton.release_focus()
 
 func _process(delta):
 	animation_time += delta
