@@ -34,6 +34,11 @@ var launch_aim_angle: float = 0.0
 var trail_points: Array[Vector2] = []
 var trail_max_points: int = 10
 var trail_min_distance: float = 10.0
+var visual_redraw_accumulator: float = 0.0
+
+const VISUAL_REDRAW_INTERVAL: float = 1.0 / 60.0
+const BUSY_VISUAL_REDRAW_INTERVAL: float = 1.0 / 30.0
+const BUSY_BALL_COUNT: int = 4
 
 func _ready():
 	_setup_audio()
@@ -173,9 +178,27 @@ func _prevent_horizontal_lock():
 func _update_trail(reset_trail: bool):
 	if reset_trail:
 		trail_points.clear(); trail_points.append(global_position); queue_redraw(); return
-	if trail_points.is_empty() or trail_points.back().distance_to(global_position) >= trail_min_distance: trail_points.append(global_position)
-	while trail_points.size() > trail_max_points: trail_points.pop_front()
-	queue_redraw()
+
+	var trail_changed := false
+	if trail_points.is_empty() or trail_points.back().distance_to(global_position) >= trail_min_distance:
+		trail_points.append(global_position)
+		trail_changed = true
+
+	var max_points := trail_max_points
+	var main = get_parent()
+	var busy_scene := main != null and main.has_method("get_active_ball_count") and main.get_active_ball_count() >= BUSY_BALL_COUNT
+	if busy_scene:
+		max_points = min(max_points, 6)
+
+	while trail_points.size() > max_points:
+		trail_points.pop_front()
+		trail_changed = true
+
+	visual_redraw_accumulator += get_physics_process_delta_time()
+	var redraw_interval := BUSY_VISUAL_REDRAW_INTERVAL if busy_scene else VISUAL_REDRAW_INTERVAL
+	if trail_changed and visual_redraw_accumulator >= redraw_interval:
+		visual_redraw_accumulator = 0.0
+		queue_redraw()
 
 func bounce_from_paddle(paddle):
 	var offset = global_position.x - paddle.global_position.x; var half_width = paddle.width / 2.0; var normalized_offset = clamp(offset / half_width, -1.0, 1.0); var angle = deg_to_rad(normalized_offset * max_bounce_angle)
