@@ -18,7 +18,7 @@ static func _draw_space(c: CanvasItem, progress: float) -> void:
 	var bottom:=Color(0.020,0.006,0.040).lerp(Color(0.006,0.030,0.046),progress)
 	for y in range(0,1080,18):
 		var t:float=float(y)/1080.0
-		c.draw_rect(Rect2(0,y,960,19),top.lerp(bottom,t))
+		c.draw_rect(Rect2(0, y, c.get_viewport_rect().size.x, 19),top.lerp(bottom,t))
 
 static func _center(progress: float) -> Vector2:
 	return Vector2(500+sin(progress*PI)*80-progress*145,560-progress*65)
