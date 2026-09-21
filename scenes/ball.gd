@@ -186,7 +186,7 @@ func _update_trail(reset_trail: bool):
 
 	var max_points := trail_max_points
 	var main = get_parent()
-	var busy_scene := main != null and main.has_method("get_active_ball_count") and main.get_active_ball_count() >= BUSY_BALL_COUNT
+	var busy_scene: bool = main != null and main.has_method("get_active_ball_count") and int(main.get_active_ball_count()) >= BUSY_BALL_COUNT
 	if busy_scene:
 		max_points = min(max_points, 6)
 
