@@ -3,6 +3,11 @@ extends Node2D
 const BURST_SCRIPT = preload("res://scenes/brick_burst.gd")
 const EXPLOSION_FLASH_SCRIPT = preload("res://scenes/explosion_flash.gd")
 
+const MAX_ACTIVE_BURSTS: int = 10
+const MAX_ACTIVE_EXPLOSION_FLASHES: int = 6
+const BURST_GROUP: StringName = &"brick_burst_fx"
+const EXPLOSION_GROUP: StringName = &"explosion_flash_fx"
+
 var flash_time: float = 0.0
 
 func _ready():
@@ -75,7 +80,11 @@ func _on_brick_exploded(explosion_position: Vector2):
 	if scene == null:
 		return
 
+	if get_tree().get_nodes_in_group(EXPLOSION_GROUP).size() >= MAX_ACTIVE_EXPLOSION_FLASHES:
+		return
+
 	var flash = Node2D.new()
+	flash.add_to_group(EXPLOSION_GROUP)
 	flash.set_script(EXPLOSION_FLASH_SCRIPT)
 	flash.global_position = explosion_position
 	scene.add_child.call_deferred(flash)
@@ -92,7 +101,11 @@ func _exit_tree():
 	if scene == null:
 		return
 
+	if get_tree().get_nodes_in_group(BURST_GROUP).size() >= MAX_ACTIVE_BURSTS:
+		return
+
 	var burst = Node2D.new()
+	burst.add_to_group(BURST_GROUP)
 	burst.set_script(BURST_SCRIPT)
 	burst.global_position = brick.global_position
 	scene.add_child.call_deferred(burst)

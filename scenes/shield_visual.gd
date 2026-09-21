@@ -2,6 +2,12 @@ extends Node2D
 
 var animation_time: float = 0.0
 var shield_width: float = 920.0
+var redraw_accumulator: float = 0.0
+
+# The shield is a relatively expensive procedural canvas. Its geometry does not
+# need to be rebuilt at gameplay frame rate; 15 Hz keeps the slow energy motion
+# visible while avoiding a large CPU spike while the shield is active.
+const REDRAW_INTERVAL: float = 1.0 / 10.0
 
 func set_shield_width(value: float) -> void:
 	shield_width = value
@@ -9,24 +15,27 @@ func set_shield_width(value: float) -> void:
 
 func _process(delta):
 	animation_time += delta
-	queue_redraw()
+	redraw_accumulator += delta
+	if redraw_accumulator >= REDRAW_INTERVAL:
+		redraw_accumulator = fmod(redraw_accumulator, REDRAW_INTERVAL)
+		queue_redraw()
 
 func _draw():
 	var pulse = 0.86 + 0.14 * sin(animation_time * 2.2)
 	var top_y = -6.0
 	var bottom_y = 46.0
 
-	for i in range(7):
-		var y = top_y + float(i) * 7.0
+	for i in range(3):
+		var y = top_y + float(i) * 10.0
 		var alpha = (0.045 - float(i) * 0.0045) * pulse
 		draw_rect(Rect2(-shield_width * 0.5, y, shield_width, 8.0), Color(0.04, 0.34, 0.78, alpha))
 
 	for i in range(5):
-		var y = top_y + float(i) * 3.0
+		var y = top_y + float(i) * 5.0
 		var alpha = (0.16 - float(i) * 0.025) * pulse
 		draw_line(Vector2(-shield_width * 0.5, y), Vector2(shield_width * 0.5, y), Color(0.20, 0.72, 1.0, alpha), 1.2 + float(4 - i) * 0.45, true)
 
-	var radius = 14.0
+	var radius = 18.0
 	var hex_width = radius * 1.732
 	var row_height = radius * 1.5
 	var scroll = fmod(animation_time * 10.0, hex_width)
@@ -47,7 +56,7 @@ func _draw():
 		y += row_height
 		row += 1
 
-	for i in range(12):
+	for i in range(8):
 		var phase = animation_time * (0.65 + float(i % 4) * 0.11) + float(i) * 1.73
 		var x = -shield_width * 0.46 + fmod(float(i * 157 + 83), shield_width * 0.92)
 		var y_pos = 8.0 + float((i * 37) % 32) + sin(phase) * 3.0

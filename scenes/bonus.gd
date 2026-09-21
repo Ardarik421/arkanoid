@@ -32,6 +32,8 @@ enum DropPool {
 static var next_drop_pool: DropPool = DropPool.ANY
 var forced_bonus_type: int = -1
 var visual_time: float = 0.0
+var visual_redraw_accumulator: float = 0.0
+const VISUAL_REDRAW_INTERVAL: float = 1.0 / 30.0
 
 func _ready():
 	if forced_bonus_type >= 0:
@@ -206,7 +208,10 @@ func _draw_bonus_icon(accent: Color):
 func _process(delta):
 	visual_time += delta
 	global_position.y += fall_speed * delta
-	queue_redraw()
+	visual_redraw_accumulator += delta
+	if visual_redraw_accumulator >= VISUAL_REDRAW_INTERVAL:
+		visual_redraw_accumulator = 0.0
+		queue_redraw()
 
 	if global_position.y > 1100:
 		queue_free()

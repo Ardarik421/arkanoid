@@ -139,6 +139,8 @@ var victory_fade: ColorRect
 var victory_input_ready: bool = false
 
 var shield_active: bool = false
+var active_bonus_count: int = 0
+var brick_grid_lookup: Dictionary = {}
 var magnet_active: bool = false
 
 var piercing_time: float = 0.0
@@ -817,14 +819,18 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
-func get_active_bonus_count() -> int:
+func get_active_ball_count() -> int:
 	var count: int = 0
-
-	for child in get_children():
-		if child is Bonus and not child.is_queued_for_deletion():
+	for ball in active_balls:
+		if is_instance_valid(ball) and not ball.is_queued_for_deletion():
 			count += 1
-
 	return count
+
+func get_active_bonus_count() -> int:
+	return active_bonus_count
+
+func _on_bonus_tree_exiting() -> void:
+	active_bonus_count = maxi(0, active_bonus_count - 1)
 
 func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool):
 	score += points
@@ -866,6 +872,8 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 			bonus.forced_bonus_type = guaranteed_pool.pick_random()
 
 		add_child(bonus)
+		active_bonus_count += 1
+		bonus.tree_exiting.connect(_on_bonus_tree_exiting)
 		bonus.fall_speed = _get_bonus_fall_speed()
 		bonus.global_position = brick_position
 		bonus.collected.connect(_on_bonus_collected)
@@ -876,22 +884,23 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 
 func _on_brick_exploded(explosion_position: Vector2):
 	_play_explosive_sound()
-	
-	var max_x_distance = brick_width + gap_x + 1.0
-	var max_y_distance = brick_height + gap_y + 1.0
 
-	for brick in $Bricks.get_children():
-		if not is_instance_valid(brick):
-			continue
+	var local_position: Vector2 = $Bricks.to_local(explosion_position)
+	var cell := Vector2i(
+		roundi((local_position.x - start_x) / (brick_width + gap_x)),
+		roundi((local_position.y - start_y) / (brick_height + gap_y))
+	)
 
-		if brick.global_position == explosion_position:
-			continue
-
-		var distance_x = abs(brick.global_position.x - explosion_position.x)
-		var distance_y = abs(brick.global_position.y - explosion_position.y)
-
-		if distance_x <= max_x_distance and distance_y <= max_y_distance:
-			brick.hit_by_explosion()
+	# Explosions only affect the eight neighbouring grid cells. Looking them up
+	# directly avoids scanning every brick for every link in a chain reaction.
+	for row_offset in range(-1, 2):
+		for column_offset in range(-1, 2):
+			if row_offset == 0 and column_offset == 0:
+				continue
+			var neighbour_cell := cell + Vector2i(column_offset, row_offset)
+			var brick = brick_grid_lookup.get(neighbour_cell)
+			if is_instance_valid(brick) and not brick.is_queued_for_deletion():
+				brick.hit_by_explosion()
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	_show_bonus_hint(int(bonus_type))
@@ -959,6 +968,7 @@ func clear_bonuses():
 	for child in get_children():
 		if child is Bonus:
 			child.queue_free()
+	active_bonus_count = 0
 
 # =========================
 # ИНТЕРФЕЙС
@@ -1505,6 +1515,7 @@ func count_wall_positions() -> int:
 
 func generate_bricks():
 	breakable_bricks_left = 0
+	brick_grid_lookup.clear()
 
 	var minimum_breakable_bricks: int = 10
 	var max_generation_attempts: int = 100
@@ -1580,5 +1591,6 @@ func generate_bricks():
 			)
 
 			$Bricks.add_child(brick)
+			brick_grid_lookup[cell] = brick
 			brick.destroyed.connect(_on_brick_destroyed)
 			brick.exploded.connect(_on_brick_exploded)
