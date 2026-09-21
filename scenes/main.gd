@@ -139,6 +139,7 @@ var victory_fade: ColorRect
 var victory_input_ready: bool = false
 
 var shield_active: bool = false
+var active_bonus_count: int = 0
 var magnet_active: bool = false
 
 var piercing_time: float = 0.0
@@ -825,13 +826,10 @@ func get_active_ball_count() -> int:
 	return count
 
 func get_active_bonus_count() -> int:
-	var count: int = 0
+	return active_bonus_count
 
-	for child in get_children():
-		if child is Bonus and not child.is_queued_for_deletion():
-			count += 1
-
-	return count
+func _on_bonus_tree_exiting() -> void:
+	active_bonus_count = maxi(0, active_bonus_count - 1)
 
 func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus: bool, powerful_bonus: bool):
 	score += points
@@ -873,6 +871,8 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 			bonus.forced_bonus_type = guaranteed_pool.pick_random()
 
 		add_child(bonus)
+		active_bonus_count += 1
+		bonus.tree_exiting.connect(_on_bonus_tree_exiting)
 		bonus.fall_speed = _get_bonus_fall_speed()
 		bonus.global_position = brick_position
 		bonus.collected.connect(_on_bonus_collected)
@@ -966,6 +966,7 @@ func clear_bonuses():
 	for child in get_children():
 		if child is Bonus:
 			child.queue_free()
+	active_bonus_count = 0
 
 # =========================
 # ИНТЕРФЕЙС
