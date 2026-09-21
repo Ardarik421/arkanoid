@@ -817,6 +817,13 @@ func _on_death_zone_body_entered(body):
 	if active_balls.is_empty():
 		lose_life()
 
+func get_active_ball_count() -> int:
+	var count: int = 0
+	for ball in active_balls:
+		if is_instance_valid(ball) and not ball.is_queued_for_deletion():
+			count += 1
+	return count
+
 func get_active_bonus_count() -> int:
 	var count: int = 0
 
