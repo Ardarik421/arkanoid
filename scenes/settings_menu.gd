@@ -85,6 +85,7 @@ func _setup_style():
 	_style_toggle(sounds_toggle)
 	_style_toggle(hints_toggle)
 	_style_button(display_option)
+	_style_display_popup()
 	_style_slider(mouse_slider)
 	_style_slider(keyboard_slider)
 	_style_slider(gamepad_slider)
@@ -114,6 +115,26 @@ func _style_toggle(toggle: CheckButton):
 	toggle.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	toggle.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
 	toggle.add_theme_color_override("font_focus_color", Color(1.0, 0.97, 0.84, 1.0))
+
+func _style_display_popup() -> void:
+	var popup := display_option.get_popup()
+	popup.add_theme_font_size_override("font_size", 20)
+	popup.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+	popup.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.84, 1.0))
+	popup.add_theme_stylebox_override("panel", _make_popup_style())
+	popup.add_theme_stylebox_override("hover", _make_button_style(Color(1.0, 0.70, 0.20, 0.72), Color(0.075, 0.050, 0.018, 0.96), 1))
+
+func _make_popup_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.008, 0.014, 0.020, 0.99)
+	style.border_color = Color(0.90, 0.60, 0.16, 0.68)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 8.0
+	style.content_margin_right = 8.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	return style
 
 func _style_slider(slider: HSlider):
 	slider.custom_minimum_size = Vector2(0.0, 26.0 if SettingsManager.display_mode == 1 else 36.0)

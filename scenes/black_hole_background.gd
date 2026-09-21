@@ -15,7 +15,7 @@ static func _draw_void(canvas: Node2D, progress: float):
 	var bottom = Color(0.022,0.003,0.014).lerp(Color(0.003,0.002,0.006),progress)
 	for y in range(0,1080,18):
 		var t = float(y)/1080.0
-		canvas.draw_rect(Rect2(0,y,960,18),top.lerp(bottom,t))
+		canvas.draw_rect(Rect2(0,y,canvas.get_viewport_rect().size.x,18),top.lerp(bottom,t))
 
 static func _hole_center(progress: float) -> Vector2:
 	return Vector2(745.0,270.0).lerp(Vector2(560.0,455.0),pow(progress,1.35))

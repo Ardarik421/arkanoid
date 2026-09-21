@@ -21,8 +21,14 @@ func _ready():
 	queue_redraw()
 
 func _setup_gamepad_focus() -> void:
-	var first_button: Button = $Menu/ContinueButton if not $Menu/ContinueButton.disabled else $Menu/NewGameButton
-	first_button.grab_focus()
+	# Do not force keyboard/gamepad focus on startup: the focus style is visually
+	# identical to an active/hovered menu item and looks wrong for mouse users.
+	$Menu/NewGameButton.release_focus()
+	$Menu/ContinueButton.release_focus()
+	$Menu/LevelSelectButton.release_focus()
+	$Menu/SkillTreeButton.release_focus()
+	$Menu/SettingsButton.release_focus()
+	$Menu/ExitButton.release_focus()
 
 func _process(delta):
 	animation_time += delta
@@ -197,11 +203,20 @@ func _make_button_style(border: Color, background: Color, border_width: int) -> 
 
 func _setup_confirmation_dialog():
 	var dialog = $NewGameConfirmation
-	dialog.add_theme_font_size_override("font_size", 20)
-	dialog.add_theme_color_override("font_color", Color(1.0, 0.94, 0.76, 1.0))
+	dialog.add_theme_font_size_override("font_size", 23)
+	dialog.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	dialog.add_theme_stylebox_override("panel", _make_dialog_style())
-	_style_button(dialog.get_ok_button())
-	_style_button(dialog.get_cancel_button())
+
+	var message: Label = dialog.get_label()
+	message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	message.add_theme_font_size_override("font_size", 22)
+	message.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+
+	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
+		_style_button(button)
+		button.custom_minimum_size = Vector2(128.0, 54.0)
+		button.add_theme_font_size_override("font_size", 23)
 
 func _make_dialog_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()

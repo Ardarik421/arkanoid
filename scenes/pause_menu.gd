@@ -270,7 +270,9 @@ func show_pause_menu():
 	pause_panel.visible = true
 	pause_menu.visible = true
 	visible = true
-	continue_button.grab_focus()
+	continue_button.release_focus()
+	settings_button.release_focus()
+	main_menu_button.release_focus()
 
 func hide_pause_menu():
 	visible = false
@@ -280,15 +282,16 @@ func show_settings():
 	pause_menu.visible = false
 	settings_panel.visible = true
 	for child in settings_box.get_children():
-		if child is CheckButton:
-			child.grab_focus()
-			break
+		if child is Control:
+			child.release_focus()
 
 func hide_settings():
 	settings_panel.visible = false
 	pause_panel.visible = true
 	pause_menu.visible = true
-	settings_button.grab_focus()
+	continue_button.release_focus()
+	settings_button.release_focus()
+	main_menu_button.release_focus()
 
 func return_to_main_menu():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
