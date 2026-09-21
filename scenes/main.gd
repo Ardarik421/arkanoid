@@ -325,9 +325,18 @@ func _configure_arena(arena_size: Vector2) -> void:
 
 	# Keep the top HUD responsive to the current arena width.
 	_layout_top_hud(arena_size)
+	_layout_victory_label(arena_size)
 
 	if is_instance_valid(hint_label):
 		hint_label.position.y = arena_size.y - 145.0
+
+func _layout_victory_label(arena_size: Vector2) -> void:
+	# WinLabel is a direct child of Node2D, so Control anchors do not have a
+	# Control parent to resolve against. Position it explicitly from arena size.
+	$WinLabel.position = Vector2(0.0, arena_size.y * 0.5 - 110.0)
+	$WinLabel.size = Vector2(arena_size.x, 220.0)
+	$WinLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	$WinLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 func _layout_top_hud(arena_size: Vector2) -> void:
 	const HUD_TOP: float = 14.0
