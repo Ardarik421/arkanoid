@@ -4,6 +4,7 @@ const GAME_SCENE: String = "res://scenes/main.tscn"
 const SKILL_TREE_SCENE: String = "res://scenes/skill_tree.tscn"
 const LEVEL_SELECT_SCENE: String = "res://scenes/level_select.tscn"
 const GUIDE_SCENE: String = "res://scenes/game_guide.tscn"
+const CREDITS_SCENE: String = "res://scenes/credits.tscn"
 var animation_time: float = 0.0
 
 func _ready():
@@ -28,6 +29,7 @@ func _setup_gamepad_focus() -> void:
 	$Menu/LevelSelectButton.release_focus()
 	$Menu/SkillTreeButton.release_focus()
 	$Menu/SettingsButton.release_focus()
+	$Menu/CreditsButton.release_focus()
 	$Menu/ExitButton.release_focus()
 
 func _process(delta):
@@ -161,6 +163,7 @@ func _setup_buttons():
 		$Menu/LevelSelectButton,
 		$Menu/SkillTreeButton,
 		$Menu/SettingsButton,
+		$Menu/CreditsButton,
 		$Menu/ExitButton
 	]:
 		_style_button(button)
@@ -265,6 +268,9 @@ func _on_skill_tree_pressed():
 
 func _on_guide_pressed():
 	get_tree().change_scene_to_file(GUIDE_SCENE)
+
+func _on_credits_pressed() -> void:
+	get_tree().change_scene_to_file(CREDITS_SCENE)
 
 func _on_exit_pressed():
 	get_tree().quit()
