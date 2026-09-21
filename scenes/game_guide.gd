@@ -39,8 +39,9 @@ func _apply_layout() -> void:
 	$Margin.offset_left = 56.0 if landscape else 52.0
 	$Margin.offset_top = 30.0 if landscape else 28.0
 	$Margin.offset_right = -56.0 if landscape else -52.0
-	$Margin.offset_bottom = -14.0 if landscape else -28.0
-	$Margin/VBox.add_theme_constant_override("separation", 5 if landscape else 8)
+	$Margin.offset_bottom = -8.0 if landscape else -28.0
+	$Margin/VBox.add_theme_constant_override("separation", 3 if landscape else 8)
+	$Margin/VBox/BackButton.custom_minimum_size.y = 44.0 if landscape else 54.0
 
 func _process(delta: float) -> void:
 	animation_time += delta
