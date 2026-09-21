@@ -19,7 +19,7 @@ static func _draw_space(c: CanvasItem, progress: float) -> void:
 	var bottom:=Color(0.003,0.030,0.065).lerp(Color(0.010,0.015,0.052),progress)
 	for y in range(0,1080,18):
 		var t:float=float(y)/1080.0
-		c.draw_rect(Rect2(0,y,960,19),top.lerp(bottom,t))
+		c.draw_rect(Rect2(0, y, c.get_viewport_rect().size.x, 19),top.lerp(bottom,t))
 
 static func _draw_storm_nebula(c: CanvasItem, progress: float) -> void:
 	var center:=Vector2(690-progress*170,270+progress*55)
