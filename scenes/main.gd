@@ -140,6 +140,7 @@ var victory_input_ready: bool = false
 
 var shield_active: bool = false
 var active_bonus_count: int = 0
+var brick_grid_lookup: Dictionary = {}
 var magnet_active: bool = false
 
 var piercing_time: float = 0.0
@@ -883,22 +884,23 @@ func _on_brick_destroyed(points: int, brick_position: Vector2, guaranteed_bonus:
 
 func _on_brick_exploded(explosion_position: Vector2):
 	_play_explosive_sound()
-	
-	var max_x_distance = brick_width + gap_x + 1.0
-	var max_y_distance = brick_height + gap_y + 1.0
 
-	for brick in $Bricks.get_children():
-		if not is_instance_valid(brick):
-			continue
+	var local_position: Vector2 = $Bricks.to_local(explosion_position)
+	var cell := Vector2i(
+		roundi((local_position.x - start_x) / (brick_width + gap_x)),
+		roundi((local_position.y - start_y) / (brick_height + gap_y))
+	)
 
-		if brick.global_position == explosion_position:
-			continue
-
-		var distance_x = abs(brick.global_position.x - explosion_position.x)
-		var distance_y = abs(brick.global_position.y - explosion_position.y)
-
-		if distance_x <= max_x_distance and distance_y <= max_y_distance:
-			brick.hit_by_explosion()
+	# Explosions only affect the eight neighbouring grid cells. Looking them up
+	# directly avoids scanning every brick for every link in a chain reaction.
+	for row_offset in range(-1, 2):
+		for column_offset in range(-1, 2):
+			if row_offset == 0 and column_offset == 0:
+				continue
+			var neighbour_cell := cell + Vector2i(column_offset, row_offset)
+			var brick = brick_grid_lookup.get(neighbour_cell)
+			if is_instance_valid(brick) and not brick.is_queued_for_deletion():
+				brick.hit_by_explosion()
 
 func _on_bonus_collected(bonus_type: Bonus.BonusType):
 	_show_bonus_hint(int(bonus_type))
@@ -1500,6 +1502,8 @@ func is_wall_position(row: int, column: int) -> bool:
 func count_wall_positions() -> int:
 	var count = 0
 
+	brick_grid_lookup.clear()
+
 	for row in range(rows):
 		for column in range(columns):
 			if is_wall_position(row, column):
@@ -1588,5 +1592,6 @@ func generate_bricks():
 			)
 
 			$Bricks.add_child(brick)
+			brick_grid_lookup[cell] = brick
 			brick.destroyed.connect(_on_brick_destroyed)
 			brick.exploded.connect(_on_brick_exploded)
