@@ -1502,8 +1502,6 @@ func is_wall_position(row: int, column: int) -> bool:
 func count_wall_positions() -> int:
 	var count = 0
 
-	brick_grid_lookup.clear()
-
 	for row in range(rows):
 		for column in range(columns):
 			if is_wall_position(row, column):
@@ -1517,6 +1515,7 @@ func count_wall_positions() -> int:
 
 func generate_bricks():
 	breakable_bricks_left = 0
+	brick_grid_lookup.clear()
 
 	var minimum_breakable_bricks: int = 10
 	var max_generation_attempts: int = 100
