@@ -201,7 +201,7 @@ func _setup_confirmation_dialog():
 	dialog.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	dialog.add_theme_stylebox_override("panel", _make_dialog_style())
 
-	var message := dialog.get_label()
+	var message: Label = dialog.get_label()
 	message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	message.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	message.add_theme_font_size_override("font_size", 22)
