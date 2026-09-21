@@ -197,11 +197,20 @@ func _make_button_style(border: Color, background: Color, border_width: int) -> 
 
 func _setup_confirmation_dialog():
 	var dialog = $NewGameConfirmation
-	dialog.add_theme_font_size_override("font_size", 20)
-	dialog.add_theme_color_override("font_color", Color(1.0, 0.94, 0.76, 1.0))
+	dialog.add_theme_font_size_override("font_size", 23)
+	dialog.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
 	dialog.add_theme_stylebox_override("panel", _make_dialog_style())
-	_style_button(dialog.get_ok_button())
-	_style_button(dialog.get_cancel_button())
+
+	var message := dialog.get_label()
+	message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	message.add_theme_font_size_override("font_size", 22)
+	message.add_theme_color_override("font_color", Color(0.94, 0.87, 0.68, 1.0))
+
+	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
+		_style_button(button)
+		button.custom_minimum_size = Vector2(128.0, 54.0)
+		button.add_theme_font_size_override("font_size", 23)
 
 func _make_dialog_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
