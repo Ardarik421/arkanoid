@@ -2,6 +2,12 @@ extends Node2D
 
 var animation_time: float = 0.0
 var shield_width: float = 920.0
+var redraw_accumulator: float = 0.0
+
+# The shield is a relatively expensive procedural canvas. Its geometry does not
+# need to be rebuilt at gameplay frame rate; 15 Hz keeps the slow energy motion
+# visible while avoiding a large CPU spike while the shield is active.
+const REDRAW_INTERVAL: float = 1.0 / 15.0
 
 func set_shield_width(value: float) -> void:
 	shield_width = value
@@ -9,7 +15,10 @@ func set_shield_width(value: float) -> void:
 
 func _process(delta):
 	animation_time += delta
-	queue_redraw()
+	redraw_accumulator += delta
+	if redraw_accumulator >= REDRAW_INTERVAL:
+		redraw_accumulator = fmod(redraw_accumulator, REDRAW_INTERVAL)
+		queue_redraw()
 
 func _draw():
 	var pulse = 0.86 + 0.14 * sin(animation_time * 2.2)
