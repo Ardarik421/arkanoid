@@ -8,6 +8,7 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 @onready var sounds_toggle: CheckButton = $Panel/VBox/SoundsToggle
 @onready var hints_toggle: CheckButton = $Panel/VBox/HintsToggle
 @onready var display_option: OptionButton = $Panel/VBox/DisplayOption
+@onready var fullscreen_toggle: CheckButton = $Panel/VBox/FullscreenToggle
 @onready var mouse_label: Label = $Panel/VBox/MouseLabel
 @onready var mouse_slider: HSlider = $Panel/VBox/MouseRow/MouseSlider
 @onready var mouse_value: Label = $Panel/VBox/MouseRow/MouseValue
@@ -31,6 +32,7 @@ func _ready():
 	sounds_toggle.button_pressed = SettingsManager.sounds_enabled
 	hints_toggle.button_pressed = SettingsManager.tutorial_hints_enabled
 	display_option.select(SettingsManager.display_mode)
+	fullscreen_toggle.button_pressed = SettingsManager.fullscreen_enabled
 	mouse_slider.value = SettingsManager.mouse_sensitivity
 	keyboard_slider.value = SettingsManager.keyboard_sensitivity
 	gamepad_slider.value = SettingsManager.gamepad_sensitivity
@@ -40,10 +42,10 @@ func _ready():
 
 func _setup_layout() -> void:
 	var landscape := SettingsManager.display_mode == 1
-	var panel_size := Vector2(620.0, 680.0) if landscape else Vector2(580.0, 870.0)
+	var panel_size := Vector2(620.0, 720.0) if landscape else Vector2(580.0, 940.0)
 	panel.position = (size - panel_size) * 0.5
 	panel.size = panel_size
-	$Panel/VBox.add_theme_constant_override("separation", 7 if landscape else 20)
+	$Panel/VBox.add_theme_constant_override("separation", 5 if landscape else 16)
 
 func _process(delta):
 	animation_time += delta
@@ -63,7 +65,7 @@ func _draw():
 
 func _setup_style():
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
-	$Panel/VBox.add_theme_constant_override("separation", 7 if SettingsManager.display_mode == 1 else 20)
+	$Panel/VBox.add_theme_constant_override("separation", 5 if SettingsManager.display_mode == 1 else 16)
 
 	title.custom_minimum_size.y = 62.0 if SettingsManager.display_mode == 1 else 92.0
 	title.add_theme_font_size_override("font_size", 36 if SettingsManager.display_mode == 1 else 42)
@@ -86,6 +88,7 @@ func _setup_style():
 	_style_toggle(hints_toggle)
 	_style_button(display_option)
 	_style_display_popup()
+	_style_toggle(fullscreen_toggle)
 	_style_slider(mouse_slider)
 	_style_slider(keyboard_slider)
 	_style_slider(gamepad_slider)
@@ -199,6 +202,9 @@ func _on_hints_toggled(enabled: bool):
 
 func _on_display_mode_selected(index: int):
 	SettingsManager.set_display_mode(index)
+
+func _on_fullscreen_toggled(enabled: bool):
+	SettingsManager.set_fullscreen(enabled)
 
 func _on_mouse_changed(value: float):
 	SettingsManager.mouse_sensitivity = value
