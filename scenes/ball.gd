@@ -30,6 +30,7 @@ var shield_return_boost_active: bool = false
 var attached_offset_x: float = 0.0
 var visual_time: float = 0.0
 var launch_aim_angle: float = 0.0
+var last_paddle_x: float = NAN
 
 var trail_points: Array[Vector2] = []
 var trail_max_points: int = 10
@@ -130,10 +131,24 @@ func _draw():
 func _physics_process(delta):
 	piercing_sound_cooldown = max(piercing_sound_cooldown - delta, 0.0); visual_time += delta
 	if is_attached:
-		var paddle = get_parent().get_node("Paddle"); var movement = paddle.velocity.x
-		if abs(movement) > 20.0:
-			launch_aim_angle += sign(movement) * aim_turn_speed * delta; launch_aim_angle = clamp(launch_aim_angle, -max_bounce_angle, max_bounce_angle)
-		global_position.x = paddle.global_position.x + attached_offset_x; global_position.y = paddle.global_position.y - 40; _update_trail(true); return
+		var paddle = get_parent().get_node("Paddle")
+		var paddle_x: float = paddle.global_position.x
+
+		if is_nan(last_paddle_x):
+			last_paddle_x = paddle_x
+
+		var movement: float = paddle_x - last_paddle_x
+		if abs(movement) > 0.1:
+			launch_aim_angle += sign(movement) * aim_turn_speed * delta
+			launch_aim_angle = clamp(launch_aim_angle, -max_bounce_angle, max_bounce_angle)
+
+		last_paddle_x = paddle_x
+		global_position.x = paddle_x + attached_offset_x
+		global_position.y = paddle.global_position.y - 40
+		_update_trail(true)
+		return
+
+	last_paddle_x = NAN
 	var movement_speed := speed * (SHIELD_RETURN_SPEED_MULTIPLIER if shield_return_boost_active else 1.0)
 	var collision = move_and_collide(direction * movement_speed * delta)
 	if collision:
