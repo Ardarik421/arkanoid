@@ -69,8 +69,6 @@ func _apply_paddle_settings():
 
 	if not paddle.has_meta("base_keyboard_speed"):
 		paddle.set_meta("base_keyboard_speed", paddle.speed)
-	if not paddle.has_meta("base_mouse_speed"):
-		paddle.set_meta("base_mouse_speed", paddle.mouse_speed)
 
 	var gamepad_input = 0.0
 	if Input.get_connected_joypads().size() > 0:
@@ -78,7 +76,6 @@ func _apply_paddle_settings():
 	var input_multiplier = gamepad_sensitivity if gamepad_input > 0.05 else keyboard_sensitivity
 
 	paddle.speed = float(paddle.get_meta("base_keyboard_speed")) * input_multiplier
-	paddle.mouse_speed = float(paddle.get_meta("base_mouse_speed")) * mouse_sensitivity
 
 func save_settings():
 	var config = ConfigFile.new()
