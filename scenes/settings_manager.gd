@@ -110,8 +110,13 @@ func load_settings():
 func apply_display_settings() -> void:
 	var size := Vector2i(960, 1080) if display_mode == 0 else Vector2i(1280, 800)
 	var window := get_window()
-	window.content_scale_size = Vector2i.ZERO
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+
+	# Keep gameplay coordinates tied to the selected layout. In fullscreen,
+	# Godot scales that fixed canvas uniformly and letterboxes any extra area.
+	window.content_scale_size = size
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+
 	if fullscreen_enabled:
 		window.mode = Window.MODE_FULLSCREEN
 	else:
