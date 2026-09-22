@@ -4,7 +4,7 @@
 ;
 ; Format:
 ;   [section] ; section goes between []
-;   param=value ; assign values to parameters
+;   param=value ; param values
 
 config_version=5
 
@@ -19,6 +19,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 SaveManager="*res://scenes/save_manager.gd"
 SettingsManager="*res://scenes/settings_manager.gd"
 MenuMusic="*res://scenes/menu_music.gd"
+ChapterBackgroundSync="*res://scenes/chapter_background_sync.gd"
 
 [display]
 

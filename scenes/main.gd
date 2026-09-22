@@ -164,13 +164,13 @@ const HYPER_DURATION: float = 6.0
 const HYPER_REPEAT_DURATION: float = 3.0
 
 const PORTRAIT_PADDLE_DEFAULT_WIDTH: float = 160.0
-const LANDSCAPE_PADDLE_DEFAULT_WIDTH: float = 200.0
+const LANDSCAPE_PADDLE_DEFAULT_WIDTH: float = 240.0
 const PORTRAIT_PADDLE_MIN_WIDTH: float = 40.0
-const LANDSCAPE_PADDLE_MIN_WIDTH: float = 50.0
+const LANDSCAPE_PADDLE_MIN_WIDTH: float = 60.0
 const PORTRAIT_PADDLE_MAX_WIDTH: float = 280.0
-const LANDSCAPE_PADDLE_MAX_WIDTH: float = 350.0
+const LANDSCAPE_PADDLE_MAX_WIDTH: float = 420.0
 const PORTRAIT_PADDLE_WIDTH_STEP: float = 40.0
-const LANDSCAPE_PADDLE_WIDTH_STEP: float = 50.0
+const LANDSCAPE_PADDLE_WIDTH_STEP: float = 60.0
 const PORTRAIT_BONUS_FALL_SPEED: float = 250.0
 const LANDSCAPE_BONUS_FALL_SPEED: float = 190.0
 
@@ -181,8 +181,8 @@ const WALL_THICKNESS: float = 40.0
 const DEATH_ZONE_HEIGHT: float = 80.0
 const PADDLE_BOTTOM_MARGIN: float = 80.0
 const SHIELD_BOTTOM_MARGIN: float = 80.0
-const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 80.0
-const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 58.0
+const LANDSCAPE_PADDLE_BOTTOM_MARGIN: float = 64.0
+const LANDSCAPE_SHIELD_BOTTOM_MARGIN: float = 46.0
 const EFFECTS_BELOW_PADDLE_GAP: float = 9.0
 const PADDLE_HALF_HEIGHT: float = 12.0
 const EFFECTS_BOTTOM_MARGIN: float = 5.0
@@ -302,6 +302,7 @@ func _configure_arena(arena_size: Vector2) -> void:
 	$DeathZone/CollisionShape2D.position = Vector2(center_x, arena_size.y + DEATH_ZONE_HEIGHT * 0.5)
 
 	$Paddle.configure_horizontal_limits(WALL_THICKNESS * 0.5, arena_size.x - WALL_THICKNESS * 0.5)
+	$Paddle.set_width(_get_paddle_default_width())
 	$Paddle.global_position = Vector2(center_x, paddle_y)
 	$Paddle.set_fixed_y(paddle_y)
 	$Shield.global_position = Vector2(center_x, shield_y)
@@ -607,16 +608,14 @@ func _get_bonus_fall_speed() -> float:
 
 func update_ball_speed():
 	var landscape := SettingsManager.display_mode == 1
-	var normal_speed := 700.0 if landscape else 840.0
-	var fast_speed := 950.0 if landscape else 1100.0
-	var hyper_speed := 1100.0 if landscape else 1400.0
+	var normal_speed := 640.0 if landscape else 840.0
+	var fast_speed := 860.0 if landscape else 1100.0
+	var hyper_speed := 1020.0 if landscape else 1400.0
 
 	if hyper_time > 0.0:
 		set_all_balls_speed(hyper_speed)
-
 	elif fast_time > 0.0:
 		set_all_balls_speed(fast_speed)
-
 	else:
 		set_all_balls_speed(normal_speed)
 

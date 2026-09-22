@@ -10,6 +10,7 @@ var keyboard_sensitivity: float = 1.0
 var mouse_sensitivity: float = 1.0
 var gamepad_sensitivity: float = 1.0
 var display_mode: int = 0
+var fullscreen_enabled: bool = false
 
 var _scan_timer: float = 0.0
 
@@ -69,8 +70,6 @@ func _apply_paddle_settings():
 
 	if not paddle.has_meta("base_keyboard_speed"):
 		paddle.set_meta("base_keyboard_speed", paddle.speed)
-	if not paddle.has_meta("base_mouse_speed"):
-		paddle.set_meta("base_mouse_speed", paddle.mouse_speed)
 
 	var gamepad_input = 0.0
 	if Input.get_connected_joypads().size() > 0:
@@ -78,7 +77,6 @@ func _apply_paddle_settings():
 	var input_multiplier = gamepad_sensitivity if gamepad_input > 0.05 else keyboard_sensitivity
 
 	paddle.speed = float(paddle.get_meta("base_keyboard_speed")) * input_multiplier
-	paddle.mouse_speed = float(paddle.get_meta("base_mouse_speed")) * mouse_sensitivity
 
 func save_settings():
 	var config = ConfigFile.new()
@@ -90,6 +88,7 @@ func save_settings():
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("controls", "gamepad_sensitivity", gamepad_sensitivity)
 	config.set_value("display", "mode", display_mode)
+	config.set_value("display", "fullscreen", fullscreen_enabled)
 	config.save(SETTINGS_PATH)
 	apply_audio_settings()
 
@@ -106,19 +105,31 @@ func load_settings():
 	mouse_sensitivity = float(config.get_value("controls", "mouse_sensitivity", 1.0))
 	gamepad_sensitivity = float(config.get_value("controls", "gamepad_sensitivity", 1.0))
 	display_mode = int(config.get_value("display", "mode", 0))
+	fullscreen_enabled = bool(config.get_value("display", "fullscreen", false))
 
 func apply_display_settings() -> void:
 	var size := Vector2i(960, 1080) if display_mode == 0 else Vector2i(1280, 800)
 	var window := get_window()
-	window.mode = Window.MODE_WINDOWED
-	# The selected mode is a real window/viewport size, not a virtual canvas
-	# squeezed into the old portrait window.
-	window.content_scale_size = Vector2i.ZERO
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
-	window.size = size
+
+	# Keep gameplay coordinates tied to the selected layout. In fullscreen,
+	# Godot scales that fixed canvas uniformly and letterboxes any extra area.
+	window.content_scale_size = size
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+
+	if fullscreen_enabled:
+		window.mode = Window.MODE_FULLSCREEN
+	else:
+		window.mode = Window.MODE_WINDOWED
+		window.size = size
 
 func set_display_mode(mode: int) -> void:
 	display_mode = clampi(mode, 0, 1)
+	apply_display_settings()
+	save_settings()
+
+func set_fullscreen(enabled: bool) -> void:
+	fullscreen_enabled = enabled
 	apply_display_settings()
 	save_settings()
 

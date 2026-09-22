@@ -6,7 +6,6 @@ extends CharacterBody2D
 
 @export var left_limit: float = 20.0
 @export var right_limit: float = 940.0
-@export var mouse_speed: float = 1800.0
 
 var can_move: bool = true
 var use_mouse_control: bool = false
@@ -132,41 +131,29 @@ func _input(event):
 	if event is InputEventMouseMotion:
 		use_mouse_control = true
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not can_move:
 		velocity = Vector2.ZERO
 		return
 
 	var direction = Input.get_axis("move_left", "move_right")
+	var half_width = width / 2.0
+	var min_x = left_limit + half_width
+	var max_x = right_limit - half_width
 
 	if direction != 0:
 		use_mouse_control = false
 		velocity.x = direction * speed
-		velocity.y = 0
+		velocity.y = 0.0
 		move_and_slide()
-
+		global_position.x = clamp(global_position.x, min_x, max_x)
 	elif use_mouse_control:
-		var target_x = get_global_mouse_position().x
-		var distance = target_x - global_position.x
-
-		velocity.x = clamp(
-			distance / delta,
-			-mouse_speed,
-			mouse_speed
-		)
-
-		velocity.y = 0
-		move_and_slide()
-
+		# Mouse input is positional, not velocity-based. Snapping to the cursor
+		# removes the artificial lag while the arena clamp keeps the paddle valid.
+		velocity = Vector2.ZERO
+		global_position.x = clamp(get_global_mouse_position().x, min_x, max_x)
 	else:
 		velocity = Vector2.ZERO
-
-	var half_width = width / 2.0
-	global_position.x = clamp(
-		global_position.x,
-		left_limit + half_width,
-		right_limit - half_width
-	)
 
 	global_position.y = fixed_y
 	velocity.y = 0.0

@@ -24,13 +24,13 @@ mouse_filter = 2
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 0
 offset_left = 190.0
-offset_top = 105.0
+offset_top = 70.0
 offset_right = 770.0
-offset_bottom = 975.0
+offset_bottom = 1010.0
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Panel/VBox"]
 layout_mode = 2
@@ -62,6 +62,11 @@ popup/item_0/text = "960 × 1080 — 8:9"
 popup/item_0/id = 0
 popup/item_1/text = "1280 × 800 — 16:10"
 popup/item_1/id = 1
+
+[node name="FullscreenToggle" type="CheckButton" parent="Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 56)
+text = "ПОЛНОЭКРАННЫЙ РЕЖИМ"
 
 [node name="MouseLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
@@ -148,6 +153,7 @@ text = "НАЗАД"
 [connection signal="toggled" from="Panel/VBox/SoundsToggle" to="." method="_on_sounds_toggled"]
 [connection signal="toggled" from="Panel/VBox/HintsToggle" to="." method="_on_hints_toggled"]
 [connection signal="item_selected" from="Panel/VBox/DisplayOption" to="." method="_on_display_mode_selected"]
+[connection signal="toggled" from="Panel/VBox/FullscreenToggle" to="." method="_on_fullscreen_toggled"]
 [connection signal="value_changed" from="Panel/VBox/MouseRow/MouseSlider" to="." method="_on_mouse_changed"]
 [connection signal="value_changed" from="Panel/VBox/KeyboardRow/KeyboardSlider" to="." method="_on_keyboard_changed"]
 [connection signal="value_changed" from="Panel/VBox/GamepadRow/GamepadSlider" to="." method="_on_gamepad_changed"]
